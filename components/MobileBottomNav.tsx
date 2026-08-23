@@ -3,10 +3,11 @@
 import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, LayoutGrid, Heart, ShoppingBag, User } from 'lucide-react';
+import { Home, LayoutGrid, Heart, ShoppingBag, User, Search } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useCart } from '@/contexts/CartContext';
 import { useWishlist } from '@/contexts/WishlistContext';
+import { useSearch } from '@/contexts/SearchContext';
 import { cn } from '@/lib/utils';
 
 export default function MobileBottomNav() {
@@ -14,6 +15,7 @@ export default function MobileBottomNav() {
   const { user, openAuthModal } = useAuth();
   const { cartCount } = useCart();
   const { wishlist } = useWishlist();
+  const { openSearch } = useSearch();
 
   // Hide on admin routes
   if (pathname.startsWith('/admin')) {
@@ -42,11 +44,11 @@ export default function MobileBottomNav() {
       isActive: pathname === '/shop',
     },
     {
-      label: 'Wishlist',
-      href: '/wishlist',
-      icon: Heart,
-      badge: wishlist.length,
-      isActive: pathname === '/wishlist',
+      label: 'Search',
+      href: '#',
+      onClick: openSearch,
+      icon: Search,
+      isActive: false,
     },
     {
       label: 'Cart',
@@ -63,6 +65,7 @@ export default function MobileBottomNav() {
       isActive: pathname === '/profile',
     },
   ];
+
 
 
   return (

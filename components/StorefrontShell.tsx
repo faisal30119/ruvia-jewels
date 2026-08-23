@@ -4,6 +4,7 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import WhatsAppButton from '@/components/WhatsAppButton';
 import MobileBottomNav from '@/components/MobileBottomNav';
+import SearchModal from '@/components/SearchModal';
 
 export default function StorefrontShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -21,8 +22,10 @@ export default function StorefrontShell({ children }: { children: React.ReactNod
       <Footer />
       <WhatsAppButton />
       <MobileBottomNav />
+      <SearchModal />
     </>
   );
 }
+
 
 

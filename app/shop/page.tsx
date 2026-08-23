@@ -46,6 +46,7 @@ function ShopContent() {
   const [loading, setLoading] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
+  const searchQuery = searchParams.get('search') ?? searchParams.get('q') ?? '';
   const selectedCategory = searchParams.get('category') ?? '';
   const selectedColor = searchParams.get('color') ?? '';
   const selectedPlating = searchParams.get('plating') ?? '';
@@ -75,6 +76,17 @@ function ShopContent() {
   const filteredProducts = useCallback((): Product[] => {
     let list = [...products];
 
+    if (searchQuery) {
+      const q = searchQuery.toLowerCase().trim();
+      list = list.filter(
+        (p) =>
+          p.name.toLowerCase().includes(q) ||
+          p.category.toLowerCase().includes(q) ||
+          p.description?.toLowerCase().includes(q) ||
+          p.plating?.toLowerCase().includes(q) ||
+          p.stoneColor?.toLowerCase().includes(q)
+      );
+    }
     if (selectedCategory)
       list = list.filter((p) => p.category === selectedCategory);
     if (selectedColor)
@@ -91,7 +103,8 @@ function ShopContent() {
     else if (sortBy === 'name') list.sort((a, b) => a.name.localeCompare(b.name));
 
     return list;
-  }, [products, selectedCategory, selectedColor, selectedPlating, selectedPrice, sortBy]);
+  }, [products, searchQuery, selectedCategory, selectedColor, selectedPlating, selectedPrice, sortBy]);
+
 
   // Lock scroll when mobile filter sidebar is open
   useEffect(() => {

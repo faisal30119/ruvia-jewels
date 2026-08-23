@@ -7,7 +7,9 @@ import { Search, Heart, ShoppingBag, User, Menu, X, LogOut, ChevronLeft, Chevron
 import { useAuth } from '@/contexts/AuthContext';
 import { useCart } from '@/contexts/CartContext';
 import { useWishlist } from '@/contexts/WishlistContext';
+import { useSearch } from '@/contexts/SearchContext';
 import { cn } from '@/lib/utils';
+
 
 const NAV_LINKS = [
   { label: 'Home', href: '/' },
@@ -21,6 +23,8 @@ export default function Navbar() {
   const { user, isAdmin, openAuthModal, signOut } = useAuth();
   const { cartCount } = useCart();
   const { wishlist } = useWishlist();
+  const { openSearch } = useSearch();
+
 
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -128,13 +132,14 @@ export default function Navbar() {
           {/* Right actions */}
           <div className="flex items-center gap-1 sm:gap-2">
             {/* Search */}
-            <Link
-              href="/shop"
+            <button
+              onClick={openSearch}
               className="p-2 text-white/80 hover:text-[#D4AF37] transition-colors"
               aria-label="Search"
             >
               <Search size={18} />
-            </Link>
+            </button>
+
 
             {/* Wishlist */}
             <Link
