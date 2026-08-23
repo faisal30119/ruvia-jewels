@@ -3,7 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LayoutGrid, Heart, ShoppingBag, User, Search } from 'lucide-react';
+import { Home, LayoutGrid, Heart, ShoppingBag, User } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useCart } from '@/contexts/CartContext';
 import { useWishlist } from '@/contexts/WishlistContext';
@@ -20,7 +20,21 @@ export default function MobileBottomNav() {
     return null;
   }
 
+  const accountLabel = user
+    ? user.user_metadata?.full_name?.split(' ')[0] ||
+      user.user_metadata?.display_name?.split(' ')[0] ||
+      user.user_metadata?.name?.split(' ')[0] ||
+      user.email?.split('@')[0] ||
+      'Account'
+    : 'Account';
+
   const navItems = [
+    {
+      label: 'Home',
+      href: '/',
+      icon: Home,
+      isActive: pathname === '/',
+    },
     {
       label: 'Shop',
       href: '/shop',
@@ -31,30 +45,25 @@ export default function MobileBottomNav() {
       label: 'Wishlist',
       href: '/wishlist',
       icon: Heart,
-      badge: wishlist.length > 0 ? wishlist.length : undefined,
+      badge: wishlist.length,
       isActive: pathname === '/wishlist',
     },
     {
       label: 'Cart',
       href: '/cart',
       icon: ShoppingBag,
-      badge: cartCount > 0 ? cartCount : undefined,
+      badge: cartCount,
       isActive: pathname === '/cart',
     },
     {
-      label: 'Account',
+      label: accountLabel,
       href: user ? '/profile' : '#',
       onClick: !user ? () => openAuthModal('login') : undefined,
       icon: User,
       isActive: pathname === '/profile',
     },
-    {
-      label: 'Search',
-      href: '/shop',
-      icon: Search,
-      isActive: false,
-    },
   ];
+
 
   return (
     <nav
@@ -74,7 +83,7 @@ export default function MobileBottomNav() {
                     'transition-colors duration-200',
                     item.isActive
                       ? 'text-[#D4AF37] stroke-[2.3]'
-                      : 'text-white/70 hover:text-white stroke-[1.8]'
+                      : 'text-white stroke-[2]'
                   )}
                 />
                 {item.badge !== undefined && (
@@ -85,12 +94,14 @@ export default function MobileBottomNav() {
               </div>
               <span
                 className={cn(
-                  'text-[10px] font-sans mt-1 tracking-wider uppercase transition-colors duration-200',
-                  item.isActive ? 'text-[#D4AF37] font-semibold' : 'text-white/70'
+                  'text-[10px] font-sans mt-1 tracking-wider uppercase transition-colors duration-200 truncate max-w-full px-0.5',
+                  item.isActive ? 'text-[#D4AF37] font-semibold' : 'text-white font-medium'
                 )}
               >
                 {item.label}
               </span>
+
+
             </div>
           );
 

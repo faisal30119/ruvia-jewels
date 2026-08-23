@@ -8,17 +8,21 @@ import MobileBottomNav from '@/components/MobileBottomNav';
 export default function StorefrontShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const isAdmin = pathname.startsWith('/admin');
+  const isHome = pathname === '/';
 
   if (isAdmin) return <>{children}</>;
 
   return (
     <>
       <Navbar />
-      <main className="pb-16 lg:pb-0">{children}</main>
+      <main className={`pb-16 lg:pb-0 ${isHome ? '' : 'pt-16 lg:pt-20'}`}>
+        {children}
+      </main>
       <Footer />
       <WhatsAppButton />
       <MobileBottomNav />
     </>
   );
 }
+
 

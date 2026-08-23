@@ -1,9 +1,9 @@
 'use client';
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, Heart, ShoppingBag, User, Menu, X, LogOut } from 'lucide-react';
+import { Search, Heart, ShoppingBag, User, Menu, X, LogOut, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useCart } from '@/contexts/CartContext';
 import { useWishlist } from '@/contexts/WishlistContext';
@@ -17,6 +17,7 @@ const NAV_LINKS = [
 
 export default function Navbar() {
   const pathname = usePathname();
+  const router = useRouter();
   const { user, isAdmin, openAuthModal, signOut } = useAuth();
   const { cartCount } = useCart();
   const { wishlist } = useWishlist();
@@ -55,7 +56,6 @@ export default function Navbar() {
       ? 'bg-transparent'
       : 'bg-[#022c22] shadow-lg';
 
-
   return (
     <header
       className={cn(
@@ -65,15 +65,34 @@ export default function Navbar() {
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 lg:h-20">
-          {/* Logo */}
-          <Link href="/" className="flex-shrink-0 flex flex-col leading-none">
-            <span className="font-serif text-[#D4AF37] text-lg lg:text-xl font-bold tracking-wider">
-              ALMAS
-            </span>
-            <span className="text-white/70 text-[9px] tracking-[0.3em] uppercase">
-              Jewels
-            </span>
-          </Link>
+          {/* Back / Forward & Logo */}
+          <div className="flex items-center gap-1 sm:gap-1.5">
+            <button
+              onClick={() => router.back()}
+              className="p-1.5 text-white/80 hover:text-[#D4AF37] hover:bg-white/10 rounded-full transition-colors"
+              title="Go Back"
+              aria-label="Go Back"
+            >
+              <ChevronLeft size={18} />
+            </button>
+            <button
+              onClick={() => router.forward()}
+              className="p-1.5 text-white/80 hover:text-[#D4AF37] hover:bg-white/10 rounded-full transition-colors"
+              title="Go Forward"
+              aria-label="Go Forward"
+            >
+              <ChevronRight size={18} />
+            </button>
+            <Link href="/" className="flex-shrink-0 flex flex-col leading-none ml-1 sm:ml-2">
+              <span className="font-serif text-[#D4AF37] text-lg lg:text-xl font-bold tracking-wider">
+                ALMAS
+              </span>
+              <span className="text-white/70 text-[9px] tracking-[0.3em] uppercase">
+                Jewels
+              </span>
+            </Link>
+          </div>
+
 
           {/* Center nav — desktop */}
           <nav className="hidden lg:flex items-center gap-8">
@@ -124,11 +143,9 @@ export default function Navbar() {
               aria-label="Wishlist"
             >
               <Heart size={18} />
-              {wishlist.length > 0 && (
-                <span className="absolute -top-0.5 -right-0.5 bg-[#D4AF37] text-[#022c22] text-[10px] font-bold w-4 h-4 flex items-center justify-center">
-                  {wishlist.length}
-                </span>
-              )}
+              <span className="absolute -top-0.5 -right-0.5 bg-[#D4AF37] text-[#022c22] text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
+                {wishlist.length}
+              </span>
             </Link>
 
             {/* Cart */}
@@ -138,22 +155,28 @@ export default function Navbar() {
               aria-label="Cart"
             >
               <ShoppingBag size={18} />
-              {cartCount > 0 && (
-                <span className="absolute -top-0.5 -right-0.5 bg-[#D4AF37] text-[#022c22] text-[10px] font-bold w-4 h-4 flex items-center justify-center">
-                  {cartCount}
-                </span>
-              )}
+              <span className="absolute -top-0.5 -right-0.5 bg-[#D4AF37] text-[#022c22] text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
+                {cartCount}
+              </span>
             </Link>
+
 
             {/* User */}
             {user ? (
               <div className="relative">
                 <button
                   onClick={() => setUserMenuOpen((v) => !v)}
-                  className="p-2 text-white/80 hover:text-[#D4AF37] transition-colors"
+                  className="px-2 py-1 flex items-center gap-1.5 text-white/90 hover:text-[#D4AF37] transition-colors"
                   aria-label="Account"
                 >
                   <User size={18} />
+                  <span className="text-xs font-medium max-w-[100px] truncate hidden sm:inline-block">
+                    {user.user_metadata?.full_name?.split(' ')[0] ||
+                      user.user_metadata?.display_name?.split(' ')[0] ||
+                      user.user_metadata?.name?.split(' ')[0] ||
+                      user.email?.split('@')[0] ||
+                      'Account'}
+                  </span>
                 </button>
                 <AnimatePresence>
                   {userMenuOpen && (
@@ -162,11 +185,18 @@ export default function Navbar() {
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: 8 }}
                       transition={{ duration: 0.15 }}
-                      className="absolute right-0 top-full mt-2 w-48 bg-white shadow-xl border border-gray-100 z-50"
+                      className="absolute right-0 top-full mt-2 w-52 bg-white shadow-xl border border-gray-100 z-50"
                     >
-                      <div className="px-4 py-3 border-b border-gray-100">
-                        <p className="text-xs text-gray-500 truncate">{user.email}</p>
+                      <div className="px-4 py-3 border-b border-gray-100 bg-gray-50/60">
+                        <p className="text-xs font-bold text-gray-900 truncate">
+                          {user.user_metadata?.full_name ||
+                            user.user_metadata?.display_name ||
+                            user.user_metadata?.name ||
+                            'Account'}
+                        </p>
+                        <p className="text-[11px] text-gray-500 truncate mt-0.5">{user.email}</p>
                       </div>
+
                       <Link
                         href="/profile"
                         className="block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50"
