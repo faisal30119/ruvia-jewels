@@ -1,7 +1,7 @@
 import nodemailer from 'nodemailer';
 
 const ADMIN_EMAIL = 'almasladiescornersakchi@gmail.com';
-const STORE_NAME  = 'Almas Jewels';
+const STORE_NAME  = 'Khadie Jewels';
 
 function formatPrice(n: number) {
   return '₹' + Number(n).toLocaleString('en-IN');
@@ -53,7 +53,7 @@ function customerEmailHtml(params: {
   <div style="max-width:560px;margin:32px auto;background:#ffffff;border:1px solid #e5e7eb;">
     <!-- Header -->
     <div style="background:#022c22;padding:28px 32px;">
-      <h1 style="margin:0;color:#D4AF37;font-size:22px;letter-spacing:2px;font-weight:700;">ALMAS JEWELS</h1>
+      <h1 style="margin:0;color:#D4AF37;font-size:22px;letter-spacing:2px;font-weight:700;">KHADIE JEWELS</h1>
       <p style="margin:6px 0 0;color:#a7c4b5;font-size:13px;">Luxury Bridal Jewelry</p>
     </div>
     <!-- Body -->
@@ -110,7 +110,7 @@ function customerEmailHtml(params: {
     </div>
     <!-- Footer -->
     <div style="background:#f7f8fa;padding:16px 32px;border-top:1px solid #e5e7eb;">
-      <p style="margin:0;font-size:11px;color:#57606a;text-align:center;">© ${new Date().getFullYear()} Almas Jewels · Sakchi, Jamshedpur, Jharkhand</p>
+      <p style="margin:0;font-size:11px;color:#57606a;text-align:center;">© ${new Date().getFullYear()} Khadie Jewels · Sakchi, Jamshedpur, Jharkhand</p>
     </div>
   </div>
 </body>
@@ -136,7 +136,7 @@ function adminEmailHtml(params: {
   <div style="max-width:560px;margin:32px auto;background:#ffffff;border:1px solid #e5e7eb;">
     <div style="background:#022c22;padding:20px 32px;">
       <h1 style="margin:0;color:#D4AF37;font-size:18px;letter-spacing:1px;">🛍️ New Order Received</h1>
-      <p style="margin:4px 0 0;color:#a7c4b5;font-size:13px;">Almas Jewels Admin Notification</p>
+      <p style="margin:4px 0 0;color:#a7c4b5;font-size:13px;">Khadie Jewels Admin Notification</p>
     </div>
     <div style="padding:28px 32px;">
       <table width="100%" style="border-collapse:collapse;background:#f7f8fa;margin-bottom:20px;">

@@ -30,7 +30,7 @@ const FAQS = [
       },
       {
         q: 'Are packages insured during transit?',
-        a: 'Yes, all shipments from Almas Jewels are 100% insured against loss or damage during transit.',
+        a: 'Yes, all shipments from Khadie Jewels are 100% insured against loss or damage during transit.',
       },
       {
         q: 'How can I track my order?',

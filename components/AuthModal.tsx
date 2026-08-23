@@ -113,7 +113,7 @@ export default function AuthModal() {
               <div className="bg-[#022c22] px-5 sm:px-8 py-5 sm:py-6 flex items-center justify-between">
                 <div>
                   <p className="text-[#D4AF37] text-[10px] sm:text-xs tracking-widest uppercase font-sans mb-1">
-                    Almas Jewels
+                    Khadie Jewels
                   </p>
                   <h2 className="text-white font-serif text-lg sm:text-xl font-semibold">
                     {mode === 'login' && 'Welcome Back'}

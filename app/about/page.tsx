@@ -3,8 +3,8 @@ import Link from 'next/link';
 import { ArrowRight, Award, Gem, ShieldCheck, Sparkles } from 'lucide-react';
 
 export const metadata = {
-  title: 'About Us | Almas Jewels',
-  description: 'Learn about Almas Jewels — our heritage, handcrafted bridal couture, and commitment to luxury jewelry craftsmanship.',
+  title: 'About Us | Khadie Jewels',
+  description: 'Learn about Khadie Jewels — our heritage, handcrafted bridal couture, and commitment to luxury jewelry craftsmanship.',
 };
 
 export default function AboutPage() {
@@ -17,7 +17,7 @@ export default function AboutPage() {
             Royal Heritage & Craftsmanship
           </p>
           <h1 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 tracking-tight">
-            About Almas Jewels
+            About Khadie Jewels
           </h1>
           <div className="w-16 h-0.5 bg-[#D4AF37] mx-auto mt-4" />
         </div>
@@ -28,7 +28,7 @@ export default function AboutPage() {
             Where Tradition Meets Regal Elegance
           </h2>
           <p className="text-gray-600 leading-relaxed mb-4">
-            Founded with a passion for preserving Indian royal heritage, <strong>Almas Jewels</strong> creates timeless bridal couture and fine jewelry designed to celebrate life&apos;s most memorable moments. Every piece in our collection is handcrafted by master artisans using centuries-old techniques of Kundan setting, traditional Polki glasswork, and intricate Meenakari enameling.
+            Founded with a passion for preserving Indian royal heritage, <strong>Khadie Jewels</strong> creates timeless bridal couture and fine jewelry designed to celebrate life&apos;s most memorable moments. Every piece in our collection is handcrafted by master artisans using centuries-old techniques of Kundan setting, traditional Polki glasswork, and intricate Meenakari enameling.
           </p>
           <p className="text-gray-600 leading-relaxed">
             Our atelier in Sakchi, Jamshedpur combines royal aesthetics with modern precision, ensuring each necklace, earring, bridal set, and ring embodies grace, grandeur, and uncompromised luxury.

@@ -89,7 +89,7 @@ export default function Navbar() {
             </button>
             <Link href="/" className="flex-shrink-0 flex flex-col leading-none ml-1 sm:ml-2">
               <span className="font-serif text-[#D4AF37] text-lg lg:text-xl font-bold tracking-wider">
-                ALMAS
+                KHADIE
               </span>
               <span className="text-white/70 text-[9px] tracking-[0.3em] uppercase">
                 Jewels

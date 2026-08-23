@@ -2,8 +2,8 @@ import React from 'react';
 import { Truck, ShieldCheck, Clock, MapPin } from 'lucide-react';
 
 export const metadata = {
-  title: 'Shipping & Delivery Details | Almas Jewels',
-  description: 'Learn about Almas Jewels shipping policies, dispatch timelines, insured courier delivery across India.',
+  title: 'Shipping & Delivery Details | Khadie Jewels',
+  description: 'Learn about Khadie Jewels shipping policies, dispatch timelines, insured courier delivery across India.',
 };
 
 export default function ShippingPage() {
@@ -26,7 +26,7 @@ export default function ShippingPage() {
           <div className="bg-white border border-gray-200/80 p-5 text-center">
             <Truck size={24} className="text-[#022c22] mx-auto mb-2" />
             <h3 className="font-serif font-bold text-gray-900 text-sm mb-1">Free Pan-India Delivery</h3>
-            <p className="text-xs text-gray-500">On all orders above ₹5,000</p>
+            <p className="text-xs text-gray-500">On all orders above ₹1,999</p>
           </div>
           <div className="bg-white border border-gray-200/80 p-5 text-center">
             <Clock size={24} className="text-[#022c22] mx-auto mb-2" />
@@ -47,7 +47,7 @@ export default function ShippingPage() {
               <MapPin size={18} className="text-[#D4AF37]" /> Order Processing & Dispatch
             </h2>
             <p>
-              Each order placed with Almas Jewels undergoes a meticulous 12-point quality check and tamper-proof luxury packaging. Orders for ready-to-ship pieces are processed and dispatched within <strong>24 to 48 hours</strong>.
+              Each order placed with Khadie Jewels undergoes a meticulous 12-point quality check and tamper-proof luxury packaging. Orders for ready-to-ship pieces are processed and dispatched within <strong>24 to 48 hours</strong>.
             </p>
             <p className="mt-2 text-xs text-gray-500">
               * Custom bridal sets or pre-order handcrafted pieces may require 7–14 business days for artisanal crafting before dispatch.
@@ -68,8 +68,8 @@ export default function ShippingPage() {
               Shipping Charges
             </h2>
             <ul className="list-disc pl-5 space-y-1">
-              <li><strong>Orders above ₹5,000:</strong> FREE Shipping across India.</li>
-              <li><strong>Orders below ₹5,000:</strong> Standard flat rate of ₹99.</li>
+              <li><strong>Orders above ₹1,999:</strong> FREE Shipping across India.</li>
+              <li><strong>Orders below ₹1,999:</strong> Standard flat rate of ₹99.</li>
               <li><strong>Cash on Delivery (COD):</strong> Nominal ₹100 COD fee applies.</li>
             </ul>
           </section>

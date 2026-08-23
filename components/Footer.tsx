@@ -12,7 +12,7 @@ export default function Footer() {
           <div className="col-span-2 lg:col-span-1">
             <div className="mb-4">
               <p className="font-serif text-[#D4AF37] text-2xl font-bold tracking-wider leading-none">
-                ALMAS
+                KHADIE
               </p>
               <p className="text-white/40 text-[10px] tracking-[0.4em] uppercase mt-0.5">
                 Jewels
@@ -112,13 +112,13 @@ export default function Footer() {
               </li>
               <li>
                 <a
-                  href="https://www.instagram.com/almasjewels"
+                  href="https://www.instagram.com/khadiejewels"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="hover:text-[#D4AF37] transition-colors flex items-center gap-2"
                 >
                   <Instagram size={15} className="text-white shrink-0" />
-                  <span>@almasjewels on Instagram</span>
+                  <span>@khadiejewels on Instagram</span>
                 </a>
               </li>
             </ul>
@@ -128,7 +128,7 @@ export default function Footer() {
         {/* Bottom bar */}
 
         <div className="mt-12 pt-8 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-white/40">
-          <p>© {year} Almas Jewels. All rights reserved.</p>
+          <p>© {year} Khadie Jewels. All rights reserved.</p>
           <p className="tracking-widest uppercase text-[10px]">
             Crafted with care in India
           </p>

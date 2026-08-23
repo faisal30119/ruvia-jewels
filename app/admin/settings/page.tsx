@@ -8,7 +8,7 @@ const INPUT = 'w-full border border-gray-200 px-3 py-2 text-sm focus:outline-non
 const LABEL = 'block text-xs uppercase tracking-widest text-gray-500 mb-1';
 
 const DEFAULTS: Record<string, string> = {
-  site_name: 'Almas Jewels',
+  site_name: 'Khadie Jewels',
   site_tagline: 'Luxury Bridal Jewelry',
   contact_email: 'almasladiescornersakchi@gmail.com',
   contact_phone: '+91 9608921088',
@@ -20,7 +20,7 @@ const DEFAULTS: Record<string, string> = {
   announcement_text: '',
   announcement_active: 'false',
   tax_percent: '0',
-  free_shipping_above: '5000',
+  free_shipping_above: '1999',
   shipping_fee: '99',
   logo_url: '',
 };
@@ -97,7 +97,7 @@ export default function SettingsPage() {
 
       <Section title="Announcement Bar">
         <div className="space-y-3">
-          <div><label className={LABEL}>Message</label><input type="text" value={settings.announcement_text} onChange={set('announcement_text')} className={INPUT} placeholder="Free shipping on orders above ₹5000!" /></div>
+          <div><label className={LABEL}>Message</label><input type="text" value={settings.announcement_text} onChange={set('announcement_text')} className={INPUT} placeholder="Free shipping on orders above ₹1999!" /></div>
           <label className="flex items-center gap-2 cursor-pointer">
             <input type="checkbox" checked={settings.announcement_active === 'true'} onChange={(e) => setSettings((s) => ({ ...s, announcement_active: e.target.checked ? 'true' : 'false' }))} className="w-4 h-4 accent-emerald-700" />
             <span className="text-sm text-gray-700">Show announcement bar</span>

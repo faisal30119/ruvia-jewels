@@ -3,8 +3,8 @@ import Link from 'next/link';
 import { Calendar, User, ArrowRight } from 'lucide-react';
 
 export const metadata = {
-  title: 'Jewelry Blog & Bridal Guide | Almas Jewels',
-  description: 'Explore the latest bridal jewelry trends, Kundan vs Polki guides, and jewelry care tips from Almas Jewels.',
+  title: 'Jewelry Blog & Bridal Guide | Khadie Jewels',
+  description: 'Explore the latest bridal jewelry trends, Kundan vs Polki guides, and jewelry care tips from Khadie Jewels.',
 };
 
 const POSTS = [

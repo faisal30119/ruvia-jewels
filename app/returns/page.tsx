@@ -2,8 +2,8 @@ import React from 'react';
 import { RotateCcw, AlertTriangle, CheckCircle, Package } from 'lucide-react';
 
 export const metadata = {
-  title: 'Return & Exchange Policy | Almas Jewels',
-  description: 'Understand Almas Jewels return policy, replacement terms for damaged items, and exchange procedures.',
+  title: 'Return & Exchange Policy | Khadie Jewels',
+  description: 'Understand Khadie Jewels return policy, replacement terms for damaged items, and exchange procedures.',
 };
 
 export default function ReturnsPage() {
@@ -27,7 +27,7 @@ export default function ReturnsPage() {
               <RotateCcw size={18} className="text-[#D4AF37]" /> Replacement & Exchange Terms
             </h2>
             <p>
-              At <strong>Almas Jewels</strong>, every piece undergoes rigorous quality control before dispatch. Due to the handcrafted nature and hygiene standards of fine bridal jewelry, we accept returns and exchanges exclusively under the following conditions:
+              At <strong>Khadie Jewels</strong>, every piece undergoes rigorous quality control before dispatch. Due to the handcrafted nature and hygiene standards of fine bridal jewelry, we accept returns and exchanges exclusively under the following conditions:
             </p>
             <ul className="mt-3 space-y-2">
               <li className="flex items-start gap-2">

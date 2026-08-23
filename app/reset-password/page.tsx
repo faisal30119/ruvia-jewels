@@ -75,7 +75,7 @@ function ResetPasswordContent() {
         {/* Brand */}
         <div className="text-center mb-10">
           <Link href="/" className="font-serif text-2xl text-emerald-950 tracking-widest">
-            ALMAS JEWELS
+            KHADIE JEWELS
           </Link>
           <p className="text-xs font-sans uppercase tracking-widest text-gray-400 mt-2">
             Set New Password

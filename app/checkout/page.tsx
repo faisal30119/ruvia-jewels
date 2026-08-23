@@ -154,7 +154,7 @@ export default function CheckoutPage() {
         key: orderData.key,
         amount: orderData.amount,
         currency: orderData.currency ?? 'INR',
-        name: 'Almas Jewels',
+        name: 'Khadie Jewels',
         description: 'Bridal Jewelry Order',
         order_id: orderData.id,
         prefill: {

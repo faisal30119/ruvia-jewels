@@ -80,7 +80,7 @@ const TESTIMONIALS = [
   {
     name: 'Aisha Khan',
     location: 'Mumbai',
-    text: 'Almas Jewels delivered beyond expectations. The Rhodium Diamond Set looked stunning in photos — exactly what a bride needs.',
+    text: 'Khadie Jewels delivered beyond expectations. The Rhodium Diamond Set looked stunning in photos — exactly what a bride needs.',
   },
   {
     name: 'Riya Patel',
@@ -141,7 +141,7 @@ export default function HomePage() {
             transition={{ duration: 1 }}
             className="text-gold-400 uppercase text-xs sm:text-sm tracking-widest mb-4 sm:mb-6 font-sans"
           >
-            Almas Jewels — Est. 2001
+            Khadie Jewels — Est. 2001
           </motion.p>
           <motion.h1
             initial={{ opacity: 0, y: 30 }}
