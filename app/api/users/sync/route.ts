@@ -16,16 +16,19 @@ export async function POST(request: Request) {
     user.email?.split('@')[0] ??
     '';
 
+  const upsertData: any = {
+    uid: user.id,
+    email: user.email!,
+    display_name: displayName,
+  };
+
+  if (Array.isArray(body.wishlist)) {
+    upsertData.wishlist = body.wishlist;
+  }
+
   const { data, error } = await supabaseAdmin
     .from('user_profiles')
-    .upsert(
-      {
-        uid: user.id,
-        email: user.email!,
-        display_name: displayName,
-      },
-      { onConflict: 'uid' }
-    )
+    .upsert(upsertData, { onConflict: 'uid' })
     .select()
     .single();
 
