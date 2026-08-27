@@ -85,27 +85,27 @@ export default function Navbar() {
         navBg
       )}
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto px-2.5 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 lg:h-20">
           {/* Back / Forward & Logo */}
-          <div className="flex items-center gap-1 sm:gap-1.5">
+          <div className="flex items-center gap-0.5 sm:gap-1.5 shrink-0">
             <button
               onClick={() => router.back()}
-              className="hidden md:flex p-1.5 text-white/80 hover:text-[#D4AF37] hover:bg-white/10 rounded-full transition-colors"
+              className="p-1 sm:p-1.5 text-white/80 hover:text-[#D4AF37] hover:bg-white/10 rounded-full transition-colors shrink-0"
               title="Go Back"
               aria-label="Go Back"
             >
-              <ChevronLeft size={22} />
+              <ChevronLeft size={20} />
             </button>
             <button
               onClick={() => router.forward()}
-              className="hidden md:flex p-1.5 text-white/80 hover:text-[#D4AF37] hover:bg-white/10 rounded-full transition-colors"
+              className="p-1 sm:p-1.5 text-white/80 hover:text-[#D4AF37] hover:bg-white/10 rounded-full transition-colors shrink-0"
               title="Go Forward"
               aria-label="Go Forward"
             >
-              <ChevronRight size={22} />
+              <ChevronRight size={20} />
             </button>
-            <RuviaLogo variant="light" size="lg" className="ml-1 sm:ml-2" />
+            <RuviaLogo variant="light" size="lg" className="ml-0.5 sm:ml-2 scale-90 xs:scale-95 sm:scale-100 origin-left shrink-0" />
           </div>
 
 
@@ -141,24 +141,24 @@ export default function Navbar() {
           </nav>
 
           {/* Right actions */}
-          <div className="flex items-center gap-1 sm:gap-2">
+          <div className="flex items-center gap-0.5 sm:gap-1.5 shrink-0">
             {/* Search */}
             <button
               onClick={openSearch}
-              className="p-2 text-white/90 hover:text-[#D4AF37] transition-colors"
+              className="p-1.5 sm:p-2 text-white/90 hover:text-[#D4AF37] transition-colors shrink-0"
               aria-label="Search"
             >
-              <Search size={22} />
+              <Search className="w-5 h-5 sm:w-[22px] sm:h-[22px]" />
             </button>
 
 
             {/* Wishlist */}
             <Link
               href="/wishlist"
-              className="p-2 text-white/90 hover:text-[#D4AF37] transition-colors relative"
+              className="p-1.5 sm:p-2 text-white/90 hover:text-[#D4AF37] transition-colors relative shrink-0"
               aria-label="Wishlist"
             >
-              <Heart size={22} />
+              <Heart className="w-5 h-5 sm:w-[22px] sm:h-[22px]" />
               <span className="absolute -top-0.5 -right-0.5 bg-[#D4AF37] text-[#022c22] text-[11px] font-extrabold w-[18px] h-[18px] px-1 rounded-full flex items-center justify-center">
                 {wishlist.length}
               </span>
@@ -167,10 +167,10 @@ export default function Navbar() {
             {/* Cart */}
             <Link
               href="/cart"
-              className="p-2 text-white/90 hover:text-[#D4AF37] transition-colors relative"
+              className="p-1.5 sm:p-2 text-white/90 hover:text-[#D4AF37] transition-colors relative shrink-0"
               aria-label="Cart"
             >
-              <ShoppingBag size={22} />
+              <ShoppingBag className="w-5 h-5 sm:w-[22px] sm:h-[22px]" />
               <span className="absolute -top-0.5 -right-0.5 bg-[#D4AF37] text-[#022c22] text-[11px] font-extrabold w-[18px] h-[18px] px-1 rounded-full flex items-center justify-center">
                 {cartCount}
               </span>
@@ -179,13 +179,13 @@ export default function Navbar() {
 
             {/* User */}
             {user ? (
-              <div className="relative" ref={userMenuRef}>
+              <div className="relative shrink-0 flex items-center" ref={userMenuRef}>
                 <button
                   onClick={() => setUserMenuOpen((v) => !v)}
-                  className="px-2 py-1 flex items-center gap-2 text-white/90 hover:text-[#D4AF37] transition-colors"
+                  className="px-1.5 py-1 sm:px-2 flex items-center gap-1 sm:gap-2 text-white/90 hover:text-[#D4AF37] transition-colors"
                   aria-label="Account"
                 >
-                  <User size={22} />
+                  <User className="w-5 h-5 sm:w-[22px] sm:h-[22px]" />
                   <span className="text-sm font-semibold max-w-[110px] truncate hidden sm:inline-block">
                     {user.user_metadata?.full_name?.split(' ')[0] ||
                       user.user_metadata?.display_name?.split(' ')[0] ||
@@ -249,20 +249,20 @@ export default function Navbar() {
             ) : (
               <button
                 onClick={() => openAuthModal('login')}
-                className="p-2 text-white/90 hover:text-[#D4AF37] transition-colors"
+                className="p-1.5 sm:p-2 text-white/90 hover:text-[#D4AF37] transition-colors shrink-0"
                 aria-label="Sign In"
               >
-                <User size={22} />
+                <User className="w-5 h-5 sm:w-[22px] sm:h-[22px]" />
               </button>
             )}
 
             {/* Mobile hamburger */}
             <button
               onClick={() => setMobileOpen((v) => !v)}
-              className="lg:hidden p-2 text-white/90 hover:text-[#D4AF37] transition-colors ml-1"
+              className="lg:hidden p-1.5 sm:p-2 text-white/90 hover:text-[#D4AF37] transition-colors ml-0.5 shrink-0"
               aria-label="Menu"
             >
-              {mobileOpen ? <X size={24} /> : <Menu size={24} />}
+              {mobileOpen ? <X className="w-5 h-5 sm:w-6 sm:h-6" /> : <Menu className="w-5 h-5 sm:w-6 sm:h-6" />}
             </button>
           </div>
         </div>
