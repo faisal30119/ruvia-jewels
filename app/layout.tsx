@@ -1,0 +1,49 @@
+import type { Metadata } from 'next';
+import { Inter, Playfair_Display } from 'next/font/google';
+import './globals.css';
+import { Providers } from './providers';
+import StorefrontShell from '@/components/StorefrontShell';
+
+const inter = Inter({
+  subsets: ['latin'],
+  variable: '--font-inter',
+  display: 'swap',
+});
+
+const playfair = Playfair_Display({
+  subsets: ['latin'],
+  variable: '--font-playfair',
+  display: 'swap',
+});
+
+export const metadata: Metadata = {
+  title: 'Ruvia Jewels | Luxury Bridal Jewelry',
+  description:
+    'Ruvia Jewels — handcrafted luxury bridal jewelry including Kundan, Polki, Meenakari & more. Shop exclusive bridal sets, necklaces, earrings, and pendants for your special day.',
+  keywords: ['bridal jewelry', 'kundan', 'polki', 'meenakari', 'luxury jewelry', 'Indian bridal'],
+  icons: {
+    icon: [
+      { url: '/images/ruvia-logo-circle.png', type: 'image/png' },
+      { url: '/icon.png', type: 'image/png' },
+    ],
+    shortcut: '/images/ruvia-logo-circle.png',
+    apple: '/images/ruvia-logo-circle.png',
+  },
+  openGraph: {
+    title: 'Ruvia Jewels | Luxury Bridal Jewelry',
+    description: 'Handcrafted luxury bridal jewelry for your special day.',
+    type: 'website',
+  },
+};
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <html lang="en" className={`${inter.variable} ${playfair.variable}`}>
+      <body className="bg-white font-sans text-gray-900 antialiased">
+        <Providers>
+          <StorefrontShell>{children}</StorefrontShell>
+        </Providers>
+      </body>
+    </html>
+  );
+}
