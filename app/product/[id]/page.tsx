@@ -117,15 +117,7 @@ export default function ProductPage() {
     if (!product) return [];
     if (product.images && product.images.length > 0) return product.images;
     if ((product as any).image_urls && (product as any).image_urls.length > 0) return (product as any).image_urls;
-
-    const fallbackShots = [
-      product.image,
-      'https://res.cloudinary.com/niagn9pn/image/upload/v1786277893/almas_bridal/assets/panbrhgotshii2pl5zkb.jpg',
-      'https://res.cloudinary.com/niagn9pn/image/upload/v1786277895/almas_bridal/assets/blteocmlx1mlsl7qtzx0.jpg',
-      'https://res.cloudinary.com/niagn9pn/image/upload/v1786277897/almas_bridal/assets/uffidivwpwv2wicg7m71.jpg',
-      'https://res.cloudinary.com/niagn9pn/image/upload/v1786277900/almas_bridal/assets/e5g5yagqr1ksbakallnl.jpg',
-    ];
-    return Array.from(new Set(fallbackShots.filter(Boolean)));
+    return [product.image].filter(Boolean);
   }, [product]);
 
   if (loading) {
@@ -186,26 +178,28 @@ export default function ProductPage() {
       <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-12 grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
         {/* ─── LEFT: Gallery ─── */}
         <div className="flex flex-col sm:flex-row gap-4">
-          {/* Thumbnails - Desktop/Tablet */}
-          <div className="hidden sm:flex flex-col gap-2 shrink-0">
-            {images.map((img: string, i: number) => (
-              <button
-                key={i}
-                onClick={() => setActiveImg(i)}
-                className={cn(
-                  'w-16 h-16 overflow-hidden border-2 transition-all rounded-sm',
-                  activeImg === i ? 'border-[#D4AF37] ring-1 ring-[#D4AF37]' : 'border-transparent opacity-70 hover:opacity-100'
-                )}
-              >
-                <img
-                  src={img}
-                  alt={`View ${i + 1}`}
-                  referrerPolicy="no-referrer"
-                  className="w-full h-full object-cover"
-                />
-              </button>
-            ))}
-          </div>
+          {/* Thumbnails - Desktop/Tablet (Only show if multiple images exist) */}
+          {images.length > 1 && (
+            <div className="hidden sm:flex flex-col gap-2 shrink-0">
+              {images.map((img: string, i: number) => (
+                <button
+                  key={i}
+                  onClick={() => setActiveImg(i)}
+                  className={cn(
+                    'w-16 h-16 overflow-hidden border-2 transition-all rounded-sm',
+                    activeImg === i ? 'border-[#D4AF37] ring-1 ring-[#D4AF37]' : 'border-transparent opacity-70 hover:opacity-100'
+                  )}
+                >
+                  <img
+                    src={img}
+                    alt={`View ${i + 1}`}
+                    referrerPolicy="no-referrer"
+                    className="w-full h-full object-cover"
+                  />
+                </button>
+              ))}
+            </div>
+          )}
           {/* Main image */}
           <div className="flex-1 flex flex-col">
             <div
@@ -223,7 +217,7 @@ export default function ProductPage() {
                 )}
               />
 
-              {/* Prev / Next Overlay Buttons for Mobile & Desktop */}
+              {/* Prev / Next Overlay Buttons for Mobile & Desktop (Only if multiple images) */}
               {images.length > 1 && (
                 <>
                   <button
@@ -255,27 +249,29 @@ export default function ProductPage() {
               )}
             </div>
 
-            {/* Mobile Thumbnails Scrollable Strip */}
-            <div className="flex sm:hidden overflow-x-auto gap-2.5 mt-3 py-1 px-0.5 hide-scrollbar">
-              {images.map((img: string, i: number) => (
-                <button
-                  key={i}
-                  onClick={() => setActiveImg(i)}
-                  className={cn(
-                    'w-16 h-16 shrink-0 rounded overflow-hidden border-2 transition-all relative',
-                    activeImg === i ? 'border-[#D4AF37] ring-2 ring-[#D4AF37]/40 scale-105' : 'border-gray-200 opacity-60'
-                  )}
-                  aria-label={`View image ${i + 1}`}
-                >
-                  <img
-                    src={img}
-                    alt={`Thumbnail ${i + 1}`}
-                    referrerPolicy="no-referrer"
-                    className="w-full h-full object-cover"
-                  />
-                </button>
-              ))}
-            </div>
+            {/* Mobile Thumbnails Scrollable Strip (Only if multiple images) */}
+            {images.length > 1 && (
+              <div className="flex sm:hidden overflow-x-auto gap-2.5 mt-3 py-1 px-0.5 hide-scrollbar">
+                {images.map((img: string, i: number) => (
+                  <button
+                    key={i}
+                    onClick={() => setActiveImg(i)}
+                    className={cn(
+                      'w-16 h-16 shrink-0 rounded overflow-hidden border-2 transition-all relative',
+                      activeImg === i ? 'border-[#D4AF37] ring-2 ring-[#D4AF37]/40 scale-105' : 'border-gray-200 opacity-60'
+                    )}
+                    aria-label={`View image ${i + 1}`}
+                  >
+                    <img
+                      src={img}
+                      alt={`Thumbnail ${i + 1}`}
+                      referrerPolicy="no-referrer"
+                      className="w-full h-full object-cover"
+                    />
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
         </div>
 
