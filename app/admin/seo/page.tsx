@@ -8,8 +8,8 @@ const INPUT = 'w-full border border-gray-200 px-3 py-2 text-sm focus:outline-non
 const LABEL = 'block text-xs uppercase tracking-widest text-gray-500 mb-1';
 
 const SEO_DEFAULTS: Record<string, string> = {
-  seo_title: 'Khadie Jewels | Luxury Bridal Jewelry',
-  seo_description: 'Khadie Jewels — handcrafted luxury bridal jewelry including Kundan, Polki, Meenakari & more.',
+  seo_title: 'Ruvia Jewels | Luxury Bridal Jewelry',
+  seo_description: 'Ruvia Jewels — handcrafted luxury bridal jewelry including Kundan, Polki, Meenakari & more.',
   seo_keywords: 'bridal jewelry, kundan, polki, meenakari, luxury jewelry, Indian bridal',
   og_image: '',
   twitter_handle: '',

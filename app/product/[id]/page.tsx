@@ -10,6 +10,7 @@ import {
   Share2,
   ChevronDown,
   ChevronLeft,
+  ChevronRight,
   Loader2,
 } from 'lucide-react';
 import { FALLBACK_PRODUCTS, type Product } from '@/lib/data';
@@ -112,6 +113,21 @@ export default function ProductPage() {
     });
   }
 
+  const images = React.useMemo(() => {
+    if (!product) return [];
+    if (product.images && product.images.length > 0) return product.images;
+    if ((product as any).image_urls && (product as any).image_urls.length > 0) return (product as any).image_urls;
+
+    const fallbackShots = [
+      product.image,
+      'https://res.cloudinary.com/niagn9pn/image/upload/v1786277893/almas_bridal/assets/panbrhgotshii2pl5zkb.jpg',
+      'https://res.cloudinary.com/niagn9pn/image/upload/v1786277895/almas_bridal/assets/blteocmlx1mlsl7qtzx0.jpg',
+      'https://res.cloudinary.com/niagn9pn/image/upload/v1786277897/almas_bridal/assets/uffidivwpwv2wicg7m71.jpg',
+      'https://res.cloudinary.com/niagn9pn/image/upload/v1786277900/almas_bridal/assets/e5g5yagqr1ksbakallnl.jpg',
+    ];
+    return Array.from(new Set(fallbackShots.filter(Boolean)));
+  }, [product]);
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -137,8 +153,16 @@ export default function ProductPage() {
     );
   }
 
-  const images = Array(5).fill(product.image);
   const wished = isWishlisted(product.id);
+
+  const prevImage = () => {
+    setActiveImg((prev) => (prev === 0 ? images.length - 1 : prev - 1));
+  };
+
+
+  const nextImage = () => {
+    setActiveImg((prev) => (prev === images.length - 1 ? 0 : prev + 1));
+  };
 
   return (
     <div className="min-h-screen bg-white">
@@ -164,13 +188,13 @@ export default function ProductPage() {
         <div className="flex flex-col sm:flex-row gap-4">
           {/* Thumbnails - Desktop/Tablet */}
           <div className="hidden sm:flex flex-col gap-2 shrink-0">
-            {images.map((img, i) => (
+            {images.map((img: string, i: number) => (
               <button
                 key={i}
                 onClick={() => setActiveImg(i)}
                 className={cn(
-                  'w-16 h-16 overflow-hidden border-2 transition-colors',
-                  activeImg === i ? 'border-gold-500' : 'border-transparent'
+                  'w-16 h-16 overflow-hidden border-2 transition-all rounded-sm',
+                  activeImg === i ? 'border-[#D4AF37] ring-1 ring-[#D4AF37]' : 'border-transparent opacity-70 hover:opacity-100'
                 )}
               >
                 <img
@@ -185,12 +209,12 @@ export default function ProductPage() {
           {/* Main image */}
           <div className="flex-1 flex flex-col">
             <div
-              className="relative overflow-hidden bg-gray-50 cursor-zoom-in aspect-square w-full"
+              className="relative overflow-hidden bg-gray-50 cursor-zoom-in aspect-square w-full rounded-lg sm:rounded-none group"
               onMouseEnter={() => setZoomed(true)}
               onMouseLeave={() => setZoomed(false)}
             >
               <img
-                src={images[activeImg]}
+                src={images[activeImg] || product.image}
                 alt={product.name}
                 referrerPolicy="no-referrer"
                 className={cn(
@@ -198,19 +222,58 @@ export default function ProductPage() {
                   zoomed ? 'scale-110' : 'scale-100'
                 )}
               />
+
+              {/* Prev / Next Overlay Buttons for Mobile & Desktop */}
+              {images.length > 1 && (
+                <>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      prevImage();
+                    }}
+                    className="absolute left-2 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white/80 hover:bg-white text-emerald-950 flex items-center justify-center shadow-md backdrop-blur-sm transition-all"
+                    aria-label="Previous image"
+                  >
+                    <ChevronLeft size={20} />
+                  </button>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      nextImage();
+                    }}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white/80 hover:bg-white text-emerald-950 flex items-center justify-center shadow-md backdrop-blur-sm transition-all"
+                    aria-label="Next image"
+                  >
+                    <ChevronRight size={20} />
+                  </button>
+
+                  {/* Image counter indicator badge */}
+                  <div className="absolute top-3 right-3 bg-[#022c22]/80 text-white text-[11px] font-sans px-2.5 py-1 rounded-full backdrop-blur-sm font-semibold">
+                    {activeImg + 1} / {images.length}
+                  </div>
+                </>
+              )}
             </div>
-            {/* Mobile thumbnail dots/pills */}
-            <div className="flex sm:hidden justify-center items-center gap-2 mt-3">
-              {images.map((_, i) => (
+
+            {/* Mobile Thumbnails Scrollable Strip */}
+            <div className="flex sm:hidden overflow-x-auto gap-2.5 mt-3 py-1 px-0.5 hide-scrollbar">
+              {images.map((img: string, i: number) => (
                 <button
                   key={i}
                   onClick={() => setActiveImg(i)}
                   className={cn(
-                    'w-2 h-2 rounded-full transition-all',
-                    activeImg === i ? 'bg-gold-500 w-6' : 'bg-gray-300'
+                    'w-16 h-16 shrink-0 rounded overflow-hidden border-2 transition-all relative',
+                    activeImg === i ? 'border-[#D4AF37] ring-2 ring-[#D4AF37]/40 scale-105' : 'border-gray-200 opacity-60'
                   )}
                   aria-label={`View image ${i + 1}`}
-                />
+                >
+                  <img
+                    src={img}
+                    alt={`Thumbnail ${i + 1}`}
+                    referrerPolicy="no-referrer"
+                    className="w-full h-full object-cover"
+                  />
+                </button>
               ))}
             </div>
           </div>

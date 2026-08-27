@@ -64,7 +64,7 @@ export default function AdminSidebar() {
           <div className="flex items-center gap-2">
             <Gem size={18} className="text-emerald-800 shrink-0" />
             <span className="font-playfair font-bold text-emerald-900 text-sm tracking-wide">
-              Almas Admin
+              Ruvia Admin
             </span>
           </div>
         </div>
@@ -92,7 +92,7 @@ export default function AdminSidebar() {
               <div className="flex items-center gap-2">
                 <Gem size={20} className="text-emerald-800 shrink-0" />
                 <span className="font-playfair font-bold text-emerald-900 text-sm tracking-wide">
-                  Almas Admin
+                  Ruvia Admin
                 </span>
               </div>
               <button
@@ -160,7 +160,7 @@ export default function AdminSidebar() {
           <Gem size={20} className="text-emerald-800 shrink-0" />
           {!collapsed && (
             <span className="font-playfair font-bold text-emerald-900 text-sm tracking-wide truncate">
-              Almas Admin
+              Ruvia Admin
             </span>
           )}
         </div>

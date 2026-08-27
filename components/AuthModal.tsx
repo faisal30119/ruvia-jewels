@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { X, Eye, EyeOff, Loader2 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import RuviaLogo from '@/components/RuviaLogo';
 
 type Mode = 'login' | 'register' | 'forgot';
 
@@ -112,10 +113,10 @@ export default function AuthModal() {
               {/* Header bar */}
               <div className="bg-[#022c22] px-5 sm:px-8 py-5 sm:py-6 flex items-center justify-between">
                 <div>
-                  <p className="text-[#D4AF37] text-[10px] sm:text-xs tracking-widest uppercase font-sans mb-1">
-                    Khadie Jewels
-                  </p>
-                  <h2 className="text-white font-serif text-lg sm:text-xl font-semibold">
+                  <div className="mb-1">
+                    <RuviaLogo variant="light" size="sm" showLink={false} />
+                  </div>
+                  <h2 className="text-white font-serif text-lg sm:text-xl font-semibold mt-2">
                     {mode === 'login' && 'Welcome Back'}
                     {mode === 'register' && 'Create Account'}
                     {mode === 'forgot' && 'Reset Password'}

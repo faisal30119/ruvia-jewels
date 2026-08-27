@@ -17,12 +17,12 @@ const playfair = Playfair_Display({
 });
 
 export const metadata: Metadata = {
-  title: 'Khadie Jewels | Luxury Bridal Jewelry',
+  title: 'Ruvia Jewels | Luxury Bridal Jewelry',
   description:
-    'Khadie Jewels — handcrafted luxury bridal jewelry including Kundan, Polki, Meenakari & more. Shop exclusive bridal sets, necklaces, earrings, and pendants for your special day.',
+    'Ruvia Jewels — handcrafted luxury bridal jewelry including Kundan, Polki, Meenakari & more. Shop exclusive bridal sets, necklaces, earrings, and pendants for your special day.',
   keywords: ['bridal jewelry', 'kundan', 'polki', 'meenakari', 'luxury jewelry', 'Indian bridal'],
   openGraph: {
-    title: 'Khadie Jewels | Luxury Bridal Jewelry',
+    title: 'Ruvia Jewels | Luxury Bridal Jewelry',
     description: 'Handcrafted luxury bridal jewelry for your special day.',
     type: 'website',
   },

@@ -8,7 +8,7 @@ const INPUT = 'w-full border border-gray-200 px-3 py-2 text-sm focus:outline-non
 const LABEL = 'block text-xs uppercase tracking-widest text-gray-500 mb-1';
 
 const DEFAULTS: Record<string, string> = {
-  site_name: 'Khadie Jewels',
+  site_name: 'Ruvia Jewels',
   site_tagline: 'Luxury Bridal Jewelry',
   contact_email: 'almasladiescornersakchi@gmail.com',
   contact_phone: '+91 9608921088',

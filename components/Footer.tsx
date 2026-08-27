@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { Home, Phone, Mail, Instagram } from 'lucide-react';
+import RuviaLogo from '@/components/RuviaLogo';
 
 export default function Footer() {
   const year = new Date().getFullYear();
@@ -11,12 +12,7 @@ export default function Footer() {
           {/* Brand */}
           <div className="col-span-2 lg:col-span-1">
             <div className="mb-4">
-              <p className="font-serif text-[#D4AF37] text-2xl font-bold tracking-wider leading-none">
-                KHADIE
-              </p>
-              <p className="text-white/40 text-[10px] tracking-[0.4em] uppercase mt-0.5">
-                Jewels
-              </p>
+              <RuviaLogo variant="light" size="lg" showLink={false} />
             </div>
             <p className="text-sm text-white/60 leading-relaxed max-w-xs">
               Handcrafted luxury bridal jewelry — where tradition meets elegance. Every piece tells a story of heritage and craftsmanship.
@@ -112,13 +108,13 @@ export default function Footer() {
               </li>
               <li>
                 <a
-                  href="https://www.instagram.com/khadiejewels"
+                  href="https://www.instagram.com/ruviajewels"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="hover:text-[#D4AF37] transition-colors flex items-center gap-2"
                 >
                   <Instagram size={15} className="text-white shrink-0" />
-                  <span>@khadiejewels on Instagram</span>
+                  <span>@ruviajewels on Instagram</span>
                 </a>
               </li>
             </ul>
@@ -128,7 +124,7 @@ export default function Footer() {
         {/* Bottom bar */}
 
         <div className="mt-12 pt-8 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-white/40">
-          <p>© {year} Khadie Jewels. All rights reserved.</p>
+          <p>© {year} Ruvia Jewels. All rights reserved.</p>
           <p className="tracking-widest uppercase text-[10px]">
             Crafted with care in India
           </p>

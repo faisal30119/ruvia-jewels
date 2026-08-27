@@ -1,12 +1,12 @@
-# Khadie Jewels — Technical Stack, Architecture & Luxury Design System
+# Ruvia Jewels — Technical Stack, Architecture & Luxury Design System
 
-This document provides a comprehensive breakdown of the technology stack, application architecture, luxury design language, and key modules powering **Khadie Jewels (الماس)**.
+This document provides a comprehensive breakdown of the technology stack, application architecture, luxury design language, and key modules powering **Ruvia Jewels (الماس)**.
 
 ---
 
 ## 1. Executive Summary
 
-**Khadie Jewels** is an ultra-premium, high-end bridal couture e-commerce platform and bespoke atelier consultation system. Designed for royal and luxury bridal wear, the application emphasizes refined aesthetics, tactile motion, seamless checkout, real-time inventory management, order tracking, and bespoke appointments.
+**Ruvia Jewels** is an ultra-premium, high-end bridal couture e-commerce platform and bespoke atelier consultation system. Designed for royal and luxury bridal wear, the application emphasizes refined aesthetics, tactile motion, seamless checkout, real-time inventory management, order tracking, and bespoke appointments.
 
 ---
 
@@ -48,7 +48,7 @@ This document provides a comprehensive breakdown of the technology stack, applic
 
 ## 3. Luxury Design System & Aesthetic Language
 
-The visual design system of Khadie Jewels is constructed around the principles of **Haute Couture Elegance, Spatial Generosity, and Editorial Minimalism**.
+The visual design system of Ruvia Jewels is constructed around the principles of **Haute Couture Elegance, Spatial Generosity, and Editorial Minimalism**.
 
 ### 3.1 Color Palette & Visual Tones
 

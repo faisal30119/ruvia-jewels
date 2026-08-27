@@ -114,7 +114,7 @@ export default function AdminDashboard() {
     <div className="p-4 sm:p-6 lg:p-8 max-w-[1400px]">
       <div className="mb-5 sm:mb-6">
         <h1 className="text-xl sm:text-2xl font-playfair font-bold text-gray-900">Dashboard</h1>
-        <p className="text-xs sm:text-sm text-gray-500 mt-0.5">Welcome back — here&apos;s an overview of Khadie Jewels</p>
+        <p className="text-xs sm:text-sm text-gray-500 mt-0.5">Welcome back — here&apos;s an overview of Ruvia Jewels</p>
       </div>
 
       {/* KPI Cards */}

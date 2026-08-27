@@ -9,6 +9,7 @@ import { useCart } from '@/contexts/CartContext';
 import { useWishlist } from '@/contexts/WishlistContext';
 import { useSearch } from '@/contexts/SearchContext';
 import { cn } from '@/lib/utils';
+import RuviaLogo from '@/components/RuviaLogo';
 
 
 const NAV_LINKS = [
@@ -77,7 +78,7 @@ export default function Navbar() {
               title="Go Back"
               aria-label="Go Back"
             >
-              <ChevronLeft size={18} />
+              <ChevronLeft size={22} />
             </button>
             <button
               onClick={() => router.forward()}
@@ -85,30 +86,23 @@ export default function Navbar() {
               title="Go Forward"
               aria-label="Go Forward"
             >
-              <ChevronRight size={18} />
+              <ChevronRight size={22} />
             </button>
-            <Link href="/" className="flex-shrink-0 flex flex-col leading-none ml-1 sm:ml-2">
-              <span className="font-serif text-[#D4AF37] text-lg lg:text-xl font-bold tracking-wider">
-                KHADIE
-              </span>
-              <span className="text-white/70 text-[9px] tracking-[0.3em] uppercase">
-                Jewels
-              </span>
-            </Link>
+            <RuviaLogo variant="light" size="lg" className="ml-1 sm:ml-2" />
           </div>
 
 
           {/* Center nav — desktop */}
-          <nav className="hidden lg:flex items-center gap-8">
+          <nav className="hidden lg:flex items-center gap-8 xl:gap-10">
             {NAV_LINKS.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
                 className={cn(
-                  'text-xs tracking-widest uppercase transition-colors',
+                  'text-sm font-semibold tracking-wider uppercase transition-colors',
                   pathname === link.href
                     ? 'text-[#D4AF37]'
-                    : 'text-white/80 hover:text-[#D4AF37]'
+                    : 'text-white/90 hover:text-[#D4AF37]'
                 )}
               >
                 {link.label}
@@ -118,10 +112,10 @@ export default function Navbar() {
               <Link
                 href="/admin"
                 className={cn(
-                  'text-xs tracking-widest uppercase transition-colors',
+                  'text-sm font-semibold tracking-wider uppercase transition-colors',
                   pathname === '/admin'
                     ? 'text-[#D4AF37]'
-                    : 'text-white/80 hover:text-[#D4AF37]'
+                    : 'text-white/90 hover:text-[#D4AF37]'
                 )}
               >
                 Admin
@@ -134,21 +128,21 @@ export default function Navbar() {
             {/* Search */}
             <button
               onClick={openSearch}
-              className="p-2 text-white/80 hover:text-[#D4AF37] transition-colors"
+              className="p-2 text-white/90 hover:text-[#D4AF37] transition-colors"
               aria-label="Search"
             >
-              <Search size={18} />
+              <Search size={22} />
             </button>
 
 
             {/* Wishlist */}
             <Link
               href="/wishlist"
-              className="p-2 text-white/80 hover:text-[#D4AF37] transition-colors relative"
+              className="p-2 text-white/90 hover:text-[#D4AF37] transition-colors relative"
               aria-label="Wishlist"
             >
-              <Heart size={18} />
-              <span className="absolute -top-0.5 -right-0.5 bg-[#D4AF37] text-[#022c22] text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
+              <Heart size={22} />
+              <span className="absolute -top-0.5 -right-0.5 bg-[#D4AF37] text-[#022c22] text-[11px] font-extrabold w-[18px] h-[18px] px-1 rounded-full flex items-center justify-center">
                 {wishlist.length}
               </span>
             </Link>
@@ -156,11 +150,11 @@ export default function Navbar() {
             {/* Cart */}
             <Link
               href="/cart"
-              className="p-2 text-white/80 hover:text-[#D4AF37] transition-colors relative"
+              className="p-2 text-white/90 hover:text-[#D4AF37] transition-colors relative"
               aria-label="Cart"
             >
-              <ShoppingBag size={18} />
-              <span className="absolute -top-0.5 -right-0.5 bg-[#D4AF37] text-[#022c22] text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
+              <ShoppingBag size={22} />
+              <span className="absolute -top-0.5 -right-0.5 bg-[#D4AF37] text-[#022c22] text-[11px] font-extrabold w-[18px] h-[18px] px-1 rounded-full flex items-center justify-center">
                 {cartCount}
               </span>
             </Link>
@@ -171,11 +165,11 @@ export default function Navbar() {
               <div className="relative">
                 <button
                   onClick={() => setUserMenuOpen((v) => !v)}
-                  className="px-2 py-1 flex items-center gap-1.5 text-white/90 hover:text-[#D4AF37] transition-colors"
+                  className="px-2 py-1 flex items-center gap-2 text-white/90 hover:text-[#D4AF37] transition-colors"
                   aria-label="Account"
                 >
-                  <User size={18} />
-                  <span className="text-xs font-medium max-w-[100px] truncate hidden sm:inline-block">
+                  <User size={22} />
+                  <span className="text-sm font-semibold max-w-[110px] truncate hidden sm:inline-block">
                     {user.user_metadata?.full_name?.split(' ')[0] ||
                       user.user_metadata?.display_name?.split(' ')[0] ||
                       user.user_metadata?.name?.split(' ')[0] ||
@@ -204,12 +198,14 @@ export default function Navbar() {
 
                       <Link
                         href="/profile"
+                        onClick={() => setUserMenuOpen(false)}
                         className="block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50"
                       >
-                        My Profile
+                        Profile Settings
                       </Link>
                       <Link
-                        href="/orders"
+                        href="/profile#orders"
+                        onClick={() => setUserMenuOpen(false)}
                         className="block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50"
                       >
                         My Orders
@@ -226,7 +222,7 @@ export default function Navbar() {
                         onClick={() => { signOut(); setUserMenuOpen(false); }}
                         className="w-full text-left px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2 border-t border-gray-100"
                       >
-                        <LogOut size={14} />
+                        <LogOut size={15} />
                         Sign Out
                       </button>
                     </motion.div>
@@ -236,20 +232,20 @@ export default function Navbar() {
             ) : (
               <button
                 onClick={() => openAuthModal('login')}
-                className="p-2 text-white/80 hover:text-[#D4AF37] transition-colors"
+                className="p-2 text-white/90 hover:text-[#D4AF37] transition-colors"
                 aria-label="Sign In"
               >
-                <User size={18} />
+                <User size={22} />
               </button>
             )}
 
             {/* Mobile hamburger */}
             <button
               onClick={() => setMobileOpen((v) => !v)}
-              className="lg:hidden p-2 text-white/80 hover:text-[#D4AF37] transition-colors ml-1"
+              className="lg:hidden p-2 text-white/90 hover:text-[#D4AF37] transition-colors ml-1"
               aria-label="Menu"
             >
-              {mobileOpen ? <X size={20} /> : <Menu size={20} />}
+              {mobileOpen ? <X size={24} /> : <Menu size={24} />}
             </button>
           </div>
         </div>

@@ -2,8 +2,8 @@ import React from 'react';
 import { Truck, ShieldCheck, Clock, MapPin } from 'lucide-react';
 
 export const metadata = {
-  title: 'Shipping & Delivery Details | Khadie Jewels',
-  description: 'Learn about Khadie Jewels shipping policies, dispatch timelines, insured courier delivery across India.',
+  title: 'Shipping & Delivery Details | Ruvia Jewels',
+  description: 'Learn about Ruvia Jewels shipping policies, dispatch timelines, insured courier delivery across India.',
 };
 
 export default function ShippingPage() {
@@ -47,7 +47,7 @@ export default function ShippingPage() {
               <MapPin size={18} className="text-[#D4AF37]" /> Order Processing & Dispatch
             </h2>
             <p>
-              Each order placed with Khadie Jewels undergoes a meticulous 12-point quality check and tamper-proof luxury packaging. Orders for ready-to-ship pieces are processed and dispatched within <strong>24 to 48 hours</strong>.
+              Each order placed with Ruvia Jewels undergoes a meticulous 12-point quality check and tamper-proof luxury packaging. Orders for ready-to-ship pieces are processed and dispatched within <strong>24 to 48 hours</strong>.
             </p>
             <p className="mt-2 text-xs text-gray-500">
               * Custom bridal sets or pre-order handcrafted pieces may require 7–14 business days for artisanal crafting before dispatch.

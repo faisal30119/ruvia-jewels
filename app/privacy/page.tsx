@@ -1,8 +1,8 @@
 import React from 'react';
 
 export const metadata = {
-  title: 'Privacy Policy | Khadie Jewels',
-  description: 'Learn about how Khadie Jewels collects, protects, and uses customer personal information.',
+  title: 'Privacy Policy | Ruvia Jewels',
+  description: 'Learn about how Ruvia Jewels collects, protects, and uses customer personal information.',
 };
 
 export default function PrivacyPage() {
@@ -24,7 +24,7 @@ export default function PrivacyPage() {
           <section>
             <h2 className="font-serif text-lg font-bold text-[#022c22] mb-2">1. Information Collection</h2>
             <p>
-              At <strong>Khadie Jewels</strong>, we respect your privacy. When you visit our website or place an order, we collect personal information necessary to fulfill your purchases, including your name, email address, phone number, delivery address, and payment preferences.
+              At <strong>Ruvia Jewels</strong>, we respect your privacy. When you visit our website or place an order, we collect personal information necessary to fulfill your purchases, including your name, email address, phone number, delivery address, and payment preferences.
             </p>
           </section>
 
