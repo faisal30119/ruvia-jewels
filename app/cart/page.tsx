@@ -32,7 +32,7 @@ export default function CartPage() {
     return { ...item, product: fresh ?? item.product };
   });
 
-  const SHIPPING = 10;
+  const SHIPPING = cartTotal >= 1999 || cartTotal === 0 ? 0 : 49;
   const total = cartTotal + SHIPPING;
 
   if (!hydrated) {
@@ -163,7 +163,27 @@ export default function CartPage() {
               </div>
               <div className="flex justify-between text-gray-600">
                 <span>Shipping</span>
-                <span className="text-emerald-600 font-semibold">₹{SHIPPING}</span>
+                {SHIPPING === 0 ? (
+                  <span className="text-emerald-600 font-semibold">FREE</span>
+                ) : (
+                  <span>₹{SHIPPING}</span>
+                )}
+              </div>
+
+              {/* Free shipping threshold notice banner */}
+              <div className="bg-emerald-50 border border-emerald-200/70 rounded-md p-2.5 my-3 text-center">
+                {cartTotal >= 1999 ? (
+                  <p className="text-[11px] sm:text-xs text-emerald-900 font-semibold flex items-center justify-center gap-1">
+                    <span>🎉</span> <strong className="font-bold">Free Shipping Applied!</strong> (Orders above ₹1,999)
+                  </p>
+                ) : (
+                  <div>
+                    <p className="text-[11px] sm:text-xs text-emerald-950 font-semibold">
+                      Add <strong className="text-emerald-700 font-bold">{formatPrice(1999 - cartTotal)}</strong> more for <span className="text-emerald-700 underline font-bold">FREE Shipping</span>!
+                    </p>
+                    <p className="text-[10px] text-emerald-700/80 mt-0.5">Orders above ₹1,999 get free delivery across India</p>
+                  </div>
+                )}
               </div>
               <div className="border-t border-gray-200 pt-3 flex justify-between font-bold text-emerald-950 text-sm sm:text-base">
                 <span>Total</span>

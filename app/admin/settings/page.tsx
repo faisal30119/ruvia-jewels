@@ -21,7 +21,7 @@ const DEFAULTS: Record<string, string> = {
   announcement_active: 'false',
   tax_percent: '0',
   free_shipping_above: '1999',
-  shipping_fee: '99',
+  shipping_fee: '49',
   logo_url: '',
 };
 

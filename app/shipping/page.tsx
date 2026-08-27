@@ -69,7 +69,7 @@ export default function ShippingPage() {
             </h2>
             <ul className="list-disc pl-5 space-y-1">
               <li><strong>Orders above ₹1,999:</strong> FREE Shipping across India.</li>
-              <li><strong>Orders below ₹1,999:</strong> Standard flat rate of ₹99.</li>
+              <li><strong>Orders below ₹1,999:</strong> Standard flat rate of ₹49.</li>
               <li><strong>Cash on Delivery (COD):</strong> Nominal ₹100 COD fee applies.</li>
             </ul>
           </section>

@@ -36,8 +36,8 @@ export default function CheckoutPage() {
   const { user, session, loading: authLoading, openAuthModal } = useAuth();
   const { items, cartTotal, clearCart } = useCart();
 
-  const SHIPPING = 10;
   const [subtotal, setSubtotal] = useState(cartTotal);
+  const SHIPPING = subtotal >= 1999 || subtotal === 0 ? 0 : 49;
   const [coupon, setCoupon] = useState('');
   const [couponDiscount, setCouponDiscount] = useState(0);
   const [couponError, setCouponError] = useState('');
@@ -457,7 +457,27 @@ export default function CheckoutPage() {
               </div>
               <div className="flex justify-between text-gray-600">
                 <span>Shipping</span>
-                <span>₹{SHIPPING}</span>
+                {SHIPPING === 0 ? (
+                  <span className="text-emerald-600 font-semibold">FREE</span>
+                ) : (
+                  <span>₹{SHIPPING}</span>
+                )}
+              </div>
+
+              {/* Free shipping threshold notice banner */}
+              <div className="bg-emerald-50 border border-emerald-200/70 rounded-md p-2.5 my-2.5 text-center">
+                {subtotal >= 1999 ? (
+                  <p className="text-[11px] sm:text-xs text-emerald-900 font-semibold flex items-center justify-center gap-1">
+                    <span>🎉</span> <strong className="font-bold">Free Shipping Applied!</strong> (Orders above ₹1,999)
+                  </p>
+                ) : (
+                  <div>
+                    <p className="text-[11px] sm:text-xs text-emerald-950 font-semibold">
+                      Add <strong className="text-emerald-700 font-bold">{formatPrice(1999 - subtotal)}</strong> more for <span className="text-emerald-700 underline font-bold">FREE Shipping</span>!
+                    </p>
+                    <p className="text-[10px] text-emerald-700/80 mt-0.5">Orders above ₹1,999 get free delivery across India</p>
+                  </div>
+                )}
               </div>
               {couponApplied && (
                 <div className="flex justify-between text-emerald-600">
