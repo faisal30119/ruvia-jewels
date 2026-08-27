@@ -91,7 +91,7 @@ export default function Navbar() {
           <div className="flex items-center gap-1 sm:gap-1.5">
             <button
               onClick={() => router.back()}
-              className="p-1.5 text-white/80 hover:text-[#D4AF37] hover:bg-white/10 rounded-full transition-colors"
+              className="hidden md:flex p-1.5 text-white/80 hover:text-[#D4AF37] hover:bg-white/10 rounded-full transition-colors"
               title="Go Back"
               aria-label="Go Back"
             >
@@ -99,7 +99,7 @@ export default function Navbar() {
             </button>
             <button
               onClick={() => router.forward()}
-              className="p-1.5 text-white/80 hover:text-[#D4AF37] hover:bg-white/10 rounded-full transition-colors"
+              className="hidden md:flex p-1.5 text-white/80 hover:text-[#D4AF37] hover:bg-white/10 rounded-full transition-colors"
               title="Go Forward"
               aria-label="Go Forward"
             >
