@@ -5,14 +5,37 @@ import { adminFetch, formatPrice, formatDate } from '@/lib/admin-utils';
 import { useToast } from '@/components/admin/Toast';
 
 interface Order {
-  id: number; order_id: string; amount: number; status: string; created_at: string;
-  shipping_details: {
-    name?: string; email?: string; phone?: string;
-    address?: string; city?: string; state?: string; pincode?: string;
-    payment_id?: string; coupon_code?: string; coupon_discount?: number;
+  id: number;
+  order_id: string;
+  amount: number;
+  status: string;
+  created_at: string;
+  payment_method?: string;
+  shipping_details?: {
+    name?: string;
+    firstName?: string;
+    lastName?: string;
+    email?: string;
+    phone?: string;
+    address?: string;
+    city?: string;
+    state?: string;
+    pincode?: string;
+    postalCode?: string;
+    payment_id?: string;
+    coupon_code?: string;
+    coupon_discount?: number;
   };
-  items: { name: string; quantity: number; price: number }[];
-  tracking_number?: string; notes?: string;
+  items?: {
+    id?: number | string;
+    name: string;
+    quantity: number;
+    price: number;
+    variant?: { label?: string };
+    variant_label?: string;
+  }[];
+  tracking_number?: string;
+  notes?: string;
   timeline?: { status: string; note: string; created_at: string }[];
 }
 
@@ -28,6 +51,22 @@ const STATUS_COLORS: Record<string, string> = {
 
 const INPUT = 'w-full border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:border-emerald-800';
 
+function escapeCsvField(val: any): string {
+  if (val === null || val === undefined) return '""';
+  const str = String(val).replace(/"/g, '""');
+  return `"${str}"`;
+}
+
+function formatItemsList(items?: any[]): string {
+  if (!items || !Array.isArray(items) || items.length === 0) return 'N/A';
+  return items
+    .map((item) => {
+      const varInfo = item.variant?.label || item.variant_label ? ` [Option: ${item.variant?.label || item.variant_label}]` : '';
+      return `${item.name || 'Item'}${varInfo} x ${item.quantity || 1} (₹${item.price || 0})`;
+    })
+    .join(' | ');
+}
+
 export default function OrdersPage() {
   const { toast } = useToast();
   const [orders, setOrders] = useState<Order[]>([]);
@@ -41,6 +80,7 @@ export default function OrdersPage() {
   const [trackingInput, setTrackingInput] = useState('');
   const [notesInput, setNotesInput] = useState('');
   const [savingUpdate, setSavingUpdate] = useState(false);
+  const [exporting, setExporting] = useState(false);
   const PAGE_SIZE = 20;
 
   async function load(p = page, q = search, s = statusFilter) {
@@ -84,15 +124,100 @@ export default function OrdersPage() {
     setSavingUpdate(false);
   }
 
-  function exportCSV() {
-    const rows = [
-      ['Order ID', 'Customer', 'Amount', 'Status', 'Date'],
-      ...orders.map((o) => [o.order_id, o.shipping_details?.name ?? '', o.amount, o.status, o.created_at]),
-    ];
-    const csv = rows.map((r) => r.join(',')).join('\n');
-    const blob = new Blob([csv], { type: 'text/csv' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a'); a.href = url; a.download = 'orders.csv'; a.click();
+  async function exportAllDetailsCSV() {
+    setExporting(true);
+    try {
+      // Fetch all matching orders (up to 5000)
+      const params = new URLSearchParams({ page: '1', limit: '5000', search });
+      if (statusFilter) params.set('status', statusFilter);
+      const res = await adminFetch(`/api/admin/orders?${params}`);
+      const json = await res.json();
+      const orderList: Order[] = json.data || orders;
+
+      if (!orderList || orderList.length === 0) {
+        toast('No orders found to export', 'error');
+        setExporting(false);
+        return;
+      }
+
+      const headers = [
+        'Order ID',
+        'Order Date',
+        'Order Status',
+        'Customer Name',
+        'Customer Phone',
+        'Customer Email',
+        'Shipping Address',
+        'City',
+        'State',
+        'Pincode',
+        'Full Address',
+        'Total Amount (INR)',
+        'Payment Method',
+        'Payment Transaction ID',
+        'Items Ordered (Products, Options, Qty, Price)',
+        'Total Items Quantity',
+        'Coupon Code',
+        'Coupon Discount (INR)',
+        'Courier Tracking Number',
+        'Admin Notes',
+      ];
+
+      const csvRows = [
+        headers.map(escapeCsvField).join(','),
+        ...orderList.map((o) => {
+          const s = o.shipping_details || {};
+          const custName = s.name || [s.firstName, s.lastName].filter(Boolean).join(' ') || 'N/A';
+          const pin = s.pincode || s.postalCode || '';
+          const fullAddr = [s.address, s.city, s.state, pin].filter(Boolean).join(', ');
+          const totalQty = (o.items || []).reduce((sum, it) => sum + (it.quantity || 1), 0);
+          const paymentId = s.payment_id || 'N/A';
+          const dateStr = o.created_at ? new Date(o.created_at).toLocaleString('en-IN') : 'N/A';
+
+          return [
+            escapeCsvField(o.order_id),
+            escapeCsvField(dateStr),
+            escapeCsvField(o.status),
+            escapeCsvField(custName),
+            escapeCsvField(s.phone || 'N/A'),
+            escapeCsvField(s.email || 'N/A'),
+            escapeCsvField(s.address || 'N/A'),
+            escapeCsvField(s.city || 'N/A'),
+            escapeCsvField(s.state || 'N/A'),
+            escapeCsvField(pin || 'N/A'),
+            escapeCsvField(fullAddr || 'N/A'),
+            escapeCsvField(o.amount),
+            escapeCsvField(o.payment_method || 'Prepaid (Razorpay)'),
+            escapeCsvField(paymentId),
+            escapeCsvField(formatItemsList(o.items)),
+            escapeCsvField(totalQty),
+            escapeCsvField(s.coupon_code || 'None'),
+            escapeCsvField(s.coupon_discount || 0),
+            escapeCsvField(o.tracking_number || 'N/A'),
+            escapeCsvField(o.notes || 'N/A'),
+          ].join(',');
+        }),
+      ];
+
+      // Prepend UTF-8 BOM for flawless Excel compatibility
+      const csvString = '\uFEFF' + csvRows.join('\r\n');
+      const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      const today = new Date().toISOString().split('T')[0];
+      link.href = url;
+      link.download = `ruvia_orders_all_details_${today}.csv`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+
+      toast(`Exported ${orderList.length} orders with full customer details!`);
+    } catch (err: any) {
+      toast('Failed to export orders: ' + err.message, 'error');
+    } finally {
+      setExporting(false);
+    }
   }
 
   const pages = Math.max(1, Math.ceil(total / PAGE_SIZE));
@@ -104,8 +229,13 @@ export default function OrdersPage() {
           <h1 className="text-xl sm:text-2xl font-playfair font-bold text-gray-900">Orders</h1>
           <p className="text-xs sm:text-sm text-gray-500">{total} total orders</p>
         </div>
-        <button onClick={exportCSV} className="self-start sm:self-auto flex items-center gap-2 border border-gray-200 text-gray-700 text-xs uppercase tracking-widest px-4 py-2.5 hover:bg-gray-50 bg-white">
-          <Download size={14} /> Export CSV
+        <button
+          onClick={exportAllDetailsCSV}
+          disabled={exporting}
+          className="self-start sm:self-auto flex items-center gap-2 border border-[#022c22] bg-[#022c22] text-[#D4AF37] hover:bg-[#064e3b] text-xs font-semibold uppercase tracking-widest px-4 py-2.5 rounded-sm shadow-xs transition-all cursor-pointer disabled:opacity-50"
+        >
+          <Download size={14} className={exporting ? 'animate-bounce' : ''} />
+          <span>{exporting ? 'Exporting All Details...' : 'Export Full Orders CSV'}</span>
         </button>
       </div>
 
@@ -256,11 +386,11 @@ export default function OrdersPage() {
               )}
 
               {/* Items */}
-              {detail.items?.length > 0 && (
+              {Boolean(detail.items && detail.items.length > 0) && (
                 <div>
                   <p className="text-xs uppercase tracking-widest text-gray-400 mb-2">Items</p>
                   <div className="space-y-2">
-                    {detail.items.map((item, i) => (
+                    {detail.items?.map((item, i) => (
                       <div key={i} className="flex justify-between text-sm">
                         <span>{item.name} × {item.quantity}</span>
                         <span className="font-medium">{formatPrice(item.price)}</span>
