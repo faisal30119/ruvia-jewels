@@ -13,7 +13,7 @@ const POSTS = [
     title: 'Kundan vs. Polki: Understanding Royal Heritage Jewelry',
     excerpt: 'Discover the distinct differences between Kundan and Polki jewelry, their historical origins in Rajasthan, and how to pick the right set for your wedding.',
     date: 'August 14, 2026',
-    author: 'Almas Editorial',
+    author: 'Ruvia Editorial',
     category: 'Bridal Guide',
   },
   {

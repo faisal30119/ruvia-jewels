@@ -80,7 +80,7 @@ const TESTIMONIALS = [
   {
     name: 'Aisha Khan',
     location: 'Mumbai',
-    text: 'Khadie Jewels delivered beyond expectations. The Rhodium Diamond Set looked stunning in photos — exactly what a bride needs.',
+    text: 'Ruvia Jewels delivered beyond expectations. The Rhodium Diamond Set looked stunning in photos — exactly what a bride needs.',
   },
   {
     name: 'Riya Patel',
@@ -141,7 +141,7 @@ export default function HomePage() {
             transition={{ duration: 1 }}
             className="text-gold-400 uppercase text-xs sm:text-sm tracking-widest mb-4 sm:mb-6 font-sans"
           >
-            Khadie Jewels — Est. 2001
+            Ruvia Jewels — Est. 2001
           </motion.p>
           <motion.h1
             initial={{ opacity: 0, y: 30 }}
@@ -285,7 +285,7 @@ export default function HomePage() {
             {
               icon: <ShieldCheck size={28} className="text-gold-500" />,
               label: 'Authenticity Guaranteed',
-              sub: 'Every piece is certified genuine',
+              sub: 'Every piece is unique and attractive',
             },
             {
               icon: <Truck size={28} className="text-gold-500" />,

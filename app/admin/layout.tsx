@@ -9,7 +9,7 @@ const ADMIN_EMAILS = [
   ...(process.env.NEXT_PUBLIC_ADMIN_EMAILS?.split(',').map((e) => e.trim()) ?? []),
 ];
 
-export const metadata = { title: 'Almas Admin' };
+export const metadata = { title: 'Ruvia Admin' };
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const supabase = createClient();
