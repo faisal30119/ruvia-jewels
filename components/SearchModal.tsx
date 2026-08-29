@@ -13,13 +13,14 @@ function formatPrice(n: number) {
 }
 
 const POPULAR_TAGS = [
-  'Bridal Sets',
-  'Kundan',
-  'Polki',
-  'Necklaces',
-  'Earrings',
-  'Rose Gold',
-  'Pendants',
+  'Seoul Bow Necklace',
+  'Minimal Jhumka',
+  'Layered Chains',
+  'Huggie Earrings',
+  'Stack Rings',
+  'Freshwater Pearls',
+  'Under 999',
+  'Ear Cuffs',
 ];
 
 export default function SearchModal() {

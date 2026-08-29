@@ -6,7 +6,7 @@ This document provides a comprehensive breakdown of the technology stack, applic
 
 ## 1. Executive Summary
 
-**Ruvia Jewels** is an ultra-premium, high-end bridal couture e-commerce platform. Designed for royal and luxury Indian bridal jewelry (Kundan, Polki, Meenakari, Solitaire, and Antique Gold), the application emphasizes refined aesthetics, tactile motion, seamless checkout, real-time product search, persistent wishlist & cart synchronization, order tracking, and a comprehensive administrative management portal.
+**Ruvia Jewels** is a contemporary **Korean-inspired + Indo-Western jewelry brand designed specifically for Gen Z women** (*"Seoul attitude. Indian soul. Everyday shine."*). Repositioned away from heavy traditional bridal wear into accessible luxury, the platform specializes in waterproof, tarnish-free minimal chains, bow/heart pendants, huggies, stackable rings, contemporary fusion jhumkas, and modern chandbalis. The application emphasizes tactile motion, seamless checkout, real-time product search, persistent wishlist & cart synchronization, order tracking, and an administrative portal.
 
 ---
 

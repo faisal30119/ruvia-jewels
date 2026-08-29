@@ -4,14 +4,29 @@ const ADMIN_EMAILS = ['faisal301196@gmail.com', 'almasladiescornersakchi@gmail.c
 
 export async function getAuthUser(request: Request) {
   const authHeader = request.headers.get('authorization');
-  if (!authHeader?.startsWith('Bearer ')) return null;
-  const token = authHeader.split('Bearer ')[1];
-  const {
-    data: { user },
-    error,
-  } = await supabaseAdmin.auth.getUser(token);
-  if (error || !user) return null;
-  return user;
+  if (authHeader?.startsWith('Bearer ')) {
+    const token = authHeader.split('Bearer ')[1];
+    const {
+      data: { user },
+      error,
+    } = await supabaseAdmin.auth.getUser(token);
+    if (!error && user) return user;
+  }
+
+  // Fallback to cookie-based session
+  try {
+    const { createClient } = await import('@/lib/supabase/server');
+    const supabase = createClient();
+    const {
+      data: { user },
+      error,
+    } = await supabase.auth.getUser();
+    if (!error && user) return user;
+  } catch (err) {
+    // ignore
+  }
+
+  return null;
 }
 
 export async function requireAuth(request: Request) {

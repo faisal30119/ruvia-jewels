@@ -59,14 +59,56 @@ export default function MediaPage() {
     if (!files || files.length === 0) return;
     setUploading(true);
     let uploaded = 0;
+
+    const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || 'niagn9pn';
+    const uploadPreset = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET || 'almas_bridal';
+
     for (const file of Array.from(files)) {
-      const fd = new FormData();
-      fd.append('file', file);
-      const res = await adminFetch('/api/admin/upload', { method: 'POST', body: fd, headers: {} });
-      const data = await res.json();
-      if (data.url) uploaded++;
-      else toast(`Failed: ${file.name}`, 'error');
+      let isSuccess = false;
+
+      // 1. Try server admin upload
+      try {
+        const fd = new FormData();
+        fd.append('file', file);
+        const res = await adminFetch('/api/admin/upload', { method: 'POST', body: fd });
+        if (res.ok) {
+          const data = await res.json();
+          if (data.url) {
+            uploaded++;
+            isSuccess = true;
+          }
+        }
+      } catch (err) {
+        console.warn('Server upload failed, trying direct upload...', err);
+      }
+
+      // 2. Direct Cloudinary upload fallback
+      if (!isSuccess) {
+        try {
+          const directForm = new FormData();
+          directForm.append('file', file);
+          directForm.append('upload_preset', uploadPreset);
+          directForm.append('folder', 'almas_bridal/products');
+
+          const directRes = await fetch(
+            `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
+            { method: 'POST', body: directForm }
+          );
+
+          if (directRes.ok) {
+            uploaded++;
+            isSuccess = true;
+          }
+        } catch (err) {
+          console.error('Direct upload failed:', err);
+        }
+      }
+
+      if (!isSuccess) {
+        toast(`Failed to upload ${file.name}`, 'error');
+      }
     }
+
     if (uploaded > 0) {
       toast(`${uploaded} file(s) uploaded`);
       // Reset to page 1 so the new image appears

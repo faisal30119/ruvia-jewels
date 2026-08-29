@@ -1,109 +1,375 @@
+export interface ProductVariant {
+  id?: number | string;
+  product_id?: number | string;
+  label: string;
+  price?: number;
+  price_modifier?: number;
+  stock?: number;
+  image?: string;
+}
+
 export type Product = {
   id: string;
   name: string;
   price: number;
+  oldPrice?: number;
   image: string;
   images?: string[];
   category: string;
-  stoneColor: string;
-  plating: string;
+  stoneColor?: string;
+  color?: string;
+  plating?: string;
   description: string;
   inclusions: string[];
+  trendTag?: 'NEW' | 'TRENDING' | 'BESTSELLER' | 'UNDER ₹999' | 'SEOUL EDIT' | 'INDO-WESTERN';
+  style?: string;
+  stylingTip?: string;
+  material?: string;
   stock?: number;
+  variants?: ProductVariant[];
+  is_featured?: boolean;
 };
 
-const IMGS = {
-  royal:
-    'https://res.cloudinary.com/niagn9pn/image/upload/v1786277886/almas_bridal/assets/dpjqxedlu5oleauyj40l.jpg',
-  solitaire:
-    'https://res.cloudinary.com/niagn9pn/image/upload/v1786277888/almas_bridal/assets/uoge8dcesrge8bsgimj6.jpg',
-  occasion:
-    'https://res.cloudinary.com/niagn9pn/image/upload/v1786277883/almas_bridal/assets/brxuufifingum5xyjodn.jpg',
-  pendant:
-    'https://res.cloudinary.com/niagn9pn/image/upload/v1786277879/almas_bridal/assets/dwicfvexas9ouzwhu56z.jpg',
+// High-resolution curated aesthetic photography for Korean & Indo-Western Gen-Z jewelry
+export const IMAGES = {
+  hero: 'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?q=80&w=2000&auto=format&fit=crop',
+  seoulEditBanner: 'https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?q=80&w=1000&auto=format&fit=crop',
+  indoWesternBanner: 'https://images.unsplash.com/photo-1611591475155-4286fa7c2e7f?q=80&w=1000&auto=format&fit=crop',
+  everydayStackBanner: 'https://images.unsplash.com/photo-1602751584552-8ba73aad10e1?q=80&w=1000&auto=format&fit=crop',
+  under999Banner: 'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?q=80&w=1000&auto=format&fit=crop',
+  
+  // Product Shots (100% Dedicated Jewelry Close-Ups)
+  seoulBow: 'https://images.unsplash.com/photo-1599643477877-530eb83abc8e?q=80&w=800&auto=format&fit=crop',
+  hanaPearl: 'https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?q=80&w=800&auto=format&fit=crop',
+  nariHeart: 'https://images.unsplash.com/photo-1600003014755-ba31aa59c4b6?q=80&w=800&auto=format&fit=crop',
+  soraHuggies: 'https://images.unsplash.com/photo-1630019852942-f89202989a59?q=80&w=800&auto=format&fit=crop',
+  yunaLayers: 'https://images.unsplash.com/photo-1611591475155-4286fa7c2e7f?q=80&w=800&auto=format&fit=crop',
+  miraJhumka: 'https://images.unsplash.com/photo-1602751584552-8ba73aad10e1?q=80&w=800&auto=format&fit=crop',
+  tennisBracelet: 'https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?q=80&w=800&auto=format&fit=crop',
+  aeriRings: 'https://images.unsplash.com/photo-1605100804763-247f67b3557e?q=80&w=800&auto=format&fit=crop',
+  noorChandbali: 'https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?q=80&w=800&auto=format&fit=crop',
+  daisyBow: 'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?q=80&w=800&auto=format&fit=crop',
+  namiCuffs: 'https://images.unsplash.com/photo-1617038260897-41a1f14a8ca0?q=80&w=800&auto=format&fit=crop',
+  starburstDrops: 'https://images.unsplash.com/photo-1630019852942-f89202989a59?q=80&w=800&auto=format&fit=crop',
+  zoyaHoops: 'https://images.unsplash.com/photo-1602751584552-8ba73aad10e1?q=80&w=800&auto=format&fit=crop',
+  lunaPendant: 'https://images.unsplash.com/photo-1599643477877-530eb83abc8e?q=80&w=800&auto=format&fit=crop',
+  rheaRing: 'https://images.unsplash.com/photo-1605100804763-247f67b3557e?q=80&w=800&auto=format&fit=crop',
+  kiaraChain: 'https://images.unsplash.com/photo-1611591475155-4286fa7c2e7f?q=80&w=800&auto=format&fit=crop',
+
+  // Style Inspiration Lookbook Shots (Jewelry Focused)
+  styleSeoul: 'https://images.unsplash.com/photo-1611591475155-4286fa7c2e7f?q=80&w=800&auto=format&fit=crop',
+  styleIndoWestern: 'https://images.unsplash.com/photo-1602751584552-8ba73aad10e1?q=80&w=800&auto=format&fit=crop',
+  styleCleanGirl: 'https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?q=80&w=800&auto=format&fit=crop',
+  styleDateNight: 'https://images.unsplash.com/photo-1599643477877-530eb83abc8e?q=80&w=800&auto=format&fit=crop',
 };
 
 export const FALLBACK_PRODUCTS: Product[] = [
   {
     id: 'p1',
-    name: 'The Royal Emerald Heritage Set',
-    price: 36000,
-    image: IMGS.royal,
-    category: 'Bridal Sets',
-    stoneColor: 'Green',
-    plating: 'Antique Gold',
-    description: 'A masterpiece of traditional craftsmanship...',
-    inclusions: ['Grand Neckpiece', 'Pair of Heavy Earrings', 'Maang Tikka'],
+    name: 'Seoul Bow Pendant Necklace',
+    price: 899,
+    oldPrice: 1599,
+    image: IMAGES.seoulBow,
+    images: [IMAGES.seoulBow, IMAGES.hanaPearl, IMAGES.daisyBow],
+    category: 'Pendants',
+    stoneColor: 'Clear',
+    plating: '18K Gold',
+    trendTag: 'UNDER ₹999',
+    style: 'Coquette / Korean Minimal',
+    material: '18K Gold PVD Plating on 316L Stainless Steel (Anti-Tarnish & Waterproof)',
+    description:
+      'The viral K-fashion coquette bow necklace. Delicate, ultra-feminine, and designed to sit gracefully along your collarbone. 100% waterproof and sweat-resistant.',
+    stylingTip: 'Pair with an oversized beige blazer or an off-shoulder crop knit for that effortless Seongsu-dong café aesthetic.',
+    inclusions: ['1x Seoul Bow Pendant Chain', 'Velvet Jewelry Pouch', 'Care & Anti-Tarnish Card'],
+    variants: [
+      { id: 'v1', label: '18K Yellow Gold', price: 899, stock: 15, image: IMAGES.seoulBow },
+      { id: 'v2', label: 'Rose Gold', price: 949, stock: 10, image: IMAGES.hanaPearl },
+      { id: 'v3', label: 'Silver Rhodium', price: 899, stock: 8, image: IMAGES.daisyBow },
+    ],
   },
   {
     id: 'p2',
-    name: 'Sapphire Solitaire Reception Necklace',
-    price: 14400,
-    image: IMGS.solitaire,
+    name: 'Hana Dainty Freshwater Pearl Chain',
+    price: 1299,
+    oldPrice: 2199,
+    image: IMAGES.hanaPearl,
+    images: [IMAGES.hanaPearl, IMAGES.lunaPendant, IMAGES.yunaLayers],
     category: 'Necklaces',
-    stoneColor: 'Blue',
-    plating: 'Rhodium',
-    description: 'Minimalist and contemporary...',
-    inclusions: ['Delicate Necklace', 'Stud Earrings'],
+    stoneColor: 'Pearl White',
+    plating: '18K Gold',
+    trendTag: 'BESTSELLER',
+    style: 'Clean Girl / Minimal Chic',
+    material: 'Genuine Cultured Freshwater Seed Pearls + 18K Gold Vermeil Extender',
+    description:
+      'A modern classic for the clean girl era. Hand-strung baroque seed pearls with an adjustable delicate gold clasp. Subtle luxury for everyday wear.',
+    stylingTip: 'Layer with the Yuna Snake Chain and a crisp white linen button-down for effortless quiet luxury.',
+    inclusions: ['1x Hana Pearl Necklace', 'Velvet Jewelry Pouch', 'Authenticity Guarantee Card'],
+    variants: [
+      { id: 'v4', label: 'Standard 16-inch', price: 1299, stock: 20, image: IMAGES.hanaPearl },
+      { id: 'v5', label: 'Layered 18-inch', price: 1399, stock: 12, image: IMAGES.lunaPendant },
+    ],
   },
   {
     id: 'p3',
-    name: 'Antique Gold Ruby Choker',
-    price: 17600,
-    image: IMGS.occasion,
-    category: 'Necklaces',
-    stoneColor: 'Red',
-    plating: 'Antique Gold',
-    description: 'A stunning statement choker...',
-    inclusions: ['Choker Necklace', 'Dangle Earrings', 'Intricate Bangles'],
+    name: 'Mira Minimalist Indo-Western Jhumkas',
+    price: 1499,
+    oldPrice: 2499,
+    image: IMAGES.miraJhumka,
+    images: [IMAGES.miraJhumka, IMAGES.noorChandbali, IMAGES.zoyaHoops],
+    category: 'Earrings',
+    stoneColor: 'Clear / Champagne',
+    plating: '18K Gold',
+    trendTag: 'INDO-WESTERN',
+    style: 'Indo-Western Fusion',
+    material: '18K Gold Plated Brass + Hand-set Micro Cubic Zirconia + Dainty Pearl Drops',
+    description:
+      'Reimagining the classic Indian jhumka with featherlight modern proportions. Sleek geometric bell drops with micro-pearl tassels. Zero ear-lobe pulling.',
+    stylingTip: 'Style with a sleek sleeveless kurti, linen saree, or contrast with a black tailored pantsuit for fusion perfection.',
+    inclusions: ['1x Pair Mira Fusion Jhumkas', 'Comfort Silicon Backings', 'Velvet Pouch'],
+    variants: [
+      { id: 'v6', label: 'Champagne Gold', price: 1499, stock: 14, image: IMAGES.miraJhumka },
+      { id: 'v7', label: 'Emerald Drop', price: 1599, stock: 9, image: IMAGES.noorChandbali },
+      { id: 'v8', label: 'Ruby Drop', price: 1599, stock: 6, image: IMAGES.zoyaHoops },
+    ],
   },
   {
     id: 'p4',
-    name: 'Mint Green Kundan Bridal Set',
-    price: 30400,
-    image: IMGS.royal,
-    category: 'Bridal Sets',
-    stoneColor: 'Green',
-    plating: 'Antique Gold',
-    description: 'A breathtaking Kundan set...',
-    inclusions: ['Layered Necklace', 'Chandelier Earrings', 'Maang Tikka', 'Passa'],
+    name: 'Yuna Multi-Layered Snake & Cable Chain',
+    price: 1199,
+    oldPrice: 1999,
+    image: IMAGES.yunaLayers,
+    images: [IMAGES.yunaLayers, IMAGES.seoulBow, IMAGES.kiaraChain],
+    category: 'Necklaces',
+    stoneColor: 'Gold',
+    plating: '18K Gold',
+    trendTag: 'TRENDING',
+    style: 'Everyday Stack',
+    material: 'Double-Layered 18K PVD Gold on Surgical Steel (Never Fades)',
+    description:
+      'The instant necklace stack in one easy piece. Features a high-shine herringbone snake chain coupled with a delicate shimmering cable link.',
+    stylingTip: 'Wear solo over a crewneck baby tee or stack with the Nari Heart Choker for night-out edge.',
+    inclusions: ['1x Double-Strand 2-in-1 Chain', 'Velvet Pouch'],
   },
   {
     id: 'p5',
-    name: 'Classic Rhodium Diamond Set',
-    price: 23200,
-    image: IMGS.solitaire,
-    category: 'Bridal Sets',
-    stoneColor: 'Clear',
-    plating: 'Rhodium',
-    description: 'For the bride who loves the diamond look...',
-    inclusions: ['Statement Necklace', 'Drop Earrings', 'Bracelet'],
+    name: 'Sora Butterfly Huggie Earrings',
+    price: 799,
+    oldPrice: 1399,
+    image: IMAGES.soraHuggies,
+    images: [IMAGES.soraHuggies, IMAGES.namiCuffs, IMAGES.starburstDrops],
+    category: 'Earrings',
+    stoneColor: 'Clear Crystal',
+    plating: '18K Gold',
+    trendTag: 'UNDER ₹999',
+    style: 'Korean Minimal',
+    material: 'Hypoallergenic Titanium Post + 18K Gold Dipped Huggie Hoop',
+    description:
+      'Dainty 10mm click-top huggies with pavé crystal butterfly charms that catch the light with every move. Sleep-in comfortable and nickel-free.',
+    stylingTip: 'Perfect for first, second, or cartilage piercings. Stack with the Nami Ear Cuffs.',
+    inclusions: ['1x Pair Sora Huggie Earrings', 'Velvet Pouch'],
   },
   {
     id: 'p6',
-    name: 'Kundan Statement Ring',
-    price: 5200,
-    image: IMGS.occasion,
-    category: 'Earrings',
-    stoneColor: 'Red',
-    plating: 'Antique Gold',
-    description: 'An oversized statement ring...',
-    inclusions: ['Adjustable Statement Ring'],
+    name: 'Aeri Organic Molten Stack Rings (Set of 3)',
+    price: 999,
+    oldPrice: 1799,
+    image: IMAGES.aeriRings,
+    images: [IMAGES.aeriRings, IMAGES.rheaRing],
+    category: 'American Diamond (AD) / CZ',
+    stoneColor: 'Gold',
+    plating: '18K Gold',
+    trendTag: 'BESTSELLER',
+    style: 'Minimal Chic',
+    material: '18K PVD Heavy Gold Plating on Recycled Stainless Steel',
+    description:
+      'Trio of wavy, organic molten gold bands designed to be worn stacked together or spread across multiple fingers. Adjustable & waterproof.',
+    stylingTip: 'Stack two on your index finger and one on your thumb for effortless street-style edge.',
+    inclusions: ['3x Organic Shape Bands (Adjustable)', 'Velvet Pouch'],
   },
   {
     id: 'p7',
-    name: 'Rubans Pendant Western Jewellery',
-    price: 399,
-    image: IMGS.pendant,
+    name: 'Noor Modern Fusion Chandbali Drops',
+    price: 1799,
+    oldPrice: 2899,
+    image: IMAGES.noorChandbali,
+    images: [IMAGES.noorChandbali, IMAGES.miraJhumka],
+    category: 'Kundan Jewelry',
+    stoneColor: 'Emerald Green / Clear',
+    plating: '18K Gold',
+    trendTag: 'INDO-WESTERN',
+    style: 'Indo-Western Fusion',
+    material: 'Fine Filigree Brass + Emerald Green Baguette Stones + Micro Pearls',
+    description:
+      'A contemporary, hollowed-out crescent moon chandelier with modern geometric gemstones. Lightweight drama for modern festive celebrations.',
+    stylingTip: 'Keep your neckline bare and let these statement hoops take center stage with a sleek middle-part bun.',
+    inclusions: ['1x Pair Noor Chandbalis', 'Velvet Pouch', 'Extra Earring Backs'],
+  },
+  {
+    id: 'p8',
+    name: 'Seoul Nights Cubic Zirconia Tennis Bracelet',
+    price: 1399,
+    oldPrice: 2299,
+    image: IMAGES.tennisBracelet,
+    images: [IMAGES.tennisBracelet, IMAGES.yunaLayers],
+    category: 'American Diamond (AD) / CZ',
+    stoneColor: 'Clear CZ',
+    plating: 'Silver / White Gold',
+    trendTag: 'SEOUL EDIT',
+    style: 'Clean Girl',
+    material: '5A Brilliant Grade Cubic Zirconia + Rhodium / White Gold Finish',
+    description:
+      'Ultra-dainty 2mm diamond-look tennis bracelet with an adjustable pull-chain bolo slider for the perfect custom wrist fit. High shine, zero snagging.',
+    stylingTip: 'Stack alongside your favorite watch or wear solo for a subtle pop of sparkle at brunch.',
+    inclusions: ['1x Adjustable Slider Tennis Bracelet', 'Velvet Pouch'],
+  },
+  {
+    id: 'p9',
+    name: 'Nari Chunky Puffed Heart Choker',
+    price: 949,
+    oldPrice: 1599,
+    image: IMAGES.nariHeart,
+    images: [IMAGES.nariHeart, IMAGES.seoulBow],
     category: 'Pendants',
+    stoneColor: 'Gold',
+    plating: '18K Gold',
+    trendTag: 'UNDER ₹999',
+    style: 'Y2K / Coquette',
+    material: 'Hollow Puffed Stainless Steel Heart + Anti-Tarnish Cable Chain',
+    description:
+      'The iconic Y2K puffed heart pendant on an adjustable choker chain. High-polish mirror finish that doesn’t tarnish even in water.',
+    stylingTip: 'Wear at 14" choker length over a square-neck corset or baby tee.',
+    inclusions: ['1x Puffed Heart Necklace', 'Velvet Pouch'],
+  },
+  {
+    id: 'p10',
+    name: 'Nami Twisted Gold Ear Cuffs (Set of 2)',
+    price: 699,
+    oldPrice: 1199,
+    image: IMAGES.namiCuffs,
+    images: [IMAGES.namiCuffs, IMAGES.soraHuggies],
+    category: 'Earrings',
+    stoneColor: 'Gold',
+    plating: '18K Gold',
+    trendTag: 'UNDER ₹999',
+    style: 'Korean Minimal',
+    material: 'Flexible Shape 18K Gold Dipped Brass (No Piercing Required)',
+    description:
+      'Zero piercings needed. Gently squeeze to fit comfortably on any part of your cartilage. Features a clean twisted croissant texture.',
+    stylingTip: 'Slip onto the upper helix alongside simple gold studs for a curated ear stack.',
+    inclusions: ['2x Non-Pierced Ear Cuffs', 'Velvet Pouch'],
+  },
+  {
+    id: 'p11',
+    name: 'Kiara Layered Mangalsutra-Inspired Chain',
+    price: 1599,
+    oldPrice: 2599,
+    image: IMAGES.kiaraChain,
+    images: [IMAGES.kiaraChain, IMAGES.yunaLayers],
+    category: 'Necklaces',
+    stoneColor: 'Black Spinel / Gold',
+    plating: '18K Gold',
+    trendTag: 'INDO-WESTERN',
+    style: 'Indo-Western Fusion',
+    material: 'Micro Black Spinel Beads + 18K Gold Plated Bar Pendant',
+    description:
+      'For the modern woman who loves cultural symbolism without bulky traditional designs. A minimalist black-beaded cable chain with a sleek solitaire bar.',
+    stylingTip: 'Wear daily with shirts, tees, blazers, or modern festive outfits. Looks completely like contemporary fine jewelry.',
+    inclusions: ['1x Minimalist Chain', 'Velvet Pouch'],
+  },
+  {
+    id: 'p12',
+    name: 'K-Drama Starburst Dangle Earrings',
+    price: 1099,
+    oldPrice: 1899,
+    image: IMAGES.starburstDrops,
+    images: [IMAGES.starburstDrops, IMAGES.soraHuggies],
+    category: 'Earrings',
+    stoneColor: 'Clear Crystal',
+    plating: 'Silver / White Gold',
+    trendTag: 'SEOUL EDIT',
+    style: 'Korean Minimal',
+    material: 'S925 Sterling Silver Post + Micro Pave Starburst Charms',
+    description:
+      'Inspired by Seoul red-carpet and K-drama styling. Asymmetrical dainty starburst drops that sway gently with motion.',
+    stylingTip: 'Style with an off-shoulder little black dress and an elegant low ponytail.',
+    inclusions: ['1x Pair Asymmetric Starburst Earrings', 'Velvet Pouch'],
+  },
+  {
+    id: 'p13',
+    name: 'Noor Emerald & Polki Royal Bridal Set',
+    price: 4999,
+    oldPrice: 8999,
+    image: 'https://images.unsplash.com/photo-1599643477877-530eb83abc8e?q=80&w=800&auto=format&fit=crop',
+    images: ['https://images.unsplash.com/photo-1599643477877-530eb83abc8e?q=80&w=800&auto=format&fit=crop'],
+    category: 'Bridal Sets',
+    stoneColor: 'Emerald Green',
+    plating: '18K Gold',
+    trendTag: 'BESTSELLER',
+    style: 'Indo-Western Fusion',
+    material: 'Handcrafted Polki & Kundan with hydro emerald beads and matching earrings & maangtikka',
+    description:
+      'A majestic bridal choker set adorned with artisan uncut polki stones, mint hydro emerald drops, and matching earrings.',
+    stylingTip: 'Pair with your wedding lehenga or reception gown for a royal look.',
+    inclusions: ['1x Choker Necklace', '1x Pair Matching Earrings', '1x Maangtikka', 'Luxury Keepsake Box'],
+  },
+  {
+    id: 'p14',
+    name: 'Vintage Boho German Silver Oxidised Choker',
+    price: 849,
+    oldPrice: 1499,
+    image: 'https://images.unsplash.com/photo-1617038260897-41a1f14a8ca0?q=80&w=800&auto=format&fit=crop',
+    images: ['https://images.unsplash.com/photo-1617038260897-41a1f14a8ca0?q=80&w=800&auto=format&fit=crop'],
+    category: 'Oxidise jewelry',
+    stoneColor: 'Black Spinel',
+    plating: 'Silver / White Gold',
+    trendTag: 'UNDER ₹999',
+    style: 'Indo-Western Fusion',
+    material: 'High-grade German Silver with antique oxidised finish and ghungroo bells',
+    description:
+      'Artisan-crafted oxidised silver tribal choker with embossed floral motifs and delicate melodic ghungroos.',
+    stylingTip: 'Style over a white cotton shirt, handloom saree, or fusion co-ord set for instant boho chic.',
+    inclusions: ['1x Oxidised Choker', '1x Pair Studs', 'Velvet Pouch'],
+  },
+  {
+    id: 'p15',
+    name: 'Jaipuri Hand-Painted Lotus Meenakari Jhumkas',
+    price: 1299,
+    oldPrice: 2299,
+    image: 'https://images.unsplash.com/photo-1630019852942-f89202989a59?q=80&w=800&auto=format&fit=crop',
+    images: ['https://images.unsplash.com/photo-1630019852942-f89202989a59?q=80&w=800&auto=format&fit=crop'],
+    category: 'Meenakari Jewelry',
+    stoneColor: 'Pearl White',
+    plating: '18K Gold',
+    trendTag: 'TRENDING',
+    style: 'Indo-Western Fusion',
+    material: 'Hand-enameled Royal Blue & Pastel Pink Meenakari with clustered pearl drops',
+    description:
+      'Exquisite hand-painted enamel jhumkas displaying intricate Rajasthani lotus and peacock motifs.',
+    stylingTip: 'Perfect accompaniment for pastel anarkalis, festive shararas, or modern festive kurtas.',
+    inclusions: ['1x Pair Lotus Meenakari Jhumkas', 'Velvet Pouch'],
+  },
+  {
+    id: 'p16',
+    name: 'Uncut Polki Floral Choker with Pearl Drops',
+    price: 2499,
+    oldPrice: 4299,
+    image: 'https://images.unsplash.com/photo-1602751584552-8ba73aad10e1?q=80&w=800&auto=format&fit=crop',
+    images: ['https://images.unsplash.com/photo-1602751584552-8ba73aad10e1?q=80&w=800&auto=format&fit=crop'],
+    category: 'Polki Jewelry',
     stoneColor: 'Clear',
-    plating: 'Rose Gold',
-    description: '18K Rose Gold Plating necklace...',
-    inclusions: ['Pendant', 'Adjustable Chain'],
+    plating: '18K Gold',
+    trendTag: 'BESTSELLER',
+    style: 'Indo-Western Fusion',
+    material: 'Uncut Glass Polki Stones + 22K Micron Gold Polish + Hand-strung Basra Pearls',
+    description:
+      'Timeless floral lattice choker designed with uncut polki stones and finished with cascading micro-pearl droplets.',
+    stylingTip: 'Complement with deep V-neck festive blouses or silk sarees.',
+    inclusions: ['1x Polki Floral Choker', '1x Pair Matching Tops', 'Jewelry Box'],
   },
 ];
 
 export const CATEGORIES = [
+  'All',
   'Bridal Sets',
   'Necklaces',
   'Earrings',
@@ -115,10 +381,32 @@ export const CATEGORIES = [
   'Meenakari Jewelry',
 ];
 
-export const STONE_COLORS = ['Red', 'Green', 'Blue', 'Clear'];
-export const PLATINGS = ['Antique Gold', 'Rhodium'];
+export const STYLES = [
+  'All Styles',
+  'Korean Minimal',
+  'Indo-Western Fusion',
+  'Clean Girl',
+  'Coquette / Y2K',
+  'Everyday Stack',
+];
+
+export const COLORS = [
+  { name: 'All', hex: '#FFFFFF', isAll: true },
+  { name: 'Red', hex: '#DC2626' },
+  { name: 'Blue', hex: '#2563EB' },
+  { name: 'Green', hex: '#059669' },
+  { name: 'Pink', hex: '#EC4899' },
+  { name: 'Gold', hex: '#D4AF37' },
+  { name: 'Silver / Clear', hex: '#E5E7EB' },
+  { name: 'Black', hex: '#1F2937' },
+];
+
+export const PLATINGS = ['All', '18K Gold', 'Silver / White Gold', 'Rose Gold'];
+export const STONE_COLORS = ['All', 'Clear', 'Pearl White', 'Gold', 'Emerald Green', 'Black Spinel'];
+
 export const PRICE_RANGES = [
-  { label: 'Under ₹10,000', min: 0, max: 10000 },
-  { label: '₹10,000 - ₹25,000', min: 10000, max: 25000 },
-  { label: 'Over ₹25,000', min: 25000, max: 1000000 },
+  { label: 'Under ₹999', min: 0, max: 999 },
+  { label: '₹999 - ₹1,499', min: 999, max: 1499 },
+  { label: '₹1,499 - ₹1,999', min: 1499, max: 1999 },
+  { label: 'Above ₹1,999', min: 1999, max: 100000 },
 ];

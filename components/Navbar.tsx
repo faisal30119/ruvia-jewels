@@ -15,7 +15,8 @@ import RuviaLogo from '@/components/RuviaLogo';
 
 const NAV_LINKS = [
   { label: 'Home', href: '/' },
-  { label: 'Shop', href: '/shop' },
+  { label: 'Shop All', href: '/shop' },
+  { label: 'Under ₹999', href: '/shop?price=Under+₹999' },
   { label: 'Track Order', href: '/track' },
 ];
 
@@ -110,7 +111,7 @@ export default function Navbar() {
 
 
           {/* Center nav — desktop */}
-          <nav className="hidden lg:flex items-center gap-8 xl:gap-10">
+          <nav className="hidden lg:flex items-center gap-7 xl:gap-9 ml-10 lg:ml-16 xl:ml-24">
             {NAV_LINKS.map((link) => (
               <Link
                 key={link.href}

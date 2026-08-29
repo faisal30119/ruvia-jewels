@@ -9,13 +9,13 @@ const LABEL = 'block text-xs uppercase tracking-widest text-gray-500 mb-1';
 
 const DEFAULTS: Record<string, string> = {
   site_name: 'Ruvia Jewels',
-  site_tagline: 'Luxury Bridal Jewelry',
+  site_tagline: 'Korean-Inspired & Indo-Western Gen-Z Jewelry',
   contact_email: 'almasladiescornersakchi@gmail.com',
   contact_phone: '+91 9608921088',
   whatsapp_number: '919608921088',
   address: 'Sakchi, Jamshedpur, Jharkhand',
   facebook_url: '',
-  instagram_url: '',
+  instagram_url: 'https://www.instagram.com/ruvia.jewels?utm_source=qr&igsi=MWg1NGt2b2RqNnUycA==',
   youtube_url: '',
   announcement_text: '',
   announcement_active: 'false',
@@ -90,7 +90,7 @@ export default function SettingsPage() {
       <Section title="Social Links">
         <div className="space-y-3">
           <div><label className={LABEL}>Facebook URL</label><input type="text" value={settings.facebook_url} onChange={set('facebook_url')} className={INPUT} placeholder="https://facebook.com/..." /></div>
-          <div><label className={LABEL}>Instagram URL</label><input type="text" value={settings.instagram_url} onChange={set('instagram_url')} className={INPUT} placeholder="https://instagram.com/..." /></div>
+          <div><label className={LABEL}>Instagram URL</label><input type="text" value={settings.instagram_url} onChange={set('instagram_url')} className={INPUT} placeholder="https://instagram.com/ruvia.jewels" /></div>
           <div><label className={LABEL}>YouTube URL</label><input type="text" value={settings.youtube_url} onChange={set('youtube_url')} className={INPUT} placeholder="https://youtube.com/..." /></div>
         </div>
       </Section>

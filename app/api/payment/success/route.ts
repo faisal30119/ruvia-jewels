@@ -24,13 +24,32 @@ export async function POST(request: Request) {
     couponDiscount,
   } = body;
 
-  // Verify Razorpay signature
+  if (!razorpay_payment_id || !razorpay_order_id || !razorpay_signature) {
+    return NextResponse.json(
+      { error: 'Missing required fields: razorpay_payment_id, razorpay_order_id, and razorpay_signature are required' },
+      { status: 400 }
+    );
+  }
+
+  const keySecret = process.env.RAZORPAY_KEY_SECRET;
+  if (!keySecret) {
+    return NextResponse.json(
+      { error: 'Razorpay secret key is not configured on the server' },
+      { status: 500 }
+    );
+  }
+
+  // Verify Razorpay signature using HMAC-SHA256
   const expectedSignature = crypto
-    .createHmac('sha256', process.env.RAZORPAY_KEY_SECRET!)
+    .createHmac('sha256', keySecret)
     .update(`${razorpay_order_id}|${razorpay_payment_id}`)
     .digest('hex');
 
   if (expectedSignature !== razorpay_signature) {
+    console.error('Razorpay signature mismatch:', {
+      expected: expectedSignature,
+      received: razorpay_signature,
+    });
     return NextResponse.json({ error: 'Invalid payment signature' }, { status: 400 });
   }
 
