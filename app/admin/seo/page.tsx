@@ -13,7 +13,7 @@ const SEO_DEFAULTS: Record<string, string> = {
   seo_keywords: 'bridal jewelry, kundan, polki, meenakari, luxury jewelry, Indian bridal',
   og_image: '',
   twitter_handle: '',
-  robots_txt: 'User-agent: *\nAllow: /\nDisallow: /admin\nSitemap: https://ruviajewels.com/sitemap.xml',
+  robots_txt: 'User-agent: *\nAllow: /\nDisallow: /admin\nSitemap: https://www.ruviajewels.in/sitemap.xml',
   google_analytics_id: '',
 };
 
