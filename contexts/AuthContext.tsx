@@ -26,12 +26,13 @@ interface AuthContextValue {
     email: string,
     password: string,
     displayName: string
-  ) => Promise<{ error: string | null }>;
+  ) => Promise<{ error: string | null; session?: Session | null; user?: User | null }>;
   signInWithGoogle: () => Promise<void>;
   resetPassword: (email: string) => Promise<{ error: string | null }>;
   confirmPasswordResetWithCode: (
     newPassword: string
   ) => Promise<{ error: string | null }>;
+  resendVerificationEmail: (email: string) => Promise<{ error: string | null }>;
   signOut: () => Promise<void>;
 }
 
@@ -71,12 +72,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, sess) => {
+    } = supabase.auth.onAuthStateChange((event, sess) => {
       setSession(sess);
       setUser(sess?.user ?? null);
       setIsAdmin(ADMIN_EMAILS.includes(sess?.user?.email ?? ''));
       setLoading(false);
       if (sess) syncUser(sess);
+
+      if (event === 'SIGNED_IN' && typeof window !== 'undefined') {
+        if (window.location.hash.includes('type=signup') || window.location.hash.includes('type=email_change')) {
+          window.location.href = '/profile';
+        }
+      }
     });
 
     return () => subscription.unsubscribe();
@@ -93,7 +100,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signInWithEmail = useCallback(
     async (email: string, password: string) => {
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      const cleanEmail = email.trim().toLowerCase();
+      const { error } = await supabase.auth.signInWithPassword({ email: cleanEmail, password });
       return { error: error?.message ?? null };
     },
     [supabase]
@@ -101,12 +109,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signUpWithEmail = useCallback(
     async (email: string, password: string, displayName: string) => {
-      const { error } = await supabase.auth.signUp({
-        email,
+      const cleanEmail = email.trim().toLowerCase();
+      const redirectUrl = typeof window !== 'undefined' ? `${window.location.origin}/auth/callback?next=/profile` : undefined;
+      const { data, error } = await supabase.auth.signUp({
+        email: cleanEmail,
         password,
-        options: { data: { display_name: displayName } },
+        options: {
+          data: {
+            display_name: displayName.trim(),
+            full_name: displayName.trim(),
+          },
+          emailRedirectTo: redirectUrl,
+        },
       });
-      return { error: error?.message ?? null };
+      return { error: error?.message ?? null, session: data?.session ?? null, user: data?.user ?? null };
     },
     [supabase]
   );
@@ -136,6 +152,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     [supabase]
   );
 
+  const resendVerificationEmail = useCallback(
+    async (email: string) => {
+      const cleanEmail = email.trim().toLowerCase();
+      const redirectUrl = typeof window !== 'undefined' ? `${window.location.origin}/auth/callback?next=/profile` : undefined;
+      const { error } = await supabase.auth.resend({
+        type: 'signup',
+        email: cleanEmail,
+        options: {
+          emailRedirectTo: redirectUrl,
+        },
+      });
+      return { error: error?.message ?? null };
+    },
+    [supabase]
+  );
+
   const signOut = useCallback(async () => {
     await supabase.auth.signOut();
   }, [supabase]);
@@ -156,6 +188,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         signInWithGoogle,
         resetPassword,
         confirmPasswordResetWithCode,
+        resendVerificationEmail,
         signOut,
       }}
     >

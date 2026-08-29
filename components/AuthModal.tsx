@@ -17,6 +17,7 @@ export default function AuthModal() {
     signUpWithEmail,
     signInWithGoogle,
     resetPassword,
+    resendVerificationEmail,
   } = useAuth();
 
   const [mode, setMode] = useState<Mode>(authModalMode);
@@ -59,11 +60,13 @@ export default function AuthModal() {
         setLoading(false);
         return;
       }
-      const { error: err } = await signUpWithEmail(email, password, displayName);
+      const { error: err, session: sess } = await signUpWithEmail(email, password, displayName);
       if (err) {
         setError(err);
+      } else if (sess) {
+        closeAuthModal();
       } else {
-        setSuccessMsg('Account created! Please check your email to verify.');
+        setSuccessMsg('Account created! Please check your inbox (and Spam/Junk folder) for the verification link.');
       }
     } else if (mode === 'forgot') {
       const { error: err } = await resetPassword(email);
@@ -74,6 +77,22 @@ export default function AuthModal() {
       }
     }
 
+    setLoading(false);
+  };
+
+  const handleResend = async () => {
+    if (!email.trim()) {
+      setError('Please enter your email address to resend the verification link.');
+      return;
+    }
+    setLoading(true);
+    setError(null);
+    const { error: err } = await resendVerificationEmail(email);
+    if (err) {
+      setError(err);
+    } else {
+      setSuccessMsg('Verification link resent! Please check your inbox and Spam folder.');
+    }
     setLoading(false);
   };
 
@@ -212,14 +231,32 @@ export default function AuthModal() {
                   )}
 
                   {error && (
-                    <p className="text-red-600 text-xs border border-red-200 bg-red-50 px-3 py-2">
-                      {error}
-                    </p>
+                    <div className="border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-600 space-y-1">
+                      <p>{error}</p>
+                      {error.toLowerCase().includes('confirm') && (
+                        <button
+                          type="button"
+                          onClick={handleResend}
+                          className="font-semibold underline text-red-700 hover:text-red-900 block"
+                        >
+                          Resend verification email
+                        </button>
+                      )}
+                    </div>
                   )}
                   {successMsg && (
-                    <p className="text-emerald-700 text-xs border border-emerald-200 bg-emerald-50 px-3 py-2">
-                      {successMsg}
-                    </p>
+                    <div className="border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs text-emerald-800 space-y-1.5">
+                      <p>{successMsg}</p>
+                      {mode === 'register' && (
+                        <button
+                          type="button"
+                          onClick={handleResend}
+                          className="text-[11px] font-semibold text-emerald-900 underline hover:text-emerald-950 block"
+                        >
+                          Didn&apos;t receive it? Click to resend
+                        </button>
+                      )}
+                    </div>
                   )}
 
                   <button
