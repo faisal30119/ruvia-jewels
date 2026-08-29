@@ -13,7 +13,7 @@ const SEO_DEFAULTS: Record<string, string> = {
   seo_keywords: 'bridal jewelry, kundan, polki, meenakari, luxury jewelry, Indian bridal',
   og_image: '',
   twitter_handle: '',
-  robots_txt: 'User-agent: *\nAllow: /\nDisallow: /admin\nSitemap: https://almasjewels.com/sitemap.xml',
+  robots_txt: 'User-agent: *\nAllow: /\nDisallow: /admin\nSitemap: https://ruviajewels.com/sitemap.xml',
   google_analytics_id: '',
 };
 
@@ -66,7 +66,7 @@ export default function SEOPage() {
           <div><label className={LABEL}>Meta Description</label><textarea value={settings.seo_description} rows={3} onChange={set('seo_description')} className={INPUT + ' resize-none'} /></div>
           <div><label className={LABEL}>Keywords (comma-separated)</label><input type="text" value={settings.seo_keywords} onChange={set('seo_keywords')} className={INPUT} /></div>
           <div><label className={LABEL}>OG Image URL</label><input type="text" value={settings.og_image} onChange={set('og_image')} className={INPUT} placeholder="https://..." /></div>
-          <div><label className={LABEL}>Twitter Handle</label><input type="text" value={settings.twitter_handle} onChange={set('twitter_handle')} className={INPUT} placeholder="@almasjewels" /></div>
+          <div><label className={LABEL}>Twitter Handle</label><input type="text" value={settings.twitter_handle} onChange={set('twitter_handle')} className={INPUT} placeholder="@ruviajewels" /></div>
           <div><label className={LABEL}>Google Analytics ID</label><input type="text" value={settings.google_analytics_id} onChange={set('google_analytics_id')} className={INPUT} placeholder="G-XXXXXXXXXX" /></div>
         </div>
       </div>
