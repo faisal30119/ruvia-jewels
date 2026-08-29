@@ -3,22 +3,26 @@
 import React, { useRef, useState } from 'react';
 import Link from 'next/link';
 import { motion, useInView } from 'framer-motion';
-import { Gem, CheckCircle, Star, ShieldCheck, Truck, Quote } from 'lucide-react';
+import {
+  Sparkles,
+  Droplets,
+  Feather,
+  Flame,
+  ArrowRight,
+  Heart,
+  ShoppingBag,
+  Instagram,
+  Check,
+  Star,
+} from 'lucide-react';
+import { FALLBACK_PRODUCTS, IMAGES, type Product } from '@/lib/data';
+import { useWishlist } from '@/contexts/WishlistContext';
+import { useCart } from '@/contexts/CartContext';
+import { cn } from '@/lib/utils';
 
-const IMAGES = {
-  heroBride:
-    'https://res.cloudinary.com/niagn9pn/image/upload/v1786277890/almas_bridal/assets/wfnbs0fyl677rj20wiqr.jpg',
-  royal:
-    'https://res.cloudinary.com/niagn9pn/image/upload/v1786277886/almas_bridal/assets/dpjqxedlu5oleauyj40l.jpg',
-  solitaire:
-    'https://res.cloudinary.com/niagn9pn/image/upload/v1786277888/almas_bridal/assets/uoge8dcesrge8bsgimj6.jpg',
-  occasion:
-    'https://res.cloudinary.com/niagn9pn/image/upload/v1786277883/almas_bridal/assets/brxuufifingum5xyjodn.jpg',
-  pendant_main:
-    'https://res.cloudinary.com/niagn9pn/image/upload/v1786277893/almas_bridal/assets/panbrhgotshii2pl5zkb.jpg',
-  video_thumb:
-    'https://res.cloudinary.com/niagn9pn/image/upload/v1786277903/almas_bridal/assets/fztrpcjlj5pg5rntxdvn.jpg',
-};
+function formatPrice(n: number) {
+  return '₹' + n.toLocaleString('en-IN');
+}
 
 function FadeInSection({
   children,
@@ -30,13 +34,13 @@ function FadeInSection({
   className?: string;
 }) {
   const ref = useRef(null);
-  const inView = useInView(ref, { once: true, margin: '-80px' });
+  const inView = useInView(ref, { once: true, margin: '-60px' });
   return (
     <motion.div
       ref={ref}
-      initial={{ opacity: 0, y: 40 }}
+      initial={{ opacity: 0, y: 32 }}
       animate={inView ? { opacity: 1, y: 0 } : {}}
-      transition={{ duration: 0.7, delay }}
+      transition={{ duration: 0.6, delay }}
       className={className}
     >
       {children}
@@ -44,299 +48,585 @@ function FadeInSection({
   );
 }
 
-const CATEGORIES = [
+// Quick trend navigation chips
+const TREND_CHIPS = [
+  { label: '✨ The Seoul Edit', href: '/shop?category=Korean+Edit' },
+  { label: '🌸 Indo-Western Fusion', href: '/shop?category=Indo-Western' },
+  { label: '🎀 Bows & Coquette', href: '/shop?search=Bow' },
+  { label: '🤍 Clean Girl Pearls', href: '/shop?category=Pearls' },
+  { label: '⚡ Under ₹999', href: '/shop?price=Under+₹999' },
+  { label: '💫 Everyday Stacks', href: '/shop?category=Necklaces' },
+  { label: '🔥 Best Sellers', href: '/shop?sort=bestseller' },
+];
+
+// Curated 4 Editorial Collection Banners
+const EDITORIAL_COLLECTIONS = [
   {
-    name: 'Bridal Sets',
-    image: IMAGES.royal,
-    href: '/shop?category=Bridal+Sets',
-    desc: 'Complete ensembles for your big day',
+    title: 'The Seoul Edit',
+    tagline: 'K-Fashion & Minimalism',
+    desc: 'Dainty bow pendants, micro-huggies & clean line chains inspired by Hongdae streetwear.',
+    image: IMAGES.seoulEditBanner,
+    href: '/shop?category=Korean+Edit',
   },
   {
-    name: 'Necklaces',
-    image: IMAGES.solitaire,
+    title: 'Desi, But Make It Fashion',
+    tagline: 'Modern Indo-Western',
+    desc: 'Featherlight fusion jhumkas & contemporary chandbalis made for your modern kurtis & sarees.',
+    image: IMAGES.indoWesternBanner,
+    href: '/shop?category=Indo-Western',
+  },
+  {
+    title: 'Your Everyday Stack',
+    tagline: 'Tarnish-Free Layers',
+    desc: 'Anti-tarnish, waterproof chains and organic molten rings designed to live on you 24/7.',
+    image: IMAGES.everydayStackBanner,
     href: '/shop?category=Necklaces',
-    desc: 'Statement pieces for every look',
   },
   {
-    name: 'Earrings',
-    image: IMAGES.occasion,
-    href: '/shop?category=Earrings',
-    desc: 'From studs to chandelier drops',
-  },
-  {
-    name: 'All Products',
-    image: IMAGES.pendant_main,
-    href: '/shop',
-    desc: 'Browse the full collection',
+    title: 'The Under ₹999 Drop',
+    tagline: 'Affordable Luxury',
+    desc: 'Viral Instagram & TikTok-trending styles without the crazy designer markups.',
+    image: IMAGES.under999Banner,
+    href: '/shop?price=Under+₹999',
   },
 ];
 
-const TESTIMONIALS = [
+// Style Inspiration Lookbook Cards
+const STYLE_LOOKS = [
   {
-    name: 'Priya Sharma',
-    location: 'Delhi',
-    text: 'The Royal Emerald Heritage Set was everything I dreamed of for my wedding. The craftsmanship is extraordinary and every guest was in awe.',
+    id: '01',
+    look: 'Seoul Streetwear',
+    piece: 'Yuna Snake Chain + Nami Ear Cuffs',
+    outfit: 'Oversized blazer + basic white baby tee + baggy denim',
+    image: IMAGES.styleSeoul,
   },
   {
-    name: 'Aisha Khan',
-    location: 'Mumbai',
-    text: 'Khadie Jewels delivered beyond expectations. The Rhodium Diamond Set looked stunning in photos — exactly what a bride needs.',
+    id: '02',
+    look: 'Modern Indo-Western Chic',
+    piece: 'Mira Minimalist Jhumkas + Kiara Chain',
+    outfit: 'Linen slit kurti + wide-leg trousers or modern saree',
+    image: IMAGES.styleIndoWestern,
   },
   {
-    name: 'Riya Patel',
-    location: 'Jaipur',
-    text: 'I ordered the Kundan Bridal Set and it arrived beautifully packaged. The quality for the price is unmatched anywhere in India.',
+    id: '03',
+    look: 'Clean Girl Aesthetic',
+    piece: 'Hana Seed Pearl Drop + Tennis Bracelet',
+    outfit: 'Crisp poplin shirt + sleek slicked-back bun',
+    image: IMAGES.styleCleanGirl,
+  },
+  {
+    id: '04',
+    look: 'Date Night Vibe',
+    piece: 'Seoul Bow Choker + Aeri Molten Stack',
+    outfit: 'Square-neck slip dress + tailored coat',
+    image: IMAGES.styleDateNight,
   },
 ];
 
+// Gen-Z Value Props
 const VALUE_PROPS = [
   {
-    icon: <Gem size={32} className="text-gold-500" />,
-    title: 'Unmatched Craftsmanship',
-    desc: 'Every piece is handcrafted by master artisans using centuries-old techniques passed down through generations.',
+    icon: <Droplets size={26} className="text-[#D4AF37]" />,
+    title: 'Waterproof & Sweatproof',
+    desc: 'Premium PVD coated finish. Wear it in the shower, gym, or pool without worrying about tarnishing.',
   },
   {
-    icon: <CheckCircle size={32} className="text-gold-500" />,
-    title: 'Tailored for Brides',
-    desc: 'Our collections are curated specifically for bridal occasions — from mehendi to reception and everything in between.',
+    icon: <Feather size={26} className="text-[#D4AF37]" />,
+    title: 'Featherlight Comfort',
+    desc: 'Modern hollowed craftsmanship. All day wear with zero heaviness, ear-lobe pulling, or green skin.',
   },
   {
-    icon: <Star size={32} className="text-gold-500" />,
-    title: 'Luxury Within Reach',
-    desc: 'We believe every bride deserves luxury. Our pricing ensures you get heirloom quality without the heirloom price.',
+    icon: <Sparkles size={26} className="text-[#D4AF37]" />,
+    title: 'Designed for Stacking',
+    desc: 'Versatile lengths and stackable silhouettes created to effortlessly layer together.',
+  },
+  {
+    icon: <Flame size={26} className="text-[#D4AF37]" />,
+    title: 'Accessible Luxury',
+    desc: 'Curated high-street fashion jewelry at fair prices with fast, insured delivery across India.',
+  },
+];
+
+// Customer Reviews
+const REVIEWS = [
+  {
+    name: 'Ananya Roy',
+    city: 'Mumbai',
+    quote:
+      'The Seoul Bow Necklace is literally my everyday staple now! I wear it to college and to parties — it hasn’t tarnished at all even after weeks of daily wear.',
+    item: 'Seoul Bow Pendant Necklace',
+  },
+  {
+    name: 'Meher Kaur',
+    city: 'Delhi',
+    quote:
+      'Finally, Indo-Western jhumkas that are actually lightweight! The Mira Jhumkas look so chic with my linen shirts and kurtis.',
+    item: 'Mira Minimalist Indo-Western Jhumkas',
+  },
+  {
+    name: 'Rhea Sen',
+    city: 'Bengaluru',
+    quote:
+      'The packaging, the gold tone, the dainty pearls — everything screams expensive quiet luxury. Totally obsessed!',
+    item: 'Hana Dainty Pearl Chain',
   },
 ];
 
 export default function HomePage() {
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const [isPlaying, setIsPlaying] = useState(false);
+  const { isWishlisted, toggleWishlist } = useWishlist();
+  const { addToCart } = useCart();
+  const [activeTab, setActiveTab] = useState<'trending' | 'korean' | 'indowestern' | 'under999'>('trending');
+  const [addedIds, setAddedIds] = useState<Record<string, boolean>>({});
 
-  function toggleVideo() {
-    const v = videoRef.current;
-    if (!v) return;
-    if (isPlaying) {
-      v.pause();
-      setIsPlaying(false);
-    } else {
-      v.play();
-      setIsPlaying(true);
-    }
-  }
+  const handleQuickAdd = (p: Product, e: React.MouseEvent) => {
+    e.preventDefault();
+    addToCart(p, 1);
+    setAddedIds((prev) => ({ ...prev, [p.id]: true }));
+    setTimeout(() => {
+      setAddedIds((prev) => ({ ...prev, [p.id]: false }));
+    }, 1800);
+  };
+
+  const displayedProducts = FALLBACK_PRODUCTS.filter((p) => {
+    if (activeTab === 'korean') return p.category === 'Korean Edit' || p.trendTag === 'SEOUL EDIT';
+    if (activeTab === 'indowestern') return p.category === 'Indo-Western' || p.trendTag === 'INDO-WESTERN';
+    if (activeTab === 'under999') return p.price < 1000 || p.trendTag === 'UNDER ₹999';
+    return true; // trending
+  }).slice(0, 8);
 
   return (
-    <div className="bg-white">
-      {/* ─── HERO ─── */}
-      <section className="relative min-h-[85vh] sm:min-h-[90vh] md:min-h-screen flex items-center justify-center overflow-hidden">
-        <img
-          src={IMAGES.heroBride}
-          alt="Bridal hero"
-          referrerPolicy="no-referrer"
-          className="absolute inset-0 w-full h-full object-cover object-center"
-        />
-        <div className="absolute inset-0 bg-emerald-950/70" />
-        <div className="relative z-10 text-center px-4 sm:px-6 max-w-4xl mx-auto py-20 md:py-0">
-          <motion.p
-            initial={{ opacity: 0, letterSpacing: '0.2em' }}
-            animate={{ opacity: 1, letterSpacing: '0.3em' }}
-            transition={{ duration: 1 }}
-            className="text-gold-400 uppercase text-xs sm:text-sm tracking-widest mb-4 sm:mb-6 font-sans"
-          >
-            Khadie Jewels — Est. 2001
-          </motion.p>
-          <motion.h1
-            initial={{ opacity: 0, y: 30 }}
+    <div className="bg-[#FAF9F6] text-neutral-900 overflow-hidden font-sans">
+      {/* ─── 1. HERO SECTION ─── */}
+      <section className="relative min-h-[92vh] md:min-h-[96vh] flex items-center justify-center overflow-hidden pt-16">
+        {/* Background Image with Cinematic Luxury Gradient Overlays */}
+        <div className="absolute inset-0 z-0">
+          <img
+            src={IMAGES.hero}
+            alt="Ruvia Jewels Luxury Editorial"
+            className="w-full h-full object-cover object-center filter brightness-[0.7] contrast-[1.05]"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#011a14] via-[#022c22]/65 to-[#022c22]/40" />
+          <div className="absolute inset-0 bg-radial-gradient from-transparent via-black/20 to-black/60 pointer-events-none" />
+        </div>
+
+        <div className="relative z-10 text-center px-4 sm:px-6 max-w-5xl mx-auto py-20 sm:py-28 flex flex-col items-center">
+          {/* Refined Glassmorphic Pill Badge */}
+          <motion.div
+            initial={{ opacity: 0, y: -15 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.9, delay: 0.2 }}
-            className="font-serif text-3xl sm:text-5xl md:text-6xl lg:text-7xl text-white leading-tight mb-4 sm:mb-6"
+            transition={{ duration: 0.6 }}
+            className="inline-flex items-center gap-2 bg-black/35 backdrop-blur-md border border-[#D4AF37]/40 px-3.5 py-1.5 rounded-full mb-5 shadow-md"
           >
-            Timeless Elegance for Your Most Memorable Day
+            <Sparkles size={11} className="text-[#D4AF37] animate-spin duration-[4000ms]" />
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#F3E5AB] to-[#D4AF37] text-[9px] sm:text-[10px] uppercase tracking-[0.2em] font-semibold">
+              Korean-Inspired · Indo-Western · Everyday Luxury
+            </span>
+          </motion.div>
+
+          {/* Luxury Editorial Headline */}
+          <motion.h1
+            initial={{ opacity: 0, y: 25 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.85, delay: 0.15 }}
+            className="font-serif text-3xl sm:text-4xl md:text-5xl lg:text-6xl text-white font-medium tracking-tight leading-[1.15] mb-5 drop-shadow-md max-w-3xl"
+          >
+            Effortless Luxury for <br className="hidden sm:inline" />
+            Your <span className="font-normal italic text-transparent bg-clip-text bg-gradient-to-r from-[#FFF] via-[#D4AF37] to-[#F3E5AB]">Main Character</span> Era
           </motion.h1>
+
+          {/* Editorial Subtext */}
           <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.5 }}
-            className="text-white/80 text-sm sm:text-lg md:text-xl mb-8 sm:mb-10 font-sans max-w-2xl mx-auto leading-relaxed"
+            transition={{ duration: 0.8, delay: 0.3 }}
+            className="text-[#FAF9F6]/85 text-xs sm:text-sm md:text-base max-w-xl mx-auto font-light leading-relaxed mb-8 drop-shadow"
           >
-            Handcrafted luxury bridal jewelry — Kundan, Polki, Meenakari & more — designed for
-            the woman who deserves the extraordinary.
+            Seoul-inspired minimalism meets contemporary Indian soul. 100% waterproof & anti-tarnish jewelry designed for your everyday shine.
           </motion.p>
+
+          {/* Action Buttons */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.8 }}
+            transition={{ duration: 0.8, delay: 0.45 }}
+            className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-5 w-full sm:w-auto mb-10"
           >
             <Link
               href="/shop"
-              className="inline-block bg-gold-500 hover:bg-gold-400 text-emerald-950 font-sans font-bold uppercase tracking-widest px-8 sm:px-10 py-3.5 sm:py-4 text-xs sm:text-sm transition-colors duration-200"
+              className="w-full sm:w-auto bg-[#022c22] border border-[#D4AF37] text-[#D4AF37] hover:bg-[#064e3b] font-semibold text-xs sm:text-sm uppercase tracking-widest px-8 py-4 rounded-sm shadow-2xl transition-all hover:scale-105 flex items-center justify-center gap-2"
             >
-              Explore the Collection
+              <span>Shop New In</span>
+              <ArrowRight size={16} />
+            </Link>
+            <Link
+              href="/shop?category=Korean+Edit"
+              className="w-full sm:w-auto bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/25 text-white font-semibold text-xs sm:text-sm uppercase tracking-widest px-8 py-4 rounded-sm transition-all shadow-lg flex items-center justify-center"
+            >
+              Explore The Seoul Edit
             </Link>
           </motion.div>
+
+          {/* Luxury Micro Guarantee Highlights */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.8, delay: 0.6 }}
+            className="flex flex-wrap items-center justify-center gap-4 sm:gap-8 text-[11px] sm:text-xs text-white/80 font-medium tracking-wider uppercase border-t border-white/15 pt-6 max-w-3xl"
+          >
+            <div className="flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#D4AF37]" />
+              <span>💧 Waterproof & Anti-Tarnish</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#D4AF37]" />
+              <span>🌿 Hypoallergenic</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#D4AF37]" />
+              <span>✨ Everyday Stacking</span>
+            </div>
+          </motion.div>
         </div>
-        {/* Scroll indicator */}
-        <motion.div
-          animate={{ y: [0, 10, 0] }}
-          transition={{ repeat: Infinity, duration: 1.5 }}
-          className="absolute bottom-4 sm:bottom-8 left-1/2 -translate-x-1/2 w-px h-8 sm:h-12 bg-gold-500/60"
-        />
+
+        {/* Scroll Pill Indicator */}
+        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1.5 text-white/50 text-xs">
+          <span className="uppercase tracking-widest text-[9px] font-medium">Scroll</span>
+          <div className="w-3.5 h-6 border border-white/30 rounded-full flex justify-center p-0.5">
+            <motion.div
+              animate={{ y: [0, 6, 0] }}
+              transition={{ repeat: Infinity, duration: 1.5 }}
+              className="w-1 h-1.5 bg-[#D4AF37] rounded-full"
+            />
+          </div>
+        </div>
       </section>
 
-      {/* ─── VALUE PROPS ─── */}
-      <section className="bg-emerald-950 py-14 sm:py-20 px-4 sm:px-6">
-        <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 sm:gap-12">
-          {VALUE_PROPS.map((vp, i) => (
-            <FadeInSection key={vp.title} delay={i * 0.15}>
-              <div className="text-center">
-                <div className="flex justify-center mb-3 sm:mb-4">{vp.icon}</div>
-                <h3 className="font-serif text-lg sm:text-xl text-white mb-2 sm:3">{vp.title}</h3>
-                <p className="text-white/60 text-xs sm:text-sm leading-relaxed font-sans">{vp.desc}</p>
-              </div>
+      {/* ─── 2. QUICK TREND CHIPS BAR ─── */}
+      <section className="bg-white border-b border-gray-100 py-3.5 px-4 sticky top-16 lg:top-20 z-20 shadow-sm overflow-x-auto scrollbar-none">
+        <div className="max-w-7xl mx-auto flex items-center gap-2.5 sm:gap-3 min-w-max">
+          <span className="text-xs font-semibold uppercase tracking-wider text-gray-400 mr-1 shrink-0">
+            Trending:
+          </span>
+          {TREND_CHIPS.map((chip) => (
+            <Link
+              key={chip.label}
+              href={chip.href}
+              className="inline-flex items-center text-xs font-medium bg-gray-50 hover:bg-[#022c22] hover:text-[#D4AF37] border border-gray-200 hover:border-[#022c22] text-gray-700 px-3.5 py-1.5 rounded-full transition-all shrink-0"
+            >
+              {chip.label}
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      {/* ─── 3. EDITORIAL COLLECTIONS GRID ─── */}
+      <section className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+        <FadeInSection>
+          <div className="flex flex-col md:flex-row md:items-end justify-between mb-10 sm:mb-14">
+            <div>
+              <p className="text-xs uppercase tracking-widest text-[#022c22] font-bold mb-2">
+                Curated Aesthetics
+              </p>
+              <h2 className="font-serif text-3xl sm:text-5xl text-emerald-950 font-bold">
+                Shop By Editorial Drop
+              </h2>
+            </div>
+            <Link
+              href="/shop"
+              className="hidden md:inline-flex items-center gap-2 text-xs uppercase tracking-widest font-semibold text-[#022c22] hover:text-[#D4AF37] transition-colors mt-4 md:mt-0"
+            >
+              <span>View All Collections</span>
+              <ArrowRight size={14} />
+            </Link>
+          </div>
+        </FadeInSection>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-6">
+          {EDITORIAL_COLLECTIONS.map((col, i) => (
+            <FadeInSection key={col.title} delay={i * 0.1}>
+              <Link
+                href={col.href}
+                className="group relative block aspect-[4/5] rounded-sm overflow-hidden bg-gray-100 shadow-sm border border-gray-100"
+              >
+                <img
+                  src={col.image}
+                  alt={col.title}
+                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent transition-opacity duration-300" />
+                <div className="absolute bottom-0 left-0 right-0 p-5 sm:p-6 text-white">
+                  <span className="inline-block text-[11px] font-semibold uppercase tracking-widest text-[#F3E5AB] mb-1.5">
+                    {col.tagline}
+                  </span>
+                  <h3 className="font-serif text-xl sm:text-2xl font-bold mb-2 leading-tight">
+                    {col.title}
+                  </h3>
+                  <p className="text-white/80 text-xs line-clamp-2 mb-3 leading-relaxed">
+                    {col.desc}
+                  </p>
+                  <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-white group-hover:text-[#D4AF37] transition-colors">
+                    Explore Drop <ArrowRight size={13} />
+                  </span>
+                </div>
+              </Link>
             </FadeInSection>
           ))}
         </div>
       </section>
 
-      {/* ─── SHOP BY CATEGORY ─── */}
-      <section className="py-16 sm:py-24 px-4 sm:px-6 bg-white">
-        <div className="max-w-6xl mx-auto">
+      {/* ─── 4. TRENDING NOW & BESTSELLERS INTERACTIVE TABS ─── */}
+      <section className="py-16 sm:py-24 bg-white border-y border-gray-100">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <FadeInSection>
-            <div className="text-center mb-10 sm:mb-16">
-              <p className="text-gold-600 uppercase tracking-widest text-xs font-sans mb-2 sm:mb-3">
-                Collections
+            <div className="text-center max-w-2xl mx-auto mb-10 sm:mb-12">
+              <p className="text-xs uppercase tracking-widest text-[#022c22] font-bold mb-2">
+                What Everyone Is Wearing
               </p>
-              <h2 className="font-serif text-3xl sm:text-4xl md:text-5xl text-emerald-950">
-                Shop By Category
+              <h2 className="font-serif text-3xl sm:text-5xl text-emerald-950 font-bold mb-6">
+                Trending Jewelry Drops
               </h2>
+
+              {/* Tabs */}
+              <div className="inline-flex p-1 bg-gray-100 rounded-full flex-wrap justify-center gap-1 max-w-full">
+                {[
+                  { id: 'trending', label: '🔥 Trending Now' },
+                  { id: 'korean', label: '✨ The Seoul Edit' },
+                  { id: 'indowestern', label: '🌸 Indo-Western' },
+                  { id: 'under999', label: '⚡ Under ₹999' },
+                ].map((tab) => (
+                  <button
+                    key={tab.id}
+                    onClick={() => setActiveTab(tab.id as any)}
+                    className={cn(
+                      'px-4 sm:px-5 py-2 text-xs font-semibold rounded-full transition-all',
+                      activeTab === tab.id
+                        ? 'bg-[#022c22] text-[#D4AF37] shadow-sm'
+                        : 'text-gray-600 hover:text-gray-900'
+                    )}
+                  >
+                    {tab.label}
+                  </button>
+                ))}
+              </div>
             </div>
           </FadeInSection>
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
-            {CATEGORIES.map((cat, i) => (
-              <FadeInSection key={cat.name} delay={i * 0.12}>
-                <Link href={cat.href} className="group block overflow-hidden">
-                  <div className="relative overflow-hidden aspect-[3/4]">
-                    <img
-                      src={cat.image}
-                      alt={cat.name}
-                      referrerPolicy="no-referrer"
-                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                    />
-                    <div className="absolute inset-0 bg-emerald-950/30 group-hover:bg-emerald-950/50 transition-colors duration-300" />
-                    <div className="absolute bottom-0 left-0 right-0 p-3 sm:p-5">
-                      <h3 className="font-serif text-white text-base sm:text-xl mb-0.5 sm:mb-1">{cat.name}</h3>
-                      <p className="text-white/70 text-[10px] sm:text-xs font-sans uppercase tracking-wider line-clamp-1">
-                        {cat.desc}
-                      </p>
+
+          {/* Product Grid */}
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6">
+            {displayedProducts.map((product, i) => {
+              const wished = isWishlisted(product.id);
+              const isAdded = addedIds[product.id];
+
+              return (
+                <FadeInSection key={product.id} delay={i * 0.06}>
+                  <div className="group bg-white rounded-sm overflow-hidden border border-gray-100 hover:border-[#D4AF37]/50 hover:shadow-md transition-all flex flex-col h-full relative">
+                    {/* Trend Badge */}
+                    {product.trendTag && (
+                      <div className="absolute top-2.5 left-2.5 z-10">
+                        <span className="bg-[#022c22] text-[#D4AF37] text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-sm shadow-sm">
+                          {product.trendTag}
+                        </span>
+                      </div>
+                    )}
+
+                    {/* Wishlist Button */}
+                    <button
+                      onClick={(e) => {
+                        e.preventDefault();
+                        toggleWishlist(product.id);
+                      }}
+                      className="absolute top-2.5 right-2.5 z-10 w-8 h-8 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center text-gray-500 hover:text-red-500 hover:bg-white shadow-sm transition-all"
+                      aria-label="Wishlist"
+                    >
+                      <Heart
+                        size={15}
+                        className={cn(wished && 'fill-red-500 text-red-500')}
+                      />
+                    </button>
+
+                    {/* Image Link */}
+                    <Link
+                      href={`/product/${product.id}`}
+                      className="relative block aspect-square bg-gray-50 overflow-hidden"
+                    >
+                      <img
+                        src={product.image}
+                        alt={product.name}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      />
+                    </Link>
+
+                    {/* Info */}
+                    <div className="p-3.5 sm:p-4 flex flex-col flex-1">
+                      <span className="text-[10px] uppercase tracking-wider font-semibold text-gray-400 mb-1">
+                        {product.category}
+                      </span>
+                      <Link
+                        href={`/product/${product.id}`}
+                        className="font-serif text-sm sm:text-base font-semibold text-emerald-950 hover:text-[#022c22] line-clamp-1 mb-1.5"
+                      >
+                        {product.name}
+                      </Link>
+
+                      {/* Pricing */}
+                      <div className="flex items-center gap-2 mt-auto pt-2">
+                        <span className="text-sm sm:text-base font-bold text-gray-900">
+                          {formatPrice(product.price)}
+                        </span>
+                        {product.oldPrice && (
+                          <span className="text-xs text-gray-400 line-through">
+                            {formatPrice(product.oldPrice)}
+                          </span>
+                        )}
+                      </div>
+
+                      {/* Quick Add Button */}
+                      <button
+                        onClick={(e) => handleQuickAdd(product, e)}
+                        className={cn(
+                          'mt-3 w-full py-2 text-xs font-semibold uppercase tracking-wider rounded-sm transition-all flex items-center justify-center gap-1.5',
+                          isAdded
+                            ? 'bg-emerald-600 text-white'
+                            : 'bg-gray-100 hover:bg-[#022c22] text-gray-800 hover:text-[#D4AF37]'
+                        )}
+                      >
+                        {isAdded ? (
+                          <>
+                            <Check size={14} />
+                            <span>Added!</span>
+                          </>
+                        ) : (
+                          <>
+                            <ShoppingBag size={13} />
+                            <span>Add to Bag</span>
+                          </>
+                        )}
+                      </button>
                     </div>
                   </div>
-                </Link>
-              </FadeInSection>
-            ))}
+                </FadeInSection>
+              );
+            })}
+          </div>
+
+          <div className="text-center mt-12">
+            <Link
+              href="/shop"
+              className="inline-flex items-center gap-2 bg-[#022c22] text-[#D4AF37] hover:bg-[#064e3b] px-8 py-3.5 text-xs uppercase tracking-widest font-bold rounded-sm shadow-sm transition-all"
+            >
+              <span>Explore All {FALLBACK_PRODUCTS.length}+ Trending Pieces</span>
+              <ArrowRight size={14} />
+            </Link>
           </div>
         </div>
       </section>
 
-      {/* ─── VIDEO LOOKBOOK ─── */}
-      <section className="bg-emerald-900 py-16 sm:py-24 px-4 sm:px-6">
-        <div className="max-w-5xl mx-auto">
-          <FadeInSection>
-            <div className="text-center mb-8 sm:mb-12">
-              <p className="text-gold-400 uppercase tracking-widest text-xs font-sans mb-2 sm:mb-3">
-                Experience
-              </p>
-              <h2 className="font-serif text-3xl sm:text-4xl md:text-5xl text-white">The Bridal Lookbook</h2>
-              <p className="text-white/60 mt-3 sm:mt-4 font-sans text-xs sm:text-sm max-w-lg mx-auto">
-                Watch our latest bridal collection come to life — craftsmanship, elegance, and
-                tradition captured in every frame.
-              </p>
-            </div>
-          </FadeInSection>
-          <FadeInSection delay={0.2}>
-            <div
-              className="relative cursor-pointer group"
-              onClick={toggleVideo}
-            >
-              <video
-                ref={videoRef}
-                poster={IMAGES.video_thumb}
-                src="https://cdn.pixabay.com/video/2020/06/15/42079-429990835_large.mp4"
-                loop
-                playsInline
-                className="w-full aspect-video object-cover"
-                onEnded={() => setIsPlaying(false)}
-              />
-              {!isPlaying && (
-                <div className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/30 transition-colors">
-                  <div className="w-14 h-14 sm:w-20 sm:h-20 flex items-center justify-center bg-gold-500/90 group-hover:bg-gold-400 transition-colors">
-                    <svg className="w-6 h-6 sm:w-8 sm:h-8 text-emerald-950 ml-1" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M8 5v14l11-7z" />
-                    </svg>
+      {/* ─── 5. STYLE INSPIRATION LOOKBOOK ("HOW WE STYLE IT") ─── */}
+      <section className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+        <FadeInSection>
+          <div className="text-center max-w-2xl mx-auto mb-12 sm:mb-16">
+            <span className="inline-block text-xs uppercase tracking-widest text-[#022c22] font-bold mb-2">
+              Style Inspiration
+            </span>
+            <h2 className="font-serif text-3xl sm:text-5xl text-emerald-950 font-bold mb-3">
+              How We Style It
+            </h2>
+            <p className="text-gray-500 text-xs sm:text-sm">
+              Effortless jewelry combinations inspired by Seoul streets, café dates & modern festive looks.
+            </p>
+          </div>
+        </FadeInSection>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {STYLE_LOOKS.map((style, idx) => (
+            <FadeInSection key={style.id} delay={idx * 0.1}>
+              <div className="bg-white rounded-sm overflow-hidden border border-gray-100 shadow-sm flex flex-col h-full">
+                <div className="relative aspect-[3/4] overflow-hidden bg-gray-100">
+                  <img
+                    src={style.image}
+                    alt={style.look}
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute top-3 left-3 bg-black/60 backdrop-blur-sm text-white px-2.5 py-1 text-[10px] font-mono rounded">
+                    LOOK {style.id}
                   </div>
                 </div>
-              )}
-            </div>
-          </FadeInSection>
-        </div>
-      </section>
-
-      {/* ─── TRUST BADGES ─── */}
-      <section className="py-12 sm:py-16 px-4 sm:px-6 border-y border-gray-100">
-        <div className="max-w-5xl mx-auto grid grid-cols-1 sm:grid-cols-3 gap-8 sm:gap-10 text-center">
-          {[
-            {
-              icon: <ShieldCheck size={28} className="text-gold-500" />,
-              label: 'Authenticity Guaranteed',
-              sub: 'Every piece is certified genuine',
-            },
-            {
-              icon: <Truck size={28} className="text-gold-500" />,
-              label: 'Safe & Fast Delivery',
-              sub: 'Insured shipping across India',
-            },
-            {
-              icon: <Gem size={28} className="text-gold-500" />,
-              label: 'Premium Quality',
-              sub: 'Artisan crafted, heirloom grade',
-            },
-          ].map((b, i) => (
-            <FadeInSection key={b.label} delay={i * 0.1}>
-              <div className="flex flex-col items-center gap-2 sm:gap-3">
-                {b.icon}
-                <p className="font-sans font-semibold text-emerald-950 uppercase tracking-wider text-xs">
-                  {b.label}
-                </p>
-                <p className="text-gray-500 text-xs">{b.sub}</p>
+                <div className="p-5 flex flex-col flex-1">
+                  <h3 className="font-serif text-lg font-bold text-emerald-950 mb-1">
+                    {style.look}
+                  </h3>
+                  <p className="text-xs font-semibold text-[#D4AF37] mb-2">
+                    ✨ Featured: {style.piece}
+                  </p>
+                  <p className="text-xs text-gray-500 leading-relaxed mt-auto">
+                    <strong>Vibe:</strong> {style.outfit}
+                  </p>
+                </div>
               </div>
             </FadeInSection>
           ))}
         </div>
       </section>
 
-      {/* ─── TESTIMONIALS ─── */}
-      <section className="py-16 sm:py-24 px-4 sm:px-6 bg-white">
-        <div className="max-w-6xl mx-auto">
+      {/* ─── 6. VALUE PROPS (GEN-Z FEATURES) ─── */}
+      <section className="bg-[#022c22] text-white py-16 sm:py-20 px-4 sm:px-6 lg:px-8 border-y border-[#D4AF37]/20">
+        <div className="max-w-7xl mx-auto">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 sm:gap-10">
+            {VALUE_PROPS.map((vp, i) => (
+              <FadeInSection key={vp.title} delay={i * 0.1}>
+                <div className="text-left">
+                  <div className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center mb-4 border border-white/10">
+                    {vp.icon}
+                  </div>
+                  <h3 className="font-serif text-lg font-bold text-white mb-2">
+                    {vp.title}
+                  </h3>
+                  <p className="text-white/70 text-xs sm:text-sm leading-relaxed font-light">
+                    {vp.desc}
+                  </p>
+                </div>
+              </FadeInSection>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ─── 7. COMMUNITY & CUSTOMER REVIEWS ─── */}
+      <section className="py-16 sm:py-24 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <FadeInSection>
-            <div className="text-center mb-10 sm:mb-16">
-              <p className="text-gold-600 uppercase tracking-widest text-xs font-sans mb-2 sm:mb-3">
-                Stories
-              </p>
-              <h2 className="font-serif text-3xl sm:text-4xl md:text-5xl text-emerald-950">
-                Our Brides Speak
+            <div className="text-center max-w-2xl mx-auto mb-12 sm:mb-16">
+              <span className="text-xs uppercase tracking-widest text-[#022c22] font-bold mb-2">
+                Real Girls · Real Stacks
+              </span>
+              <h2 className="font-serif text-3xl sm:text-5xl text-emerald-950 font-bold">
+                Loved By Our Community
               </h2>
             </div>
           </FadeInSection>
+
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
-            {TESTIMONIALS.map((t, i) => (
-              <FadeInSection key={t.name} delay={i * 0.15}>
-                <div className="bg-gray-50 border border-gray-100 p-6 sm:p-8">
-                  <Quote size={20} className="text-gold-500 mb-3 sm:mb-4" />
-                  <p className="text-gray-700 text-xs sm:text-sm leading-relaxed font-sans mb-4 sm:mb-6 italic">
-                    &ldquo;{t.text}&rdquo;
-                  </p>
+            {REVIEWS.map((rev, i) => (
+              <FadeInSection key={rev.name} delay={i * 0.12}>
+                <div className="bg-[#FAF9F6] border border-gray-100 p-6 sm:p-8 rounded-sm flex flex-col justify-between h-full">
                   <div>
-                    <p className="font-sans font-semibold text-emerald-950 text-xs sm:text-sm uppercase tracking-wider">
-                      {t.name}
+                    <div className="flex gap-1 text-[#D4AF37] mb-4">
+                      {[...Array(5)].map((_, starIdx) => (
+                        <Star key={starIdx} size={14} className="fill-[#D4AF37]" />
+                      ))}
+                    </div>
+                    <p className="text-gray-700 text-sm leading-relaxed mb-6 italic font-serif">
+                      &ldquo;{rev.quote}&rdquo;
                     </p>
-                    <p className="text-gold-600 text-[11px] sm:text-xs font-sans">{t.location}</p>
+                  </div>
+                  <div className="border-t border-gray-200/70 pt-4 flex items-center justify-between">
+                    <div>
+                      <h4 className="font-semibold text-sm text-emerald-950">{rev.name}</h4>
+                      <p className="text-xs text-gray-400">{rev.city}</p>
+                    </div>
+                    <span className="text-[10px] bg-emerald-50 text-emerald-800 font-semibold px-2 py-1 rounded">
+                      Verified Buyer
+                    </span>
                   </div>
                 </div>
               </FadeInSection>
@@ -345,25 +635,30 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ─── FINAL CTA ─── */}
-      <section className="bg-emerald-950 py-16 sm:py-24 px-4 sm:px-6 text-center">
+      {/* ─── 8. INSTAGRAM COMMUNITY CALLOUT ─── */}
+      <section className="py-16 sm:py-24 px-4 bg-[#FAF9F6] border-t border-gray-100 text-center">
         <FadeInSection>
-          <p className="text-gold-400 uppercase tracking-widest text-xs font-sans mb-3 sm:mb-4">
-            Begin Your Journey
-          </p>
-          <h2 className="font-serif text-3xl sm:text-4xl md:text-5xl text-white mb-4 sm:mb-6">
-            Find Your Perfect Bridal Look
-          </h2>
-          <p className="text-white/60 font-sans text-xs sm:text-sm max-w-lg mx-auto mb-8 sm:mb-10">
-            Every bride is unique. Explore our full collection and find the piece that tells your
-            story.
-          </p>
-          <Link
-            href="/shop"
-            className="inline-block border border-gold-500 text-gold-500 hover:bg-gold-500 hover:text-emerald-950 font-sans font-bold uppercase tracking-widest px-8 sm:px-10 py-3.5 sm:py-4 text-xs sm:text-sm transition-colors duration-200"
-          >
-            Shop the Collection
-          </Link>
+          <div className="max-w-xl mx-auto flex flex-col items-center">
+            <div className="w-14 h-14 rounded-full bg-[#022c22] text-[#D4AF37] flex items-center justify-center mx-auto mb-5 shadow-sm">
+              <Instagram size={26} />
+            </div>
+            <h3 className="font-serif text-3xl sm:text-4xl text-emerald-950 font-bold mb-3">
+              Join the #RuviaVibe on Instagram
+            </h3>
+            <p className="text-xs sm:text-sm text-gray-500 max-w-md mx-auto mb-8 leading-relaxed">
+              Tag <strong className="text-emerald-950">@ruvia.jewels</strong> in your everyday stacks & café fits to be featured in our style spotlight.
+            </p>
+
+            <a
+              href="https://www.instagram.com/ruvia.jewels?utm_source=qr&igsi=MWg1NGt2b2RqNnUycA=="
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2.5 bg-[#022c22] hover:bg-[#064e3b] text-[#D4AF37] font-semibold text-xs sm:text-sm uppercase tracking-widest px-8 py-4 rounded-sm shadow-md transition-all hover:scale-105"
+            >
+              <span>Follow @ruvia.jewels</span>
+              <ArrowRight size={16} />
+            </a>
+          </div>
         </FadeInSection>
       </section>
     </div>

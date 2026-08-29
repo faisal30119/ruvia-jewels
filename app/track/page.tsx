@@ -16,6 +16,7 @@ interface Order {
     lastName?: string;
     address?: string;
     city?: string;
+    state?: string;
     postalCode?: string;
     name?: string;
     email?: string;
@@ -235,7 +236,10 @@ function TrackContent() {
                   {order.shipping_details.address}
                 </p>
                 <p className="font-sans text-sm text-gray-500">
-                  {order.shipping_details.city}
+                  {[
+                    order.shipping_details.city,
+                    order.shipping_details.state,
+                  ].filter(Boolean).join(', ')}
                   {order.shipping_details.postalCode
                     ? ` – ${order.shipping_details.postalCode}`
                     : ''}

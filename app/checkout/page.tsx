@@ -12,7 +12,7 @@ declare global {
   interface Window {
     Razorpay: new (options: Record<string, unknown>) => {
       open: () => void;
-      on: (event: string, handler: () => void) => void;
+      on: (event: string, handler: (response?: any) => void) => void;
     };
   }
 }
@@ -28,6 +28,7 @@ interface ShippingForm {
   phone: string;
   address: string;
   city: string;
+  state: string;
   postalCode: string;
 }
 
@@ -53,6 +54,7 @@ export default function CheckoutPage() {
     phone: '',
     address: '',
     city: '',
+    state: '',
     postalCode: '',
   });
 
@@ -151,11 +153,11 @@ export default function CheckoutPage() {
 
       // 3. Open Razorpay widget
       const rzp = new window.Razorpay({
-        key: orderData.key,
+        key: orderData.key || process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
         amount: orderData.amount,
         currency: orderData.currency ?? 'INR',
         name: 'Ruvia Jewels',
-        description: 'Bridal Jewelry Order',
+        description: 'Korean & Indo-Western Jewelry Order',
         order_id: orderData.id,
         prefill: {
           name: `${form.firstName} ${form.lastName}`,
@@ -163,43 +165,60 @@ export default function CheckoutPage() {
           contact: form.phone,
         },
         theme: { color: '#022c22' },
+        modal: {
+          ondismiss: () => {
+            setSubmitting(false);
+          },
+        },
         handler: async (response: {
           razorpay_payment_id: string;
           razorpay_order_id: string;
           razorpay_signature: string;
         }) => {
-          // 4. Confirm payment
-          await fetch('/api/payment/success', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${session.access_token}`,
-            },
-            body: JSON.stringify({
-              razorpay_payment_id: response.razorpay_payment_id,
-              razorpay_order_id: response.razorpay_order_id,
-              razorpay_signature: response.razorpay_signature,
-              userId: user.id,
-              email: form.email,
-              name: `${form.firstName} ${form.lastName}`,
-              shippingAddress: form,
-              items: items.map((i) => ({
-                id: i.product.id,
-                name: i.product.name,
-                price: i.product.price,
-                quantity: i.quantity,
-              })),
-              amount: total,
-              couponCode: couponApplied ? coupon : undefined,
-              couponDiscount,
-            }),
-          });
-          clearCart();
-          router.push(`/success?orderId=${response.razorpay_order_id}`);
+          try {
+            // 4. Verify payment signature & record order
+            const verifyRes = await fetch('/api/payment/success', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${session.access_token}`,
+              },
+              body: JSON.stringify({
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_signature: response.razorpay_signature,
+                userId: user.id,
+                email: form.email,
+                name: `${form.firstName} ${form.lastName}`,
+                shippingAddress: form,
+                items: items.map((i) => ({
+                  id: i.product.id,
+                  name: i.product.name,
+                  price: i.product.price,
+                  quantity: i.quantity,
+                })),
+                amount: total,
+                couponCode: couponApplied ? coupon : undefined,
+                couponDiscount,
+              }),
+            });
+
+            const verifyData = await verifyRes.json();
+            if (!verifyRes.ok || !verifyData.success) {
+              throw new Error(verifyData.error ?? 'Payment verification failed');
+            }
+
+            clearCart();
+            router.push(`/success?orderId=${response.razorpay_order_id}`);
+          } catch (err: unknown) {
+            setFormError(err instanceof Error ? err.message : 'Failed to confirm payment');
+            setSubmitting(false);
+          }
         },
       });
 
-      rzp.on('payment.failed', async () => {
+      rzp.on('payment.failed', async (response: any) => {
+        const errorDesc = response?.error?.description || 'Payment was unsuccessful or declined by bank.';
         await fetch('/api/payment/failed', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -208,14 +227,14 @@ export default function CheckoutPage() {
             email: form.email,
             amount: total,
             razorpayOrderId: orderData.id,
+            error: errorDesc,
           }),
         });
-        setFormError('Payment failed. Please try again.');
+        setFormError(`Payment failed: ${errorDesc}`);
         setSubmitting(false);
       });
 
       rzp.open();
-      setSubmitting(false);
     } catch (err: unknown) {
       setFormError(err instanceof Error ? err.message : 'Something went wrong');
       setSubmitting(false);
@@ -333,7 +352,7 @@ export default function CheckoutPage() {
                 className="w-full border border-gray-300 px-3 py-2.5 text-sm font-sans focus:outline-none focus:border-emerald-950"
               />
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
               <div>
                 <label className="block text-[11px] sm:text-xs font-sans uppercase tracking-wider text-gray-500 mb-1">
                   City *
@@ -344,11 +363,25 @@ export default function CheckoutPage() {
                   value={form.city}
                   onChange={handleFormChange}
                   className="w-full border border-gray-300 px-3 py-2.5 text-sm font-sans focus:outline-none focus:border-emerald-950"
+                  placeholder="e.g. Mumbai"
                 />
               </div>
               <div>
                 <label className="block text-[11px] sm:text-xs font-sans uppercase tracking-wider text-gray-500 mb-1">
-                  Postal Code *
+                  State *
+                </label>
+                <input
+                  name="state"
+                  required
+                  value={form.state}
+                  onChange={handleFormChange}
+                  className="w-full border border-gray-300 px-3 py-2.5 text-sm font-sans focus:outline-none focus:border-emerald-950"
+                  placeholder="e.g. Maharashtra"
+                />
+              </div>
+              <div>
+                <label className="block text-[11px] sm:text-xs font-sans uppercase tracking-wider text-gray-500 mb-1">
+                  Postal Code / PIN *
                 </label>
                 <input
                   name="postalCode"
@@ -356,6 +389,7 @@ export default function CheckoutPage() {
                   value={form.postalCode}
                   onChange={handleFormChange}
                   className="w-full border border-gray-300 px-3 py-2.5 text-sm font-sans focus:outline-none focus:border-emerald-950"
+                  placeholder="e.g. 400001"
                 />
               </div>
             </div>

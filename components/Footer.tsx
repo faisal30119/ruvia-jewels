@@ -15,7 +15,7 @@ export default function Footer() {
               <RuviaLogo variant="light" size="lg" showLink={false} />
             </div>
             <p className="text-sm text-white/60 leading-relaxed max-w-xs">
-              Handcrafted luxury bridal jewelry — where tradition meets elegance. Every piece tells a story of heritage and craftsmanship.
+              Korean-inspired minimalism meets modern Indo-Western jewelry. Made for everyday wear, effortless stacking, and your main character moments.
             </p>
             <Link
               href="/"
@@ -60,19 +60,21 @@ export default function Footer() {
             </h4>
             <ul className="space-y-2.5">
               {[
-                'Bridal Sets',
-                'Necklaces',
-                'Earrings',
-                'Pendants',
-                'Kundan Jewelry',
-                'Polki Jewelry',
+                { label: 'Bridal Sets', href: '/shop?category=Bridal+Sets' },
+                { label: 'Necklaces', href: '/shop?category=Necklaces' },
+                { label: 'Earrings', href: '/shop?category=Earrings' },
+                { label: 'Pendants', href: '/shop?category=Pendants' },
+                { label: 'Oxidise Jewelry', href: '/shop?category=Oxidise+jewelry' },
+                { label: 'American Diamond / CZ', href: '/shop?category=American+Diamond+(AD)+%2F+CZ' },
+                { label: 'Polki & Kundan', href: '/shop?category=Polki+Jewelry' },
+                { label: 'Meenakari Jewelry', href: '/shop?category=Meenakari+Jewelry' },
               ].map((cat) => (
-                <li key={cat}>
+                <li key={cat.label}>
                   <Link
-                    href={`/shop?category=${encodeURIComponent(cat)}`}
+                    href={cat.href}
                     className="text-xs sm:text-sm text-white/60 hover:text-[#D4AF37] transition-colors leading-tight block"
                   >
-                    {cat}
+                    {cat.label}
                   </Link>
                 </li>
               ))}
@@ -108,13 +110,13 @@ export default function Footer() {
               </li>
               <li>
                 <a
-                  href="https://www.instagram.com/ruviajewels"
+                  href="https://www.instagram.com/ruvia.jewels?utm_source=qr&igsi=MWg1NGt2b2RqNnUycA=="
                   target="_blank"
                   rel="noopener noreferrer"
                   className="hover:text-[#D4AF37] transition-colors flex items-center gap-2"
                 >
                   <Instagram size={15} className="text-white shrink-0" />
-                  <span>@ruviajewels on Instagram</span>
+                  <span>@ruvia.jewels on Instagram</span>
                 </a>
               </li>
             </ul>

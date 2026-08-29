@@ -15,7 +15,10 @@ import RuviaLogo from '@/components/RuviaLogo';
 
 const NAV_LINKS = [
   { label: 'Home', href: '/' },
-  { label: 'Shop', href: '/shop' },
+  { label: 'Shop All', href: '/shop' },
+  { label: 'The Seoul Edit', href: '/shop?category=Korean+Edit' },
+  { label: 'Indo-Western', href: '/shop?category=Indo-Western' },
+  { label: 'Under ₹999', href: '/shop?price=Under+₹999' },
   { label: 'Track Order', href: '/track' },
 ];
 
