@@ -48,16 +48,6 @@ function FadeInSection({
   );
 }
 
-// Quick trend navigation chips
-const TREND_CHIPS = [
-  { label: '✨ The Seoul Edit', href: '/shop?category=Korean+Edit' },
-  { label: '🌸 Indo-Western Fusion', href: '/shop?category=Indo-Western' },
-  { label: '🎀 Bows & Coquette', href: '/shop?search=Bow' },
-  { label: '🤍 Clean Girl Pearls', href: '/shop?category=Pearls' },
-  { label: '⚡ Under ₹999', href: '/shop?price=Under+₹999' },
-  { label: '💫 Everyday Stacks', href: '/shop?category=Necklaces' },
-  { label: '🔥 Best Sellers', href: '/shop?sort=bestseller' },
-];
 
 // Curated 4 Editorial Collection Banners
 const EDITORIAL_COLLECTIONS = [
@@ -175,7 +165,6 @@ const REVIEWS = [
 export default function HomePage() {
   const { isWishlisted, toggleWishlist } = useWishlist();
   const { addToCart } = useCart();
-  const [activeTab, setActiveTab] = useState<'trending' | 'korean' | 'indowestern' | 'under999'>('trending');
   const [addedIds, setAddedIds] = useState<Record<string, boolean>>({});
   const [products, setProducts] = useState<Product[]>(FALLBACK_PRODUCTS);
 
@@ -199,19 +188,7 @@ export default function HomePage() {
     }, 1800);
   };
 
-  const displayedProducts = products
-    .filter((p) => {
-      if (activeTab === 'korean') {
-        return p.category === 'Pendants' || p.category === 'Necklaces' || p.category === 'Korean Edit' || p.trendTag === 'SEOUL EDIT' || p.style?.toLowerCase().includes('korean');
-      }
-      if (activeTab === 'indowestern') {
-        return p.category === 'Indo-Western' || p.category === 'Oxidise jewelry' || p.category === 'Kundan Jewelry' || p.category === 'Meenakari Jewelry' || p.category === 'Polki Jewelry' || p.trendTag === 'INDO-WESTERN';
-      }
-      if (activeTab === 'under999') {
-        return p.price < 1000 || p.trendTag === 'UNDER ₹999';
-      }
-      return true; // trending / all
-    })
+  const displayedProducts = [...products]
     .sort((a, b) => {
       // Put featured/spotlight items first
       if (Boolean(a.is_featured) && !Boolean(b.is_featured)) return -1;
@@ -321,23 +298,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ─── 2. QUICK TREND CHIPS BAR ─── */}
-      <section className="bg-white border-b border-gray-100 py-3.5 px-4 sticky top-16 lg:top-20 z-20 shadow-sm overflow-x-auto scrollbar-none">
-        <div className="max-w-7xl mx-auto flex items-center gap-2.5 sm:gap-3 min-w-max">
-          <span className="text-xs font-semibold uppercase tracking-wider text-gray-400 mr-1 shrink-0">
-            Trending:
-          </span>
-          {TREND_CHIPS.map((chip) => (
-            <Link
-              key={chip.label}
-              href={chip.href}
-              className="inline-flex items-center text-xs font-medium bg-gray-50 hover:bg-[#022c22] hover:text-[#D4AF37] border border-gray-200 hover:border-[#022c22] text-gray-700 px-3.5 py-1.5 rounded-full transition-all shrink-0"
-            >
-              {chip.label}
-            </Link>
-          ))}
-        </div>
-      </section>
 
       {/* ─── 3. EDITORIAL COLLECTIONS GRID ─── */}
       <section className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
@@ -402,32 +362,9 @@ export default function HomePage() {
               <p className="text-xs uppercase tracking-widest text-[#022c22] font-bold mb-2">
                 What Everyone Is Wearing
               </p>
-              <h2 className="font-serif text-3xl sm:text-5xl text-emerald-950 font-bold mb-6">
+              <h2 className="font-serif text-3xl sm:text-5xl text-emerald-950 font-bold">
                 Trending Jewelry Drops
               </h2>
-
-              {/* Tabs */}
-              <div className="inline-flex p-1 bg-gray-100 rounded-full flex-wrap justify-center gap-1 max-w-full">
-                {[
-                  { id: 'trending', label: '🔥 Trending Now' },
-                  { id: 'korean', label: '✨ The Seoul Edit' },
-                  { id: 'indowestern', label: '🌸 Indo-Western' },
-                  { id: 'under999', label: '⚡ Under ₹999' },
-                ].map((tab) => (
-                  <button
-                    key={tab.id}
-                    onClick={() => setActiveTab(tab.id as any)}
-                    className={cn(
-                      'px-4 sm:px-5 py-2 text-xs font-semibold rounded-full transition-all',
-                      activeTab === tab.id
-                        ? 'bg-[#022c22] text-[#D4AF37] shadow-sm'
-                        : 'text-gray-600 hover:text-gray-900'
-                    )}
-                  >
-                    {tab.label}
-                  </button>
-                ))}
-              </div>
             </div>
           </FadeInSection>
 
