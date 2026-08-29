@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { TrendingUp, ShoppingCart, Users, Package, AlertTriangle, ArrowUpRight, Trophy } from 'lucide-react';
-import { adminFetch, formatPrice, formatDate } from '@/lib/admin-utils';
+import { adminFetch, formatPrice, formatDate, formatAxisPrice } from '@/lib/admin-utils';
 import {
   ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip, CartesianGrid,
 } from 'recharts';
@@ -164,10 +164,10 @@ export default function AdminDashboard() {
               />
               <YAxis
                 tick={{ fontSize: 10 }}
-                tickFormatter={(v: number) => `₹${(v / 1000).toFixed(0)}k`}
+                tickFormatter={(v: number) => formatAxisPrice(Number(v))}
                 allowDecimals={false}
                 width={52}
-                domain={[0, (dataMax: number) => Math.max(dataMax, 5000)]}
+                domain={[0, (dataMax: number) => Math.max(dataMax, 500)]}
                 tickCount={6}
               />
               <Tooltip

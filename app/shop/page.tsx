@@ -354,11 +354,7 @@ function ShopContent() {
                       onAddToCart={() => addToCart(product, 1)}
                       onSelectOption={() => {
                         setQuickProduct(product);
-                        if (product.variants && product.variants.length > 0) {
-                          setQuickVariant(product.variants[0]);
-                        } else {
-                          setQuickVariant(null);
-                        }
+                        setQuickVariant(null);
                         setQuickQty(1);
                         setQuickAdded(false);
                       }}
@@ -818,41 +814,27 @@ function ProductCard({ product, wished, onWishlist, onAddToCart, onSelectOption 
         </div>
 
         {/* Action Button */}
-        {product.variants && product.variants.length > 0 ? (
-          <button
-            type="button"
-            onClick={(e) => {
-              e.preventDefault();
-              onSelectOption();
-            }}
-            className="mt-3 w-full py-2 text-xs font-semibold uppercase tracking-wider rounded-sm transition-all flex items-center justify-center gap-1.5 bg-[#022c22] text-[#D4AF37] hover:bg-[#064e3b] shadow-xs cursor-pointer"
-          >
-            <span>Select Option</span>
-            <ChevronRight size={13} />
-          </button>
-        ) : (
-          <button
-            onClick={handleAdd}
-            className={cn(
-              'mt-3 w-full py-2 text-xs font-semibold uppercase tracking-wider rounded-sm transition-all flex items-center justify-center gap-1.5',
-              added
-                ? 'bg-emerald-600 text-white'
-                : 'bg-gray-100 hover:bg-[#022c22] text-gray-800 hover:text-[#D4AF37]'
-            )}
-          >
-            {added ? (
-              <>
-                <Check size={13} />
-                <span>Added</span>
-              </>
-            ) : (
-              <>
-                <ShoppingBag size={13} />
-                <span>Add to Bag</span>
-              </>
-            )}
-          </button>
-        )}
+        <button
+          onClick={handleAdd}
+          className={cn(
+            'mt-3 w-full py-2 text-xs font-semibold uppercase tracking-wider rounded-sm transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-xs',
+            added
+              ? 'bg-emerald-600 text-white'
+              : 'bg-gray-100 hover:bg-[#022c22] text-gray-800 hover:text-[#D4AF37]'
+          )}
+        >
+          {added ? (
+            <>
+              <Check size={13} />
+              <span>Added</span>
+            </>
+          ) : (
+            <>
+              <ShoppingBag size={13} />
+              <span>Add to Bag</span>
+            </>
+          )}
+        </button>
       </div>
     </div>
   );

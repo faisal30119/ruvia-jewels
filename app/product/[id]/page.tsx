@@ -112,9 +112,7 @@ export default function ProductDetailPage({ params: propParams }: { params?: { i
       })
       .then((data: Product) => {
         setProduct(data);
-        if (data.variants && data.variants.length > 0) {
-          setSelectedVariant(data.variants[0]);
-        }
+        setSelectedVariant(null);
         setLoading(false);
       })
       .catch(() => {
@@ -122,9 +120,7 @@ export default function ProductDetailPage({ params: propParams }: { params?: { i
         const found = FALLBACK_PRODUCTS.find((p) => p.id === id);
         if (found) {
           setProduct(found);
-          if (found.variants && found.variants.length > 0) {
-            setSelectedVariant(found.variants[0]);
-          }
+          setSelectedVariant(null);
         } else {
           setNotFound(true);
         }
@@ -163,7 +159,7 @@ export default function ProductDetailPage({ params: propParams }: { params?: { i
         try {
           const parsed = JSON.parse(product.image);
           if (Array.isArray(parsed) && parsed.length > 0) list = parsed;
-        } catch {}
+        } catch { }
       } else if (product.image.includes(',')) {
         list = product.image.split(',').map((s) => s.trim()).filter(Boolean);
       } else {
@@ -212,8 +208,8 @@ export default function ProductDetailPage({ params: propParams }: { params?: { i
   }
 
   const wished = isWishlisted(product.id);
-  const activePrice = selectedVariant?.price !== undefined 
-    ? selectedVariant.price 
+  const activePrice = selectedVariant?.price !== undefined
+    ? selectedVariant.price
     : (product.price + (selectedVariant?.price_modifier || 0));
   const activeOldPrice = product.oldPrice || Math.round(activePrice * 1.6);
   const discount = Math.round(((activeOldPrice - activePrice) / activeOldPrice) * 100);
@@ -477,14 +473,18 @@ export default function ProductDetailPage({ params: propParams }: { params?: { i
 
             {/* Specs / Attributes Grid */}
             <div className="grid grid-cols-2 gap-3 bg-gray-50 p-3.5 rounded-sm text-xs">
-              <div>
-                <p className="text-gray-400 uppercase tracking-wider text-[10px] mb-0.5">Finish / Plating</p>
-                <p className="font-semibold text-gray-900">{product.plating}</p>
-              </div>
-              <div>
-                <p className="text-gray-400 uppercase tracking-wider text-[10px] mb-0.5">Stone Color</p>
-                <p className="font-semibold text-gray-900">{product.stoneColor}</p>
-              </div>
+              {(product.color || product.stoneColor) && (
+                <div>
+                  <p className="text-gray-400 uppercase tracking-wider text-[10px] mb-0.5">Color</p>
+                  <p className="font-semibold text-gray-900">{product.color || product.stoneColor}</p>
+                </div>
+              )}
+              {product.style && (
+                <div>
+                  <p className="text-gray-400 uppercase tracking-wider text-[10px] mb-0.5">Aesthetic & Style</p>
+                  <p className="font-semibold text-gray-900">{product.style}</p>
+                </div>
+              )}
               {product.material && (
                 <div className="col-span-2 pt-1 border-t border-gray-200/50">
                   <p className="text-gray-400 uppercase tracking-wider text-[10px] mb-0.5">Material & Durability</p>

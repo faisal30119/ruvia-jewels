@@ -1,6 +1,6 @@
 'use client';
 import { useEffect, useState } from 'react';
-import { adminFetch, formatPrice } from '@/lib/admin-utils';
+import { adminFetch, formatPrice, formatAxisPrice } from '@/lib/admin-utils';
 import {
   ResponsiveContainer, AreaChart, Area, BarChart, Bar, PieChart, Pie, Cell,
   XAxis, YAxis, Tooltip, CartesianGrid, Legend,
@@ -88,7 +88,7 @@ export default function AnalyticsPage() {
             </defs>
             <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
             <XAxis dataKey="date" tick={{ fontSize: 10 }} tickFormatter={(v) => v.slice(5)} interval={4} />
-            <YAxis tick={{ fontSize: 10 }} tickFormatter={(v) => `₹${(v / 1000).toFixed(0)}k`} />
+            <YAxis tick={{ fontSize: 10 }} tickFormatter={(v: number) => formatAxisPrice(Number(v))} width={52} />
             <Tooltip formatter={(v: unknown) => formatPrice(Number(v))} />
             <Area type="monotone" dataKey="revenue" name="Revenue" stroke="#064e3b" strokeWidth={2} fill="url(#grad1)" />
           </AreaChart>
@@ -103,7 +103,7 @@ export default function AnalyticsPage() {
             <BarChart data={data.revenueChart} margin={{ top: 4, right: 8, bottom: 0, left: 8 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
               <XAxis dataKey="date" tick={{ fontSize: 10 }} tickFormatter={(v) => v.slice(5)} interval={4} />
-              <YAxis tick={{ fontSize: 10 }} allowDecimals={false} />
+              <YAxis tick={{ fontSize: 10 }} allowDecimals={false} width={36} />
               <Tooltip />
               <Bar dataKey="orders" name="Orders" fill="#D4AF37" />
             </BarChart>
@@ -117,7 +117,7 @@ export default function AnalyticsPage() {
             <BarChart data={weeklyRevenue} margin={{ top: 4, right: 8, bottom: 0, left: 8 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
               <XAxis dataKey="week" tick={{ fontSize: 10 }} />
-              <YAxis tick={{ fontSize: 10 }} tickFormatter={(v) => `₹${(v / 1000).toFixed(0)}k`} />
+              <YAxis tick={{ fontSize: 10 }} tickFormatter={(v: number) => formatAxisPrice(Number(v))} width={52} />
               <Tooltip formatter={(v: unknown) => formatPrice(Number(v))} />
               <Bar dataKey="revenue" name="Revenue" fill="#064e3b" />
             </BarChart>

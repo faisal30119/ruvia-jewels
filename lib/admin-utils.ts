@@ -33,3 +33,11 @@ export function formatPrice(n: number) {
 export function formatDate(s: string) {
   return new Date(s).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
 }
+
+export function formatAxisPrice(value: number): string {
+  if (value === 0) return '₹0';
+  if (value >= 10000000) return `₹${(value / 10000000).toFixed(1)}Cr`;
+  if (value >= 100000) return `₹${(value / 100000).toFixed(value % 100000 === 0 ? 0 : 1)}L`;
+  if (value >= 1000) return `₹${(value / 1000).toFixed(value % 1000 === 0 ? 0 : 1)}k`;
+  return `₹${Math.round(value)}`;
+}

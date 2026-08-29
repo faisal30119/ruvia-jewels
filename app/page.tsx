@@ -509,37 +509,27 @@ export default function HomePage() {
                       </div>
 
                       {/* Action Button */}
-                      {product.variants && product.variants.length > 0 ? (
-                        <Link
-                          href={`/product/${product.id}`}
-                          className="mt-3 w-full py-2 text-xs font-semibold uppercase tracking-wider rounded-sm transition-all flex items-center justify-center gap-1.5 bg-[#022c22] text-[#D4AF37] hover:bg-[#064e3b] shadow-xs"
-                        >
-                          <span>Select Option</span>
-                          <ArrowRight size={13} />
-                        </Link>
-                      ) : (
-                        <button
-                          onClick={(e) => handleQuickAdd(product, e)}
-                          className={cn(
-                            'mt-3 w-full py-2 text-xs font-semibold uppercase tracking-wider rounded-sm transition-all flex items-center justify-center gap-1.5',
-                            isAdded
-                              ? 'bg-emerald-600 text-white'
-                              : 'bg-gray-100 hover:bg-[#022c22] text-gray-800 hover:text-[#D4AF37]'
-                          )}
-                        >
-                          {isAdded ? (
-                            <>
-                              <Check size={14} />
-                              <span>Added!</span>
-                            </>
-                          ) : (
-                            <>
-                              <ShoppingBag size={13} />
-                              <span>Add to Bag</span>
-                            </>
-                          )}
-                        </button>
-                      )}
+                      <button
+                        onClick={(e) => handleQuickAdd(product, e)}
+                        className={cn(
+                          'mt-3 w-full py-2 text-xs font-semibold uppercase tracking-wider rounded-sm transition-all flex items-center justify-center gap-1.5 cursor-pointer',
+                          isAdded
+                            ? 'bg-emerald-600 text-white'
+                            : 'bg-gray-100 hover:bg-[#022c22] text-gray-800 hover:text-[#D4AF37]'
+                        )}
+                      >
+                        {isAdded ? (
+                          <>
+                            <Check size={14} />
+                            <span>Added!</span>
+                          </>
+                        ) : (
+                          <>
+                            <ShoppingBag size={13} />
+                            <span>Add to Bag</span>
+                          </>
+                        )}
+                      </button>
                     </div>
                   </div>
                 </FadeInSection>
