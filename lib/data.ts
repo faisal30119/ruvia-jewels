@@ -1,3 +1,13 @@
+export interface ProductVariant {
+  id?: number | string;
+  product_id?: number | string;
+  label: string;
+  price?: number;
+  price_modifier?: number;
+  stock?: number;
+  image?: string;
+}
+
 export type Product = {
   id: string;
   name: string;
@@ -6,8 +16,9 @@ export type Product = {
   image: string;
   images?: string[];
   category: string;
-  stoneColor: string;
-  plating: string;
+  stoneColor?: string;
+  color?: string;
+  plating?: string;
   description: string;
   inclusions: string[];
   trendTag?: 'NEW' | 'TRENDING' | 'BESTSELLER' | 'UNDER ₹999' | 'SEOUL EDIT' | 'INDO-WESTERN';
@@ -15,6 +26,8 @@ export type Product = {
   stylingTip?: string;
   material?: string;
   stock?: number;
+  variants?: ProductVariant[];
+  is_featured?: boolean;
 };
 
 // High-resolution curated aesthetic photography for Korean & Indo-Western Gen-Z jewelry
@@ -25,16 +38,16 @@ export const IMAGES = {
   everydayStackBanner: 'https://images.unsplash.com/photo-1602751584552-8ba73aad10e1?q=80&w=1000&auto=format&fit=crop',
   under999Banner: 'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?q=80&w=1000&auto=format&fit=crop',
   
-  // Product Shots
+  // Product Shots (100% Dedicated Jewelry Close-Ups)
   seoulBow: 'https://images.unsplash.com/photo-1599643477877-530eb83abc8e?q=80&w=800&auto=format&fit=crop',
   hanaPearl: 'https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?q=80&w=800&auto=format&fit=crop',
   nariHeart: 'https://images.unsplash.com/photo-1600003014755-ba31aa59c4b6?q=80&w=800&auto=format&fit=crop',
   soraHuggies: 'https://images.unsplash.com/photo-1630019852942-f89202989a59?q=80&w=800&auto=format&fit=crop',
   yunaLayers: 'https://images.unsplash.com/photo-1611591475155-4286fa7c2e7f?q=80&w=800&auto=format&fit=crop',
-  miraJhumka: 'https://images.unsplash.com/photo-1635767798638-3e25273a8236?q=80&w=800&auto=format&fit=crop',
+  miraJhumka: 'https://images.unsplash.com/photo-1602751584552-8ba73aad10e1?q=80&w=800&auto=format&fit=crop',
   tennisBracelet: 'https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?q=80&w=800&auto=format&fit=crop',
   aeriRings: 'https://images.unsplash.com/photo-1605100804763-247f67b3557e?q=80&w=800&auto=format&fit=crop',
-  noorChandbali: 'https://images.unsplash.com/photo-1576871337622-98d48d1cf531?q=80&w=800&auto=format&fit=crop',
+  noorChandbali: 'https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?q=80&w=800&auto=format&fit=crop',
   daisyBow: 'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?q=80&w=800&auto=format&fit=crop',
   namiCuffs: 'https://images.unsplash.com/photo-1617038260897-41a1f14a8ca0?q=80&w=800&auto=format&fit=crop',
   starburstDrops: 'https://images.unsplash.com/photo-1630019852942-f89202989a59?q=80&w=800&auto=format&fit=crop',
@@ -43,11 +56,11 @@ export const IMAGES = {
   rheaRing: 'https://images.unsplash.com/photo-1605100804763-247f67b3557e?q=80&w=800&auto=format&fit=crop',
   kiaraChain: 'https://images.unsplash.com/photo-1611591475155-4286fa7c2e7f?q=80&w=800&auto=format&fit=crop',
 
-  // Style Inspiration Lookbook Shots
-  styleSeoul: 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=800&auto=format&fit=crop',
-  styleIndoWestern: 'https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?q=80&w=800&auto=format&fit=crop',
-  styleCleanGirl: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=800&auto=format&fit=crop',
-  styleDateNight: 'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?q=80&w=800&auto=format&fit=crop',
+  // Style Inspiration Lookbook Shots (Jewelry Focused)
+  styleSeoul: 'https://images.unsplash.com/photo-1611591475155-4286fa7c2e7f?q=80&w=800&auto=format&fit=crop',
+  styleIndoWestern: 'https://images.unsplash.com/photo-1602751584552-8ba73aad10e1?q=80&w=800&auto=format&fit=crop',
+  styleCleanGirl: 'https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?q=80&w=800&auto=format&fit=crop',
+  styleDateNight: 'https://images.unsplash.com/photo-1599643477877-530eb83abc8e?q=80&w=800&auto=format&fit=crop',
 };
 
 export const FALLBACK_PRODUCTS: Product[] = [
@@ -68,6 +81,11 @@ export const FALLBACK_PRODUCTS: Product[] = [
       'The viral K-fashion coquette bow necklace. Delicate, ultra-feminine, and designed to sit gracefully along your collarbone. 100% waterproof and sweat-resistant.',
     stylingTip: 'Pair with an oversized beige blazer or an off-shoulder crop knit for that effortless Seongsu-dong café aesthetic.',
     inclusions: ['1x Seoul Bow Pendant Chain', 'Velvet Jewelry Pouch', 'Care & Anti-Tarnish Card'],
+    variants: [
+      { id: 'v1', label: '18K Yellow Gold', price: 899, stock: 15, image: IMAGES.seoulBow },
+      { id: 'v2', label: 'Rose Gold', price: 949, stock: 10, image: IMAGES.hanaPearl },
+      { id: 'v3', label: 'Silver Rhodium', price: 899, stock: 8, image: IMAGES.daisyBow },
+    ],
   },
   {
     id: 'p2',
@@ -86,6 +104,10 @@ export const FALLBACK_PRODUCTS: Product[] = [
       'A modern classic for the clean girl era. Hand-strung baroque seed pearls with an adjustable delicate gold clasp. Subtle luxury for everyday wear.',
     stylingTip: 'Layer with the Yuna Snake Chain and a crisp white linen button-down for effortless quiet luxury.',
     inclusions: ['1x Hana Pearl Necklace', 'Velvet Jewelry Pouch', 'Authenticity Guarantee Card'],
+    variants: [
+      { id: 'v4', label: 'Standard 16-inch', price: 1299, stock: 20, image: IMAGES.hanaPearl },
+      { id: 'v5', label: 'Layered 18-inch', price: 1399, stock: 12, image: IMAGES.lunaPendant },
+    ],
   },
   {
     id: 'p3',
@@ -104,6 +126,11 @@ export const FALLBACK_PRODUCTS: Product[] = [
       'Reimagining the classic Indian jhumka with featherlight modern proportions. Sleek geometric bell drops with micro-pearl tassels. Zero ear-lobe pulling.',
     stylingTip: 'Style with a sleek sleeveless kurti, linen saree, or contrast with a black tailored pantsuit for fusion perfection.',
     inclusions: ['1x Pair Mira Fusion Jhumkas', 'Comfort Silicon Backings', 'Velvet Pouch'],
+    variants: [
+      { id: 'v6', label: 'Champagne Gold', price: 1499, stock: 14, image: IMAGES.miraJhumka },
+      { id: 'v7', label: 'Emerald Drop', price: 1599, stock: 9, image: IMAGES.noorChandbali },
+      { id: 'v8', label: 'Ruby Drop', price: 1599, stock: 6, image: IMAGES.zoyaHoops },
+    ],
   },
   {
     id: 'p4',
@@ -308,8 +335,8 @@ export const FALLBACK_PRODUCTS: Product[] = [
     name: 'Jaipuri Hand-Painted Lotus Meenakari Jhumkas',
     price: 1299,
     oldPrice: 2299,
-    image: 'https://images.unsplash.com/photo-1576871337622-98d48d1cf531?q=80&w=800&auto=format&fit=crop',
-    images: ['https://images.unsplash.com/photo-1576871337622-98d48d1cf531?q=80&w=800&auto=format&fit=crop'],
+    image: 'https://images.unsplash.com/photo-1630019852942-f89202989a59?q=80&w=800&auto=format&fit=crop',
+    images: ['https://images.unsplash.com/photo-1630019852942-f89202989a59?q=80&w=800&auto=format&fit=crop'],
     category: 'Meenakari Jewelry',
     stoneColor: 'Pearl White',
     plating: '18K Gold',
@@ -361,6 +388,17 @@ export const STYLES = [
   'Clean Girl',
   'Coquette / Y2K',
   'Everyday Stack',
+];
+
+export const COLORS = [
+  { name: 'All', hex: '#FFFFFF', isAll: true },
+  { name: 'Red', hex: '#DC2626' },
+  { name: 'Blue', hex: '#2563EB' },
+  { name: 'Green', hex: '#059669' },
+  { name: 'Pink', hex: '#EC4899' },
+  { name: 'Gold', hex: '#D4AF37' },
+  { name: 'Silver / Clear', hex: '#E5E7EB' },
+  { name: 'Black', hex: '#1F2937' },
 ];
 
 export const PLATINGS = ['All', '18K Gold', 'Silver / White Gold', 'Rose Gold'];

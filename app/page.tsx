@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import Link from 'next/link';
 import { motion, useInView } from 'framer-motion';
 import {
@@ -177,6 +177,18 @@ export default function HomePage() {
   const { addToCart } = useCart();
   const [activeTab, setActiveTab] = useState<'trending' | 'korean' | 'indowestern' | 'under999'>('trending');
   const [addedIds, setAddedIds] = useState<Record<string, boolean>>({});
+  const [products, setProducts] = useState<Product[]>(FALLBACK_PRODUCTS);
+
+  useEffect(() => {
+    fetch('/api/products')
+      .then((r) => r.json())
+      .then((data: Product[]) => {
+        if (Array.isArray(data) && data.length > 0) {
+          setProducts(data);
+        }
+      })
+      .catch(() => setProducts(FALLBACK_PRODUCTS));
+  }, []);
 
   const handleQuickAdd = (p: Product, e: React.MouseEvent) => {
     e.preventDefault();
@@ -187,12 +199,26 @@ export default function HomePage() {
     }, 1800);
   };
 
-  const displayedProducts = FALLBACK_PRODUCTS.filter((p) => {
-    if (activeTab === 'korean') return p.category === 'Korean Edit' || p.trendTag === 'SEOUL EDIT';
-    if (activeTab === 'indowestern') return p.category === 'Indo-Western' || p.trendTag === 'INDO-WESTERN';
-    if (activeTab === 'under999') return p.price < 1000 || p.trendTag === 'UNDER ₹999';
-    return true; // trending
-  }).slice(0, 8);
+  const displayedProducts = products
+    .filter((p) => {
+      if (activeTab === 'korean') {
+        return p.category === 'Pendants' || p.category === 'Necklaces' || p.category === 'Korean Edit' || p.trendTag === 'SEOUL EDIT' || p.style?.toLowerCase().includes('korean');
+      }
+      if (activeTab === 'indowestern') {
+        return p.category === 'Indo-Western' || p.category === 'Oxidise jewelry' || p.category === 'Kundan Jewelry' || p.category === 'Meenakari Jewelry' || p.category === 'Polki Jewelry' || p.trendTag === 'INDO-WESTERN';
+      }
+      if (activeTab === 'under999') {
+        return p.price < 1000 || p.trendTag === 'UNDER ₹999';
+      }
+      return true; // trending / all
+    })
+    .sort((a, b) => {
+      // Put featured/spotlight items first
+      if (Boolean(a.is_featured) && !Boolean(b.is_featured)) return -1;
+      if (!Boolean(a.is_featured) && Boolean(b.is_featured)) return 1;
+      return 0;
+    })
+    .slice(0, 8);
 
   return (
     <div className="bg-[#FAF9F6] text-neutral-900 overflow-hidden font-sans">
@@ -244,25 +270,19 @@ export default function HomePage() {
             Seoul-inspired minimalism meets contemporary Indian soul. 100% waterproof & anti-tarnish jewelry designed for your everyday shine.
           </motion.p>
 
-          {/* Action Buttons */}
+          {/* Action Button */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.45 }}
-            className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-5 w-full sm:w-auto mb-10"
+            className="flex items-center justify-center w-full sm:w-auto mb-10"
           >
             <Link
               href="/shop"
-              className="w-full sm:w-auto bg-[#022c22] border border-[#D4AF37] text-[#D4AF37] hover:bg-[#064e3b] font-semibold text-xs sm:text-sm uppercase tracking-widest px-8 py-4 rounded-sm shadow-2xl transition-all hover:scale-105 flex items-center justify-center gap-2"
+              className="group relative inline-flex items-center justify-center gap-2.5 bg-gradient-to-r from-[#D4AF37] via-[#F5E7B2] to-[#D4AF37] hover:from-[#c49f2c] hover:via-[#ebd99a] hover:to-[#c49f2c] text-[#022c22] font-bold text-xs sm:text-sm uppercase tracking-[0.2em] px-10 py-4 rounded-full shadow-[0_10px_35px_rgba(212,175,55,0.35)] hover:shadow-[0_15px_45px_rgba(212,175,55,0.5)] transition-all duration-300 hover:scale-105 active:scale-95"
             >
               <span>Shop New In</span>
-              <ArrowRight size={16} />
-            </Link>
-            <Link
-              href="/shop?category=Korean+Edit"
-              className="w-full sm:w-auto bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/25 text-white font-semibold text-xs sm:text-sm uppercase tracking-widest px-8 py-4 rounded-sm transition-all shadow-lg flex items-center justify-center"
-            >
-              Explore The Seoul Edit
+              <ArrowRight size={16} className="transition-transform duration-300 group-hover:translate-x-1" />
             </Link>
           </motion.div>
 
@@ -468,6 +488,14 @@ export default function HomePage() {
                         {product.name}
                       </Link>
 
+                      {/* Variant Notice */}
+                      {product.variants && product.variants.length > 0 && (
+                        <div className="text-[10px] text-emerald-800 font-medium my-0.5 flex items-center gap-1.5">
+                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 inline-block shrink-0" />
+                          <span>{product.variants.length} Options Available</span>
+                        </div>
+                      )}
+
                       {/* Pricing */}
                       <div className="flex items-center gap-2 mt-auto pt-2">
                         <span className="text-sm sm:text-base font-bold text-gray-900">
@@ -480,28 +508,38 @@ export default function HomePage() {
                         )}
                       </div>
 
-                      {/* Quick Add Button */}
-                      <button
-                        onClick={(e) => handleQuickAdd(product, e)}
-                        className={cn(
-                          'mt-3 w-full py-2 text-xs font-semibold uppercase tracking-wider rounded-sm transition-all flex items-center justify-center gap-1.5',
-                          isAdded
-                            ? 'bg-emerald-600 text-white'
-                            : 'bg-gray-100 hover:bg-[#022c22] text-gray-800 hover:text-[#D4AF37]'
-                        )}
-                      >
-                        {isAdded ? (
-                          <>
-                            <Check size={14} />
-                            <span>Added!</span>
-                          </>
-                        ) : (
-                          <>
-                            <ShoppingBag size={13} />
-                            <span>Add to Bag</span>
-                          </>
-                        )}
-                      </button>
+                      {/* Action Button */}
+                      {product.variants && product.variants.length > 0 ? (
+                        <Link
+                          href={`/product/${product.id}`}
+                          className="mt-3 w-full py-2 text-xs font-semibold uppercase tracking-wider rounded-sm transition-all flex items-center justify-center gap-1.5 bg-[#022c22] text-[#D4AF37] hover:bg-[#064e3b] shadow-xs"
+                        >
+                          <span>Select Option</span>
+                          <ArrowRight size={13} />
+                        </Link>
+                      ) : (
+                        <button
+                          onClick={(e) => handleQuickAdd(product, e)}
+                          className={cn(
+                            'mt-3 w-full py-2 text-xs font-semibold uppercase tracking-wider rounded-sm transition-all flex items-center justify-center gap-1.5',
+                            isAdded
+                              ? 'bg-emerald-600 text-white'
+                              : 'bg-gray-100 hover:bg-[#022c22] text-gray-800 hover:text-[#D4AF37]'
+                          )}
+                        >
+                          {isAdded ? (
+                            <>
+                              <Check size={14} />
+                              <span>Added!</span>
+                            </>
+                          ) : (
+                            <>
+                              <ShoppingBag size={13} />
+                              <span>Add to Bag</span>
+                            </>
+                          )}
+                        </button>
+                      )}
                     </div>
                   </div>
                 </FadeInSection>

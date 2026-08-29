@@ -17,12 +17,6 @@ export default function Footer() {
             <p className="text-sm text-white/60 leading-relaxed max-w-xs">
               Korean-inspired minimalism meets modern Indo-Western jewelry. Made for everyday wear, effortless stacking, and your main character moments.
             </p>
-            <Link
-              href="/"
-              className="mt-3 inline-flex items-center gap-1.5 text-xs text-[#D4AF37] hover:underline font-medium"
-            >
-              <Home size={14} className="text-white shrink-0" /> Back to Home
-            </Link>
           </div>
 
           {/* Quick Links */}

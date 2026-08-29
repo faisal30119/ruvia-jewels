@@ -18,13 +18,29 @@ import {
   Truck,
   Check,
 } from 'lucide-react';
-import { FALLBACK_PRODUCTS, type Product } from '@/lib/data';
+import { FALLBACK_PRODUCTS, type Product, type ProductVariant } from '@/lib/data';
 import { useWishlist } from '@/contexts/WishlistContext';
 import { useCart } from '@/contexts/CartContext';
 import { cn } from '@/lib/utils';
 
 function formatPrice(n: number) {
   return '₹' + n.toLocaleString('en-IN');
+}
+
+function getVariantColorSwatch(label: string): string | null {
+  const l = label.toLowerCase();
+  if (l.includes('rose gold')) return 'linear-gradient(135deg, #FFD1DC, #B76E79, #E0A899)';
+  if (l.includes('yellow gold') || l.includes('gold') || l.includes('18k')) return 'linear-gradient(135deg, #FFE082, #D4AF37, #B8860B)';
+  if (l.includes('silver') || l.includes('rhodium')) return 'linear-gradient(135deg, #F5F5F5, #D3D3D3, #A9A9A9)';
+  if (l.includes('white gold') || l.includes('clear')) return 'linear-gradient(135deg, #FFFFFF, #E9ECEF, #CED4DA)';
+  if (l.includes('emerald') || l.includes('green')) return '#046307';
+  if (l.includes('ruby') || l.includes('red') || l.includes('maroon')) return '#9B111E';
+  if (l.includes('sapphire') || l.includes('blue')) return '#0F52BA';
+  if (l.includes('pearl') || l.includes('white')) return '#FDFBF7';
+  if (l.includes('black') || l.includes('noir')) return '#1A1A1A';
+  if (l.includes('pink') || l.includes('rose')) return '#FFB6C1';
+  if (l.includes('champagne')) return 'linear-gradient(135deg, #F7E7CE, #E5C392)';
+  return null;
 }
 
 function Accordion({
@@ -58,7 +74,7 @@ function Accordion({
             transition={{ duration: 0.25 }}
             className="overflow-hidden"
           >
-            <div className="pb-4 text-gray-600 text-xs sm:text-sm font-sans leading-relaxed">
+            <div className="pb-4 text-xs sm:text-sm text-gray-600 leading-relaxed font-sans">
               {children}
             </div>
           </motion.div>
@@ -68,51 +84,60 @@ function Accordion({
   );
 }
 
-export default function ProductPage() {
-  const params = useParams<{ id: string }>();
-  const router = useRouter();
+export default function ProductDetailPage({ params: propParams }: { params?: { id: string } }) {
+  const routerParams = useParams<{ id: string }>();
+  const id = routerParams?.id || propParams?.id || '';
+
   const { isWishlisted, toggleWishlist } = useWishlist();
   const { addToCart } = useCart();
 
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
+
   const [activeImg, setActiveImg] = useState(0);
   const [quantity, setQuantity] = useState(1);
+  const [selectedVariant, setSelectedVariant] = useState<ProductVariant | null>(null);
   const [zoomed, setZoomed] = useState(false);
   const [addedToCart, setAddedToCart] = useState(false);
   const [copySuccess, setCopySuccess] = useState(false);
 
   useEffect(() => {
-    if (!params.id) return;
+    if (!id) return;
     setLoading(true);
-    fetch(`/api/products/${params.id}`)
+    fetch(`/api/products/${id}`)
       .then((r) => {
         if (r.status === 404) throw new Error('not found');
         return r.json();
       })
       .then((data: Product) => {
         setProduct(data);
+        if (data.variants && data.variants.length > 0) {
+          setSelectedVariant(data.variants[0]);
+        }
         setLoading(false);
       })
       .catch(() => {
         // fallback to local data
-        const found = FALLBACK_PRODUCTS.find((p) => p.id === params.id);
+        const found = FALLBACK_PRODUCTS.find((p) => p.id === id);
         if (found) {
           setProduct(found);
+          if (found.variants && found.variants.length > 0) {
+            setSelectedVariant(found.variants[0]);
+          }
         } else {
           setNotFound(true);
         }
         setLoading(false);
       });
-  }, [params.id]);
+  }, [id]);
 
   const handleAddToCart = useCallback(() => {
     if (!product) return;
-    addToCart(product, quantity);
+    addToCart(product, quantity, selectedVariant || undefined);
     setAddedToCart(true);
     setTimeout(() => setAddedToCart(false), 2000);
-  }, [product, quantity, addToCart]);
+  }, [product, quantity, selectedVariant, addToCart]);
 
   function shareWhatsApp() {
     const url = `https://wa.me/?text=Check+out+${encodeURIComponent(product?.name ?? '')}+at+${encodeURIComponent(window.location.href)}`;
@@ -128,9 +153,32 @@ export default function ProductPage() {
 
   const images = React.useMemo(() => {
     if (!product) return [];
-    if (product.images && product.images.length > 0) return product.images;
-    if ((product as any).image_urls && (product as any).image_urls.length > 0) return (product as any).image_urls;
-    return [product.image].filter(Boolean);
+    let list: string[] = [];
+    if (product.images && product.images.length > 0) {
+      list = [...product.images];
+    } else if ((product as any).image_urls && (product as any).image_urls.length > 0) {
+      list = [...(product as any).image_urls];
+    } else if (product.image) {
+      if (product.image.startsWith('[') && product.image.endsWith(']')) {
+        try {
+          const parsed = JSON.parse(product.image);
+          if (Array.isArray(parsed) && parsed.length > 0) list = parsed;
+        } catch {}
+      } else if (product.image.includes(',')) {
+        list = product.image.split(',').map((s) => s.trim()).filter(Boolean);
+      } else {
+        list = [product.image];
+      }
+    }
+
+    // Include any variant images in gallery
+    (product.variants || []).forEach((v) => {
+      if (v.image && !list.includes(v.image)) {
+        list.push(v.image);
+      }
+    });
+
+    return list;
   }, [product]);
 
   const relatedProducts = React.useMemo(() => {
@@ -164,8 +212,11 @@ export default function ProductPage() {
   }
 
   const wished = isWishlisted(product.id);
-  const oldPrice = product.oldPrice || Math.round(product.price * 1.6);
-  const discount = Math.round(((oldPrice - product.price) / oldPrice) * 100);
+  const activePrice = selectedVariant?.price !== undefined 
+    ? selectedVariant.price 
+    : (product.price + (selectedVariant?.price_modifier || 0));
+  const activeOldPrice = product.oldPrice || Math.round(activePrice * 1.6);
+  const discount = Math.round(((activeOldPrice - activePrice) / activeOldPrice) * 100);
 
   const prevImage = () => {
     setActiveImg((curr) => (curr === 0 ? images.length - 1 : curr - 1));
@@ -238,12 +289,12 @@ export default function ProductPage() {
 
                 {/* Trend Badge */}
                 {product.trendTag && (
-                  <div className="absolute top-3 left-3 bg-[#022c22] text-[#D4AF37] text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-sm shadow-sm">
+                  <span className="absolute top-3 left-3 bg-[#022c22] text-[#D4AF37] text-[10px] font-sans font-bold tracking-widest uppercase px-3 py-1 rounded-sm shadow-md">
                     {product.trendTag}
-                  </div>
+                  </span>
                 )}
 
-                {/* Image Navigation Controls */}
+                {/* Image Navigation Arrows */}
                 {images.length > 1 && (
                   <>
                     <button
@@ -251,8 +302,7 @@ export default function ProductPage() {
                         e.stopPropagation();
                         prevImage();
                       }}
-                      className="absolute left-2.5 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white/85 hover:bg-white text-gray-800 flex items-center justify-center shadow-md transition-all"
-                      aria-label="Previous"
+                      className="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white/80 hover:bg-white text-gray-800 flex items-center justify-center shadow-md transition-all sm:opacity-0 group-hover:opacity-100"
                     >
                       <ChevronLeft size={18} />
                     </button>
@@ -261,8 +311,7 @@ export default function ProductPage() {
                         e.stopPropagation();
                         nextImage();
                       }}
-                      className="absolute right-2.5 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white/85 hover:bg-white text-gray-800 flex items-center justify-center shadow-md transition-all"
-                      aria-label="Next"
+                      className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white/80 hover:bg-white text-gray-800 flex items-center justify-center shadow-md transition-all sm:opacity-0 group-hover:opacity-100"
                     >
                       <ChevronRight size={18} />
                     </button>
@@ -312,15 +361,102 @@ export default function ProductPage() {
             {/* Pricing */}
             <div className="flex items-baseline gap-3 pb-2 border-b border-gray-100">
               <span className="font-serif text-3xl font-bold text-gray-900">
-                {formatPrice(product.price)}
+                {formatPrice(activePrice)}
               </span>
               <span className="text-gray-400 text-sm line-through">
-                {formatPrice(oldPrice)}
+                {formatPrice(activeOldPrice)}
               </span>
               <span className="bg-[#D4AF37] text-emerald-950 text-[11px] font-bold px-2 py-0.5 rounded uppercase">
                 {discount}% OFF
               </span>
             </div>
+
+            {/* ─── Product Variants (Options / Sizes / Colors) ─── */}
+            {product.variants && product.variants.length > 0 && (
+              <div className="space-y-2.5 pt-2 border-t border-gray-100">
+                <div className="flex items-center justify-between text-xs">
+                  <span className="font-bold uppercase tracking-wider text-emerald-950 flex items-center gap-1.5">
+                    <span>Select Option / Variant:</span>
+                  </span>
+                  {selectedVariant ? (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSelectedVariant(null);
+                        setActiveImg(0);
+                      }}
+                      className="text-emerald-900 font-bold bg-emerald-50 border border-emerald-200 hover:bg-red-50 hover:border-red-200 hover:text-red-700 px-2 py-0.5 rounded text-[11px] transition-colors flex items-center gap-1 cursor-pointer"
+                      title="Click to deselect variant"
+                    >
+                      <span>Selected: {selectedVariant.label}</span>
+                      <span className="text-gray-400 font-normal ml-1">✕</span>
+                    </button>
+                  ) : (
+                    <span className="text-gray-400 font-normal text-[11px]">Standard / Base Piece</span>
+                  )}
+                </div>
+                <div className="flex flex-wrap gap-2.5">
+                  {product.variants.map((v) => {
+                    const isSelected = selectedVariant?.label === v.label;
+                    const vPrice = v.price !== undefined ? v.price : product.price + (v.price_modifier || 0);
+                    const swatch = getVariantColorSwatch(v.label);
+
+                    return (
+                      <button
+                        key={v.label}
+                        type="button"
+                        onClick={() => {
+                          if (isSelected) {
+                            setSelectedVariant(null);
+                            setActiveImg(0);
+                          } else {
+                            setSelectedVariant(v);
+                            if (v.image) {
+                              const imgIdx = images.indexOf(v.image);
+                              if (imgIdx !== -1) setActiveImg(imgIdx);
+                            }
+                          }
+                        }}
+                        className={cn(
+                          'px-3.5 py-2 text-xs font-semibold rounded-sm border-2 transition-all flex items-center gap-2 cursor-pointer shadow-2xs',
+                          isSelected
+                            ? 'bg-[#022c22] text-[#D4AF37] border-[#022c22] ring-2 ring-[#D4AF37]/50 shadow-sm scale-[1.02]'
+                            : 'bg-white text-gray-800 border-gray-200 hover:border-emerald-800 hover:bg-gray-50/80'
+                        )}
+                      >
+                        {/* Custom photo thumbnail or color swatch dot */}
+                        {v.image ? (
+                          <img
+                            src={v.image}
+                            alt=""
+                            className="w-4 h-4 rounded-full object-cover border border-black/15 shrink-0"
+                          />
+                        ) : swatch ? (
+                          <span
+                            className="w-3.5 h-3.5 rounded-full border border-black/20 shrink-0 shadow-2xs"
+                            style={{ background: swatch }}
+                          />
+                        ) : null}
+
+                        <span>{v.label}</span>
+
+                        {/* Price differential if different */}
+                        {vPrice !== product.price && (
+                          <span className={cn('text-[10px]', isSelected ? 'text-[#D4AF37]' : 'text-gray-400')}>
+                            {formatPrice(vPrice)}
+                          </span>
+                        )}
+
+                        {/* Active Checkmark */}
+                        {isSelected && (
+                          <Check size={12} className="text-[#D4AF37] ml-0.5 shrink-0" />
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
 
             <p className="text-gray-600 text-xs sm:text-sm leading-relaxed">
               {product.description}

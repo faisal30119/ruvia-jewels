@@ -191,12 +191,18 @@ export default function CheckoutPage() {
                 email: form.email,
                 name: `${form.firstName} ${form.lastName}`,
                 shippingAddress: form,
-                items: items.map((i) => ({
-                  id: i.product.id,
-                  name: i.product.name,
-                  price: i.product.price,
-                  quantity: i.quantity,
-                })),
+                items: items.map((i) => {
+                  const unitPrice = i.variant?.price !== undefined
+                    ? i.variant.price
+                    : (i.product.price + (i.variant?.price_modifier || 0));
+                  return {
+                    id: i.product.id,
+                    name: i.variant?.label ? `${i.product.name} (${i.variant.label})` : i.product.name,
+                    price: unitPrice,
+                    variant: i.variant?.label,
+                    quantity: i.quantity,
+                  };
+                }),
                 amount: total,
                 couponCode: couponApplied ? coupon : undefined,
                 couponDiscount,
@@ -421,23 +427,35 @@ export default function CheckoutPage() {
           <div className="bg-gray-50 border border-gray-100 p-4 sm:p-6 space-y-4">
             {/* Items */}
             <div className="space-y-3 max-h-64 overflow-y-auto pr-1">
-              {items.map(({ product, quantity }) => (
-                <div key={product.id} className="flex gap-3 items-center">
-                  <img
-                    src={product.image}
-                    alt={product.name}
-                    referrerPolicy="no-referrer"
-                    className="w-12 h-12 sm:w-14 sm:h-14 object-cover flex-shrink-0"
-                  />
-                  <div className="flex-1 min-w-0">
-                    <p className="font-serif text-xs text-emerald-950 line-clamp-1">{product.name}</p>
-                    <p className="text-gray-400 text-[11px] sm:text-xs font-sans">Qty: {quantity}</p>
+              {items.map(({ product, quantity, variant }) => {
+                const itemId = variant?.label ? `${product.id}-${variant.label}` : String(product.id);
+                const unitPrice = variant?.price !== undefined
+                  ? variant.price
+                  : (product.price + (variant?.price_modifier || 0));
+
+                return (
+                  <div key={itemId} className="flex gap-3 items-center">
+                    <img
+                      src={variant?.image || product.image}
+                      alt={product.name}
+                      referrerPolicy="no-referrer"
+                      className="w-12 h-12 sm:w-14 sm:h-14 object-cover flex-shrink-0 rounded-sm border border-gray-200"
+                    />
+                    <div className="flex-1 min-w-0">
+                      <p className="font-serif text-xs text-emerald-950 line-clamp-1">{product.name}</p>
+                      {variant && (
+                        <p className="text-[10px] text-emerald-800 font-medium font-sans">
+                          Option: {variant.label}
+                        </p>
+                      )}
+                      <p className="text-gray-400 text-[11px] sm:text-xs font-sans">Qty: {quantity}</p>
+                    </div>
+                    <p className="text-xs sm:text-sm font-sans font-bold text-emerald-950 shrink-0">
+                      {formatPrice(unitPrice * quantity)}
+                    </p>
                   </div>
-                  <p className="text-xs sm:text-sm font-sans font-bold text-emerald-950 shrink-0">
-                    {formatPrice(product.price * quantity)}
-                  </p>
-                </div>
-              ))}
+                );
+              })}
             </div>
 
             {/* Coupon */}

@@ -71,70 +71,92 @@ export default function CartPage() {
       <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-12 grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-10">
         {/* ─── Cart Items ─── */}
         <div className="lg:col-span-2 space-y-3 sm:space-y-4">
-          {cartItems.map(({ product, quantity }) => (
-            <div
-              key={product.id}
-              className="flex gap-3 sm:gap-4 border border-gray-100 p-3 sm:p-4"
-            >
-              <Link href={`/product/${product.id}`} className="flex-shrink-0">
-                <img
-                  src={product.image}
-                  alt={product.name}
-                  referrerPolicy="no-referrer"
-                  className="w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 object-cover"
-                />
-              </Link>
-              <div className="flex-1 min-w-0">
-                <p className="text-gold-600 text-[10px] sm:text-xs font-sans uppercase tracking-wider mb-0.5 sm:mb-1">
-                  {product.category}
-                </p>
-                <Link
-                  href={`/product/${product.id}`}
-                  className="font-serif text-emerald-950 text-xs sm:text-sm md:text-base leading-snug hover:underline line-clamp-2"
-                >
-                  {product.name}
+          {cartItems.map((item) => {
+            const { product, quantity, variant } = item;
+            const itemId = variant?.label ? `${product.id}-${variant.label}` : String(product.id);
+            const unitPrice = variant?.price !== undefined 
+              ? variant.price 
+              : (product.price + (variant?.price_modifier || 0));
+
+            return (
+              <div
+                key={itemId}
+                className="flex gap-3 sm:gap-4 border border-gray-100 p-3 sm:p-4 rounded-sm"
+              >
+                <Link href={`/product/${product.id}`} className="flex-shrink-0">
+                  <img
+                    src={variant?.image || product.image}
+                    alt={product.name}
+                    referrerPolicy="no-referrer"
+                    className="w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 object-cover rounded-sm border border-gray-100"
+                  />
                 </Link>
-                <p className="text-gray-400 text-[10px] sm:text-xs font-sans mt-0.5 sm:mt-1">
-                  {product.stoneColor} · {product.plating}
-                </p>
-                <div className="flex items-center gap-3 sm:gap-4 mt-2 sm:mt-3">
-                  {/* Quantity */}
-                  <div className="flex items-center border border-gray-200">
+                <div className="flex-1 min-w-0">
+                  <p className="text-[#D4AF37] text-[10px] sm:text-xs font-sans uppercase tracking-wider mb-0.5 sm:mb-1 font-semibold">
+                    {product.category}
+                  </p>
+                  <Link
+                    href={`/product/${product.id}`}
+                    className="font-serif text-emerald-950 text-xs sm:text-sm md:text-base leading-snug hover:underline line-clamp-2"
+                  >
+                    {product.name}
+                  </Link>
+
+                  {/* Variant Tag */}
+                  {variant && (
+                    <div className="mt-1 flex items-center gap-1.5">
+                      <span className="inline-flex items-center gap-1.5 text-[11px] font-medium bg-emerald-50 text-emerald-900 border border-emerald-200 px-2 py-0.5 rounded-sm">
+                        {variant.image && (
+                          <img
+                            src={variant.image}
+                            alt=""
+                            className="w-3.5 h-3.5 rounded-full object-cover border border-black/10 shrink-0"
+                          />
+                        )}
+                        <span>Option: {variant.label}</span>
+                      </span>
+                    </div>
+                  )}
+
+                  <div className="flex items-center gap-3 sm:gap-4 mt-2 sm:mt-3">
+                    {/* Quantity */}
+                    <div className="flex items-center border border-gray-200 rounded-sm">
+                      <button
+                        onClick={() => updateQuantity(itemId, quantity - 1)}
+                        className="w-8 h-8 flex items-center justify-center text-gray-500 hover:bg-gray-50 text-sm active:bg-gray-100"
+                        aria-label="Decrease quantity"
+                      >
+                        −
+                      </button>
+                      <span className="w-8 text-center text-xs font-sans font-semibold">{quantity}</span>
+                      <button
+                        onClick={() => updateQuantity(itemId, quantity + 1)}
+                        className="w-8 h-8 flex items-center justify-center text-gray-500 hover:bg-gray-50 text-sm active:bg-gray-100"
+                        aria-label="Increase quantity"
+                      >
+                        +
+                      </button>
+                    </div>
                     <button
-                      onClick={() => updateQuantity(product.id, quantity - 1)}
-                      className="w-8 h-8 flex items-center justify-center text-gray-500 hover:bg-gray-50 text-sm active:bg-gray-100"
-                      aria-label="Decrease quantity"
+                      onClick={() => removeFromCart(itemId)}
+                      className="p-2 text-gray-300 hover:text-red-400 transition-colors"
+                      aria-label="Remove item"
                     >
-                      −
-                    </button>
-                    <span className="w-8 text-center text-xs font-sans font-semibold">{quantity}</span>
-                    <button
-                      onClick={() => updateQuantity(product.id, quantity + 1)}
-                      className="w-8 h-8 flex items-center justify-center text-gray-500 hover:bg-gray-50 text-sm active:bg-gray-100"
-                      aria-label="Increase quantity"
-                    >
-                      +
+                      <Trash2 size={16} />
                     </button>
                   </div>
-                  <button
-                    onClick={() => removeFromCart(product.id)}
-                    className="p-2 text-gray-300 hover:text-red-400 transition-colors"
-                    aria-label="Remove item"
-                  >
-                    <Trash2 size={16} />
-                  </button>
+                </div>
+                <div className="flex-shrink-0 text-right">
+                  <p className="font-sans font-bold text-emerald-950 text-xs sm:text-sm">
+                    {formatPrice(unitPrice * quantity)}
+                  </p>
+                  {quantity > 1 && (
+                    <p className="text-gray-400 text-[10px] sm:text-xs font-sans">{formatPrice(unitPrice)} each</p>
+                  )}
                 </div>
               </div>
-              <div className="flex-shrink-0 text-right">
-                <p className="font-sans font-bold text-emerald-950 text-xs sm:text-sm">
-                  {formatPrice(product.price * quantity)}
-                </p>
-                {quantity > 1 && (
-                  <p className="text-gray-400 text-[10px] sm:text-xs font-sans">{formatPrice(product.price)} each</p>
-                )}
-              </div>
-            </div>
-          ))}
+            );
+          })}
 
           <div className="flex justify-between items-center pt-2 text-xs font-sans">
             <Link

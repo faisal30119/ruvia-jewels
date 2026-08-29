@@ -10,13 +10,19 @@ export async function getAuthHeader(): Promise<{ Authorization: string } | {}> {
 
 export async function adminFetch(url: string, options: RequestInit = {}): Promise<Response> {
   const authHeader = await getAuthHeader();
+  const isFormData = typeof FormData !== 'undefined' && options.body instanceof FormData;
+  const headers: Record<string, string> = {
+    ...authHeader,
+    ...((options.headers as Record<string, string>) ?? {}),
+  };
+
+  if (!isFormData && !headers['Content-Type']) {
+    headers['Content-Type'] = 'application/json';
+  }
+
   return fetch(url, {
     ...options,
-    headers: {
-      'Content-Type': 'application/json',
-      ...authHeader,
-      ...(options.headers ?? {}),
-    },
+    headers,
   });
 }
 
