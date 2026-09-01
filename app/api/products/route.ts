@@ -89,6 +89,7 @@ export async function GET(request: Request) {
       stone_color: p.stone_color,
       stoneColor: p.stone_color,
       style: p.style ?? '',
+      material_type: p.material_type ?? '',
       plating: p.plating,
       description: p.description,
       inclusions: p.inclusions ?? [],
@@ -110,7 +111,7 @@ export async function POST(request: Request) {
   }
 
   const body = await request.json();
-  const { name, price, stock, image, images, variants, category, color, stoneColor, plating, style, description, inclusions } =
+  const { name, price, stock, image, images, variants, category, color, stoneColor, plating, style, material_type, description, inclusions } =
     body;
 
   if (!name || !price) {
@@ -135,7 +136,8 @@ export async function POST(request: Request) {
       image: finalImageValue,
       category: category ?? null,
       stone_color: colorVal,
-      style: style ?? body.style ?? null,
+      style: style ?? null,
+      material_type: material_type ?? null,
       plating: plating ?? null,
       description: description ?? null,
       inclusions: inclusions ?? [],

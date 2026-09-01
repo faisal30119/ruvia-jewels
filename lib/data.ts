@@ -25,9 +25,14 @@ export type Product = {
   style?: string;
   stylingTip?: string;
   material?: string;
+  material_type?: string;
   stock?: number;
   variants?: ProductVariant[];
   is_featured?: boolean;
+  meta_title?: string;
+  meta_description?: string;
+  slug?: string;
+  stone_color?: string;
 };
 
 // High-resolution curated aesthetic photography for Korean & Indo-Western Gen-Z jewelry
@@ -71,7 +76,8 @@ export const FALLBACK_PRODUCTS: Product[] = [
     oldPrice: 1599,
     image: IMAGES.seoulBow,
     images: [IMAGES.seoulBow, IMAGES.hanaPearl, IMAGES.daisyBow],
-    category: 'Pendants',
+    category: 'Pendants & Charms',
+    material_type: 'Gold Plated',
     stoneColor: 'Clear',
     plating: '18K Gold',
     trendTag: 'UNDER ₹999',
@@ -94,7 +100,8 @@ export const FALLBACK_PRODUCTS: Product[] = [
     oldPrice: 2199,
     image: IMAGES.hanaPearl,
     images: [IMAGES.hanaPearl, IMAGES.lunaPendant, IMAGES.yunaLayers],
-    category: 'Necklaces',
+    category: 'Necklaces & Chokers',
+    material_type: 'Pearl',
     stoneColor: 'Pearl White',
     plating: '18K Gold',
     trendTag: 'BESTSELLER',
@@ -117,6 +124,7 @@ export const FALLBACK_PRODUCTS: Product[] = [
     image: IMAGES.miraJhumka,
     images: [IMAGES.miraJhumka, IMAGES.noorChandbali, IMAGES.zoyaHoops],
     category: 'Earrings',
+    material_type: 'Gold Plated',
     stoneColor: 'Clear / Champagne',
     plating: '18K Gold',
     trendTag: 'INDO-WESTERN',
@@ -139,7 +147,8 @@ export const FALLBACK_PRODUCTS: Product[] = [
     oldPrice: 1999,
     image: IMAGES.yunaLayers,
     images: [IMAGES.yunaLayers, IMAGES.seoulBow, IMAGES.kiaraChain],
-    category: 'Necklaces',
+    category: 'Necklaces & Chokers',
+    material_type: 'Gold Plated',
     stoneColor: 'Gold',
     plating: '18K Gold',
     trendTag: 'TRENDING',
@@ -158,6 +167,7 @@ export const FALLBACK_PRODUCTS: Product[] = [
     image: IMAGES.soraHuggies,
     images: [IMAGES.soraHuggies, IMAGES.namiCuffs, IMAGES.starburstDrops],
     category: 'Earrings',
+    material_type: 'Gold Plated',
     stoneColor: 'Clear Crystal',
     plating: '18K Gold',
     trendTag: 'UNDER ₹999',
@@ -175,7 +185,8 @@ export const FALLBACK_PRODUCTS: Product[] = [
     oldPrice: 1799,
     image: IMAGES.aeriRings,
     images: [IMAGES.aeriRings, IMAGES.rheaRing],
-    category: 'American Diamond (AD) / CZ',
+    category: 'Rings',
+    material_type: 'Gold Plated',
     stoneColor: 'Gold',
     plating: '18K Gold',
     trendTag: 'BESTSELLER',
@@ -193,7 +204,8 @@ export const FALLBACK_PRODUCTS: Product[] = [
     oldPrice: 2899,
     image: IMAGES.noorChandbali,
     images: [IMAGES.noorChandbali, IMAGES.miraJhumka],
-    category: 'Kundan Jewelry',
+    category: 'Earrings',
+    material_type: 'Kundan',
     stoneColor: 'Emerald Green / Clear',
     plating: '18K Gold',
     trendTag: 'INDO-WESTERN',
@@ -211,7 +223,8 @@ export const FALLBACK_PRODUCTS: Product[] = [
     oldPrice: 2299,
     image: IMAGES.tennisBracelet,
     images: [IMAGES.tennisBracelet, IMAGES.yunaLayers],
-    category: 'American Diamond (AD) / CZ',
+    category: 'Bangles & Kadas',
+    material_type: 'American Diamond (AD) / CZ',
     stoneColor: 'Clear CZ',
     plating: 'Silver / White Gold',
     trendTag: 'SEOUL EDIT',
@@ -229,7 +242,8 @@ export const FALLBACK_PRODUCTS: Product[] = [
     oldPrice: 1599,
     image: IMAGES.nariHeart,
     images: [IMAGES.nariHeart, IMAGES.seoulBow],
-    category: 'Pendants',
+    category: 'Necklaces & Chokers',
+    material_type: 'Gold Plated',
     stoneColor: 'Gold',
     plating: '18K Gold',
     trendTag: 'UNDER ₹999',
@@ -248,6 +262,7 @@ export const FALLBACK_PRODUCTS: Product[] = [
     image: IMAGES.namiCuffs,
     images: [IMAGES.namiCuffs, IMAGES.soraHuggies],
     category: 'Earrings',
+    material_type: 'Gold Plated',
     stoneColor: 'Gold',
     plating: '18K Gold',
     trendTag: 'UNDER ₹999',
@@ -265,7 +280,8 @@ export const FALLBACK_PRODUCTS: Product[] = [
     oldPrice: 2599,
     image: IMAGES.kiaraChain,
     images: [IMAGES.kiaraChain, IMAGES.yunaLayers],
-    category: 'Necklaces',
+    category: 'Necklaces & Chokers',
+    material_type: 'Gold Plated',
     stoneColor: 'Black Spinel / Gold',
     plating: '18K Gold',
     trendTag: 'INDO-WESTERN',
@@ -284,6 +300,7 @@ export const FALLBACK_PRODUCTS: Product[] = [
     image: IMAGES.starburstDrops,
     images: [IMAGES.starburstDrops, IMAGES.soraHuggies],
     category: 'Earrings',
+    material_type: 'Sterling Silver',
     stoneColor: 'Clear Crystal',
     plating: 'Silver / White Gold',
     trendTag: 'SEOUL EDIT',
@@ -302,6 +319,7 @@ export const FALLBACK_PRODUCTS: Product[] = [
     image: 'https://images.unsplash.com/photo-1599643477877-530eb83abc8e?q=80&w=800&auto=format&fit=crop',
     images: ['https://images.unsplash.com/photo-1599643477877-530eb83abc8e?q=80&w=800&auto=format&fit=crop'],
     category: 'Bridal Sets',
+    material_type: 'Polki',
     stoneColor: 'Emerald Green',
     plating: '18K Gold',
     trendTag: 'BESTSELLER',
@@ -319,7 +337,8 @@ export const FALLBACK_PRODUCTS: Product[] = [
     oldPrice: 1499,
     image: 'https://images.unsplash.com/photo-1617038260897-41a1f14a8ca0?q=80&w=800&auto=format&fit=crop',
     images: ['https://images.unsplash.com/photo-1617038260897-41a1f14a8ca0?q=80&w=800&auto=format&fit=crop'],
-    category: 'Oxidise jewelry',
+    category: 'Necklaces & Chokers',
+    material_type: 'Oxidised Silver',
     stoneColor: 'Black Spinel',
     plating: 'Silver / White Gold',
     trendTag: 'UNDER ₹999',
@@ -337,7 +356,8 @@ export const FALLBACK_PRODUCTS: Product[] = [
     oldPrice: 2299,
     image: 'https://images.unsplash.com/photo-1630019852942-f89202989a59?q=80&w=800&auto=format&fit=crop',
     images: ['https://images.unsplash.com/photo-1630019852942-f89202989a59?q=80&w=800&auto=format&fit=crop'],
-    category: 'Meenakari Jewelry',
+    category: 'Earrings',
+    material_type: 'Meenakari',
     stoneColor: 'Pearl White',
     plating: '18K Gold',
     trendTag: 'TRENDING',
@@ -355,7 +375,8 @@ export const FALLBACK_PRODUCTS: Product[] = [
     oldPrice: 4299,
     image: 'https://images.unsplash.com/photo-1602751584552-8ba73aad10e1?q=80&w=800&auto=format&fit=crop',
     images: ['https://images.unsplash.com/photo-1602751584552-8ba73aad10e1?q=80&w=800&auto=format&fit=crop'],
-    category: 'Polki Jewelry',
+    category: 'Necklaces & Chokers',
+    material_type: 'Polki',
     stoneColor: 'Clear',
     plating: '18K Gold',
     trendTag: 'BESTSELLER',
@@ -371,14 +392,25 @@ export const FALLBACK_PRODUCTS: Product[] = [
 export const CATEGORIES = [
   'All',
   'Bridal Sets',
-  'Necklaces',
+  'Necklaces & Chokers',
   'Earrings',
-  'Pendants',
-  'Oxidise jewelry',
+  'Pendants & Charms',
+  'Bangles & Kadas',
+  'Rings',
+  'Nose Rings (Nath)',
+  'Maang Tikka',
+];
+
+export const MATERIALS = [
+  'All Materials',
+  'Oxidised Silver',
   'American Diamond (AD) / CZ',
-  'Polki Jewelry',
-  'Kundan Jewelry',
-  'Meenakari Jewelry',
+  'Polki',
+  'Kundan',
+  'Meenakari',
+  'Pearl',
+  'Gold Plated',
+  'Sterling Silver',
 ];
 
 export const STYLES = [
@@ -388,6 +420,9 @@ export const STYLES = [
   'Clean Girl',
   'Coquette / Y2K',
   'Everyday Stack',
+  'Boho Ethnic',
+  'Royal Heritage',
+  'Contemporary Chic',
 ];
 
 export const COLORS = [

@@ -4,7 +4,7 @@ import { Plus, Pencil, Trash2, Search, ChevronLeft, ChevronRight, Upload, X, Sta
 import { adminFetch, formatPrice } from '@/lib/admin-utils';
 import { useToast } from '@/components/admin/Toast';
 import ConfirmModal from '@/components/admin/ConfirmModal';
-import { CATEGORIES, STYLES, type ProductVariant } from '@/lib/data';
+import { CATEGORIES, MATERIALS, STYLES, type ProductVariant } from '@/lib/data';
 
 interface Product {
   id: number;
@@ -17,6 +17,7 @@ interface Product {
   color?: string;
   stone_color?: string;
   style?: string;
+  material_type?: string;
   description: string;
   inclusions: string[];
   variants?: ProductVariant[];
@@ -55,6 +56,17 @@ const STANDARD_STYLES = [
   'Boho Ethnic',
   'Royal Heritage',
   'Contemporary Chic',
+];
+
+const STANDARD_MATERIALS = [
+  'Oxidised Silver',
+  'American Diamond (AD) / CZ',
+  'Polki',
+  'Kundan',
+  'Meenakari',
+  'Pearl',
+  'Gold Plated',
+  'Sterling Silver',
 ];
 
 const DEFAULT_INCLUSIONS = [
@@ -96,6 +108,8 @@ interface ProductFormData {
   isCustomColor: boolean;
   style: string;
   isCustomStyle: boolean;
+  material_type: string;
+  isCustomMaterial: boolean;
   description: string;
   incStr: string;
   is_featured: boolean;
@@ -117,6 +131,8 @@ const EMPTY_FORM: ProductFormData = {
   isCustomColor: false,
   style: '',
   isCustomStyle: false,
+  material_type: '',
+  isCustomMaterial: false,
   description: '',
   incStr: '',
   is_featured: false,
@@ -196,6 +212,8 @@ export default function ProductsPage() {
       isCustomColor: isCustomCol,
       style: existingStyle,
       isCustomStyle: isCustomSty,
+      material_type: p.material_type ?? '',
+      isCustomMaterial: !!(p.material_type && !STANDARD_MATERIALS.includes(p.material_type)),
       description: p.description ?? '',
       incStr: (p.inclusions ?? []).join(', '),
       is_featured: p.is_featured ?? false,
@@ -496,6 +514,7 @@ export default function ProductsPage() {
       color: form.color,
       stone_color: form.color,
       style: form.style,
+      material_type: form.material_type,
       description: form.description,
       image: primaryImg,
       images: form.images.length > 0 ? form.images : (primaryImg ? [primaryImg] : []),
@@ -886,6 +905,51 @@ export default function ProductsPage() {
                     </option>
                   ))}
                 </select>
+              </div>
+
+              {/* Material / Craft Type */}
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <label className={LABEL}>Material / Craft Type</label>
+                  <button
+                    type="button"
+                    onClick={() => setForm((f) => ({ ...f, isCustomMaterial: !f.isCustomMaterial }))}
+                    className="text-[11px] text-emerald-800 hover:underline font-semibold"
+                  >
+                    {form.isCustomMaterial ? '← Select from standard materials' : '+ Add custom material'}
+                  </button>
+                </div>
+
+                {form.isCustomMaterial ? (
+                  <input
+                    type="text"
+                    value={form.material_type ?? ''}
+                    onChange={F('material_type')}
+                    placeholder="Type custom material (e.g. Jadau, Thewa, Lac Jewelry)..."
+                    className={INPUT + ' bg-white'}
+                    autoFocus
+                  />
+                ) : (
+                  <select
+                    value={STANDARD_MATERIALS.includes(form.material_type) ? form.material_type : form.material_type ? '__custom__' : ''}
+                    onChange={(e) => {
+                      if (e.target.value === '__custom__') {
+                        setForm((f) => ({ ...f, isCustomMaterial: true, material_type: '' }));
+                      } else {
+                        setForm((f) => ({ ...f, material_type: e.target.value, isCustomMaterial: false }));
+                      }
+                    }}
+                    className={INPUT + ' bg-white'}
+                  >
+                    <option value="">Select Material…</option>
+                    {STANDARD_MATERIALS.map((m) => (
+                      <option key={m} value={m}>
+                        {m}
+                      </option>
+                    ))}
+                    <option value="__custom__">+ Add new / custom material…</option>
+                  </select>
+                )}
               </div>
 
               {/* ─── 2. Color Selection (Dropdown + Add Custom Color) ─── */}
