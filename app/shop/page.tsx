@@ -1,12 +1,13 @@
 'use client';
 
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Heart, SlidersHorizontal, X, Loader2, ShoppingBag, Check, Sparkles, Search, ChevronRight } from 'lucide-react';
 import {
   FALLBACK_PRODUCTS,
   CATEGORIES,
+  MATERIALS,
   STYLES,
   COLORS,
   PRICE_RANGES,
@@ -59,6 +60,7 @@ function ShopContent() {
   const searchQuery = searchParams.get('search') ?? searchParams.get('q') ?? '';
   const selectedCategory = searchParams.get('category') ?? '';
   const selectedStyle = searchParams.get('style') ?? '';
+  const selectedMaterial = searchParams.get('material') ?? '';
   const selectedColor = searchParams.get('color') ?? '';
   const selectedPrice = searchParams.get('price') ?? '';
   const sortBy = searchParams.get('sort') ?? '';
@@ -71,6 +73,42 @@ function ShopContent() {
       .catch(() => setProducts(FALLBACK_PRODUCTS))
       .finally(() => setLoading(false));
   }, []);
+
+  // Only show materials that at least one product actually has
+  const dynamicMaterials = useMemo(() => {
+    const fromProducts = products
+      .map((p) => p.material_type?.trim())
+      .filter((m): m is string => !!m);
+    // Preserve standard order for values that exist, then append any custom ones
+    const inProducts = new Set(fromProducts.map((m) => m.toLowerCase()));
+    const ordered = MATERIALS.filter((m) => m !== 'All Materials' && inProducts.has(m.toLowerCase()));
+    const custom = fromProducts.filter((m) => !MATERIALS.map((x) => x.toLowerCase()).includes(m.toLowerCase()));
+    const unique = Array.from(new Set([...ordered, ...custom]));
+    return unique.length > 0 ? ['All Materials', ...unique] : ['All Materials'];
+  }, [products]);
+
+  // Only show styles that at least one product actually has
+  const dynamicStyles = useMemo(() => {
+    const fromProducts = products
+      .map((p) => p.style?.trim())
+      .filter((s): s is string => !!s);
+    // Preserve standard order for values that exist, then append any custom ones
+    const inProducts = new Set(fromProducts.map((s) => s.toLowerCase()));
+    const ordered = STYLES.filter((s) => s !== 'All Styles' && inProducts.has(s.toLowerCase()));
+    const custom = fromProducts.filter((s) => !STYLES.map((x) => x.toLowerCase()).includes(s.toLowerCase()));
+    const unique = Array.from(new Set([...ordered, ...custom]));
+    return unique.length > 0 ? ['All Styles', ...unique] : ['All Styles'];
+  }, [products]);
+
+  // Build dynamic color list from loaded products (custom stone colors not in COLORS preset)
+  const dynamicColors = useMemo(() => {
+    const presetNames = COLORS.map((c) => c.name.toLowerCase());
+    const fromProducts = products
+      .map((p) => p.stoneColor?.trim() ?? p.color?.trim())
+      .filter((c): c is string => !!c && !presetNames.includes(c.toLowerCase()));
+    const customUnique = Array.from(new Set(fromProducts));
+    return customUnique;
+  }, [products]);
 
   function setFilter(key: string, value: string) {
     const params = new URLSearchParams(searchParams.toString());
@@ -99,32 +137,30 @@ function ShopContent() {
           p.style?.toLowerCase().includes(q) ||
           p.plating?.toLowerCase().includes(q) ||
           p.stoneColor?.toLowerCase().includes(q) ||
-          p.trendTag?.toLowerCase().includes(q)
+          p.trendTag?.toLowerCase().includes(q) ||
+          p.material_type?.toLowerCase().includes(q)
       );
     }
     if (selectedCategory && selectedCategory !== 'All') {
       const catLower = selectedCategory.toLowerCase();
+      list = list.filter((p) => p.category.toLowerCase() === catLower);
+    }
+    if (selectedMaterial && selectedMaterial !== 'All Materials') {
+      const matLower = selectedMaterial.toLowerCase();
       list = list.filter((p) => {
-        const pCat = p.category.toLowerCase();
-        if (pCat === catLower) return true;
-        if (catLower.includes('american diamond') || catLower.includes('cz') || catLower.includes('ad')) {
-          return pCat.includes('ad') || pCat.includes('cz') || p.stoneColor?.toLowerCase().includes('cz') || p.material?.toLowerCase().includes('cubic zirconia');
-        }
-        if (catLower.includes('oxidi')) {
-          return pCat.includes('oxidi') || p.name.toLowerCase().includes('oxidise') || p.material?.toLowerCase().includes('oxidised');
-        }
-        if (catLower.includes('polki')) {
-          return pCat.includes('polki') || p.name.toLowerCase().includes('polki') || p.material?.toLowerCase().includes('polki');
-        }
-        if (catLower.includes('kundan')) {
-          return pCat.includes('kundan') || p.name.toLowerCase().includes('kundan') || p.material?.toLowerCase().includes('kundan');
-        }
-        if (catLower.includes('meenakari')) {
-          return pCat.includes('meenakari') || p.name.toLowerCase().includes('meenakari') || p.material?.toLowerCase().includes('meenakari');
-        }
-        if (catLower.includes('bridal')) {
-          return pCat.includes('bridal') || p.name.toLowerCase().includes('bridal');
-        }
+        const prodMat = (p.material_type ?? p.material ?? '').toLowerCase();
+        if (prodMat === matLower) return true;
+        // Fallback: legacy products without material_type — fuzzy-match on name/description
+        const nameLower = p.name.toLowerCase();
+        const descLower = p.description?.toLowerCase() ?? '';
+        if (matLower.includes('oxidis')) return prodMat.includes('oxidis') || nameLower.includes('oxidis') || descLower.includes('oxidis');
+        if (matLower.includes('american diamond') || matLower.includes('cz')) return prodMat.includes('cz') || prodMat.includes('american diamond') || nameLower.includes('ad ') || nameLower.includes(' cz') || descLower.includes('cubic zirconia');
+        if (matLower.includes('polki')) return prodMat.includes('polki') || nameLower.includes('polki');
+        if (matLower.includes('kundan')) return prodMat.includes('kundan') || nameLower.includes('kundan');
+        if (matLower.includes('meenakari')) return prodMat.includes('meenakari') || nameLower.includes('meenakari');
+        if (matLower.includes('pearl')) return prodMat.includes('pearl') || nameLower.includes('pearl');
+        if (matLower.includes('gold plated')) return prodMat.includes('gold') || descLower.includes('gold plat');
+        if (matLower.includes('sterling silver')) return prodMat.includes('sterling') || prodMat.includes('925') || descLower.includes('sterling');
         return false;
       });
     }
@@ -172,10 +208,10 @@ function ShopContent() {
     if (sortBy === 'price_asc') list.sort((a, b) => a.price - b.price);
     else if (sortBy === 'price_desc') list.sort((a, b) => b.price - a.price);
     else if (sortBy === 'name') list.sort((a, b) => a.name.localeCompare(b.name));
-    else if (sortBy === 'bestseller') list.sort((a, b) => (b.trendTag === 'BESTSELLER' ? 1 : 0) - (a.trendTag === 'BESTSELLER' ? 1 : 0));
+
 
     return list;
-  }, [products, searchQuery, selectedCategory, selectedStyle, selectedColor, selectedPrice, sortBy]);
+  }, [products, searchQuery, selectedCategory, selectedStyle, selectedMaterial, selectedColor, selectedPrice, sortBy]);
 
   // Lock scroll when mobile filter sidebar is open
   useEffect(() => {
@@ -190,7 +226,7 @@ function ShopContent() {
   }, [sidebarOpen]);
 
   const displayed = filteredProducts();
-  const hasFilters = !!(selectedCategory || selectedStyle || selectedColor || selectedPrice || sortBy);
+  const hasFilters = !!(selectedCategory || selectedStyle || selectedMaterial || selectedColor || selectedPrice || sortBy);
 
   return (
     <div className="min-h-screen bg-[#FAF9F6]">
@@ -255,8 +291,7 @@ function ShopContent() {
               onChange={(e) => setFilter('sort', e.target.value)}
               className="border border-gray-300 px-2.5 py-2 text-xs font-sans bg-white text-gray-900 focus:outline-none focus:border-[#022c22] rounded-sm"
             >
-              <option value="">Sort: Featured</option>
-              <option value="bestseller">Best Sellers</option>
+              <option value="">Sort: Default</option>
               <option value="price_asc">Price: Low to High</option>
               <option value="price_desc">Price: High to Low</option>
               <option value="name">Name A-Z</option>
@@ -271,7 +306,11 @@ function ShopContent() {
             <FilterPanel
               selectedCategory={selectedCategory}
               selectedStyle={selectedStyle}
+              availableStyles={dynamicStyles}
+              selectedMaterial={selectedMaterial}
+              availableMaterials={dynamicMaterials}
               selectedColor={selectedColor}
+              customColors={dynamicColors}
               selectedPrice={selectedPrice}
               sortBy={sortBy}
               setFilter={setFilter}
@@ -302,7 +341,11 @@ function ShopContent() {
                 <FilterPanel
                   selectedCategory={selectedCategory}
                   selectedStyle={selectedStyle}
+                  availableStyles={dynamicStyles}
+                  selectedMaterial={selectedMaterial}
+                  availableMaterials={dynamicMaterials}
                   selectedColor={selectedColor}
+                  customColors={dynamicColors}
                   selectedPrice={selectedPrice}
                   sortBy={sortBy}
                   setFilter={(k, v) => {
@@ -559,7 +602,11 @@ function ShopContent() {
 interface FilterPanelProps {
   selectedCategory: string;
   selectedStyle: string;
+  availableStyles: string[];
+  selectedMaterial: string;
+  availableMaterials: string[];
   selectedColor: string;
+  customColors: string[];
   selectedPrice: string;
   sortBy: string;
   setFilter: (key: string, value: string) => void;
@@ -571,7 +618,11 @@ interface FilterPanelProps {
 function FilterPanel({
   selectedCategory,
   selectedStyle,
+  availableStyles,
+  selectedMaterial,
+  availableMaterials,
   selectedColor,
+  customColors,
   selectedPrice,
   sortBy,
   setFilter,
@@ -600,8 +651,7 @@ function FilterPanel({
         </p>
         <div className="space-y-1 text-xs">
           {[
-            { v: '', l: 'Featured' },
-            { v: 'bestseller', l: 'Best Sellers' },
+            { v: '', l: 'Default' },
             { v: 'price_asc', l: 'Price: Low to High' },
             { v: 'price_desc', l: 'Price: High to Low' },
             { v: 'name', l: 'Name A-Z' },
@@ -626,10 +676,10 @@ function FilterPanel({
           Aesthetic & Style
         </p>
         <div className="space-y-1 text-xs">
-          {STYLES.map((st) => (
+          {availableStyles.map((st) => (
             <button
               key={st}
-              onClick={() => setFilter('style', selectedStyle === st ? '' : st)}
+              onClick={() => setFilter('style', selectedStyle === st ? '' : st === 'All Styles' ? '' : st)}
               className={cn(
                 'block w-full text-left py-1 px-2 rounded-sm transition-colors',
                 selectedStyle === st || (!selectedStyle && st === 'All Styles')
@@ -638,6 +688,29 @@ function FilterPanel({
               )}
             >
               {st}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Material / Craft Type Filter */}
+      <div>
+        <p className="text-xs uppercase tracking-wider text-emerald-950 font-bold mb-2">
+          Material / Craft
+        </p>
+        <div className="space-y-1 text-xs">
+          {availableMaterials.map((m) => (
+            <button
+              key={m}
+              onClick={() => setFilter('material', selectedMaterial === m ? '' : m === 'All Materials' ? '' : m)}
+              className={cn(
+                'block w-full text-left py-1 px-2 rounded-sm transition-colors',
+                selectedMaterial === m || (!selectedMaterial && m === 'All Materials')
+                  ? 'bg-emerald-50 text-[#022c22] font-semibold'
+                  : 'text-gray-600 hover:text-emerald-950'
+              )}
+            >
+              {m}
             </button>
           ))}
         </div>
@@ -697,17 +770,40 @@ function FilterPanel({
           })}
         </div>
 
-        {/* Custom Color Input when color is not in presets */}
+        {/* Dynamic custom color pills from products */}
+        {customColors.length > 0 && (
+          <div className="flex flex-wrap gap-1.5 mb-2.5">
+            {customColors.map((c) => {
+              const isSelected = selectedColor === c;
+              return (
+                <button
+                  key={c}
+                  onClick={() => setFilter('color', isSelected ? '' : c)}
+                  className={cn(
+                    'px-2.5 py-1.5 text-xs rounded-sm border transition-colors font-medium',
+                    isSelected
+                      ? 'bg-[#022c22] text-[#D4AF37] border-[#022c22]'
+                      : 'border-gray-200 text-gray-700 hover:border-gray-400 bg-white'
+                  )}
+                >
+                  {c}
+                </button>
+              );
+            })}
+          </div>
+        )}
+
+        {/* Free-text color search */}
         <div className="relative">
           <input
             type="text"
             placeholder="Type color (e.g. Lavender, Maroon, Peach)..."
-            value={COLORS.some((c) => c.name === selectedColor) ? '' : selectedColor}
+            value={COLORS.some((c) => c.name === selectedColor) || customColors.includes(selectedColor) ? '' : selectedColor}
             onChange={(e) => setFilter('color', e.target.value)}
             className="w-full text-xs font-sans border border-gray-200 focus:border-[#022c22] rounded-sm py-2 pl-7 pr-7 focus:outline-none bg-gray-50/50"
           />
           <Search size={12} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
-          {selectedColor && !COLORS.some((c) => c.name === selectedColor) && (
+          {selectedColor && !COLORS.some((c) => c.name === selectedColor) && !customColors.includes(selectedColor) && (
             <button
               onClick={() => setFilter('color', '')}
               className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-700 p-0.5"

@@ -73,6 +73,8 @@ export async function GET(
         color: data.stone_color,
         stoneColor: data.stone_color,
         stone_color: data.stone_color,
+        style: data.style ?? '',
+        material_type: data.material_type ?? '',
         plating: data.plating,
         description: data.description,
         inclusions: data.inclusions ?? [],
@@ -120,6 +122,8 @@ export async function PUT(
   else if (body.stoneColor !== undefined) updatePayload.stone_color = body.stoneColor;
   else if (body.stone_color !== undefined) updatePayload.stone_color = body.stone_color;
 
+  if (body.style !== undefined) updatePayload.style = body.style;
+  if (body.material_type !== undefined) updatePayload.material_type = body.material_type;
   if (body.plating !== undefined) updatePayload.plating = body.plating;
   if (body.description !== undefined) updatePayload.description = body.description;
   if (body.inclusions !== undefined) updatePayload.inclusions = body.inclusions;
@@ -221,6 +225,8 @@ export async function PUT(
     color: data.stone_color,
     stoneColor: data.stone_color,
     stone_color: data.stone_color,
+    style: data.style ?? '',
+    material_type: data.material_type ?? '',
     plating: data.plating,
     description: data.description,
     inclusions: data.inclusions ?? [],
