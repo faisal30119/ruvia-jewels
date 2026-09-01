@@ -1,6 +1,6 @@
 'use client';
-import React, { useEffect, useState, useRef, useMemo } from 'react';
-import { Plus, Pencil, Trash2, Search, ChevronLeft, ChevronRight, Upload, X, Star, Image as ImageIcon, Layers } from 'lucide-react';
+import React, { useEffect, useState, useRef, useMemo, useCallback } from 'react';
+import { Plus, Pencil, Trash2, Search, ChevronLeft, ChevronRight, Upload, X, Star, Image as ImageIcon, Layers, Eye } from 'lucide-react';
 import { adminFetch, formatPrice } from '@/lib/admin-utils';
 import { useToast } from '@/components/admin/Toast';
 import ConfirmModal from '@/components/admin/ConfirmModal';
@@ -157,10 +157,44 @@ export default function ProductsPage() {
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<Product | null>(null);
+  const [viewProduct, setViewProduct] = useState<Product | null>(null);
   const [variantImgPickerIdx, setVariantImgPickerIdx] = useState<number | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
   const variantFileRef = useRef<HTMLInputElement>(null);
   const PAGE_SIZE = 20;
+
+  // Custom values persisted in site_settings
+  const [customMaterials, setCustomMaterials] = useState<string[]>([]);
+  const [customStyles, setCustomStyles] = useState<string[]>([]);
+  const [customColors, setCustomColors] = useState<string[]>([]);
+
+  // Merged dropdown lists = standard + persisted custom values
+  const allMaterials = useMemo(
+    () => Array.from(new Set([...STANDARD_MATERIALS, ...customMaterials])),
+    [customMaterials]
+  );
+  const allStyles = useMemo(
+    () => Array.from(new Set([...STANDARD_STYLES, ...customStyles])),
+    [customStyles]
+  );
+  const allColors = useMemo(
+    () => Array.from(new Set([...STANDARD_COLORS, ...customColors])),
+    [customColors]
+  );
+
+  // Load persisted custom values from site_settings on mount
+  const loadCustomOptions = useCallback(async () => {
+    try {
+      const res = await adminFetch('/api/admin/settings');
+      const json = await res.json();
+      const settings: Record<string, string> = json.data ?? {};
+      if (settings.custom_materials) setCustomMaterials(JSON.parse(settings.custom_materials));
+      if (settings.custom_styles)    setCustomStyles(JSON.parse(settings.custom_styles));
+      if (settings.custom_colors)    setCustomColors(JSON.parse(settings.custom_colors));
+    } catch {
+      // non-fatal — dropdowns still work with standard values
+    }
+  }, []);
 
   async function load(p = page, q = search) {
     setLoading(true);
@@ -173,6 +207,7 @@ export default function ProductsPage() {
 
   useEffect(() => {
     load();
+    loadCustomOptions();
   }, []);
 
   function openNew() {
@@ -498,6 +533,21 @@ export default function ProductsPage() {
     }
   }
 
+  async function persistCustomOption(
+    key: 'custom_materials' | 'custom_styles' | 'custom_colors',
+    value: string,
+    current: string[],
+    setter: React.Dispatch<React.SetStateAction<string[]>>
+  ) {
+    if (!value || current.includes(value)) return;
+    const updated = [...current, value];
+    setter(updated);
+    await adminFetch('/api/admin/settings', {
+      method: 'POST',
+      body: JSON.stringify({ [key]: JSON.stringify(updated) }),
+    });
+  }
+
   async function save() {
     if (!form.name || !form.price) {
       toast('Name and price are required', 'error');
@@ -505,6 +555,19 @@ export default function ProductsPage() {
     }
     setSaving(true);
     const primaryImg = form.images[0] || form.image || '';
+
+    // Persist any new custom values so they appear in dropdowns for future products
+    await Promise.all([
+      form.isCustomMaterial && form.material_type && !STANDARD_MATERIALS.includes(form.material_type)
+        ? persistCustomOption('custom_materials', form.material_type, customMaterials, setCustomMaterials)
+        : Promise.resolve(),
+      form.isCustomStyle && form.style && !STANDARD_STYLES.includes(form.style)
+        ? persistCustomOption('custom_styles', form.style, customStyles, setCustomStyles)
+        : Promise.resolve(),
+      form.isCustomColor && form.color && !STANDARD_COLORS.includes(form.color)
+        ? persistCustomOption('custom_colors', form.color, customColors, setCustomColors)
+        : Promise.resolve(),
+    ]);
 
     const payload = {
       name: form.name,
@@ -677,6 +740,13 @@ export default function ProductsPage() {
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-3">
                       <button
+                        onClick={() => setViewProduct(p)}
+                        className="text-blue-500 hover:text-blue-700 p-1 hover:bg-blue-50 rounded"
+                        title="View product details"
+                      >
+                        <Eye size={14} />
+                      </button>
+                      <button
                         onClick={() => openEdit(p)}
                         className="text-emerald-700 hover:text-emerald-900 p-1 hover:bg-emerald-50 rounded"
                         title="Edit product"
@@ -741,20 +811,166 @@ export default function ProductsPage() {
         onCancel={() => setDeleteTarget(null)}
       />
 
-      {/* Product Form Drawer */}
-      {showForm && (
-        <div className="fixed inset-0 z-50 flex justify-end bg-black/40">
-          <div className="bg-white w-full max-w-xl overflow-y-auto shadow-2xl">
-            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 sticky top-0 bg-white z-10">
-              <h2 className="font-serif text-xl font-bold text-[#022c22]">
-                {editing ? 'Edit Product' : 'New Product'}
-              </h2>
-              <button onClick={() => setShowForm(false)} className="p-1 hover:bg-gray-100 rounded-full">
-                <X size={18} className="text-gray-500" />
-              </button>
+      {/* Product View Modal */}
+      {viewProduct && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4 py-6"
+          onClick={() => setViewProduct(null)}
+        >
+          <div
+            className="bg-white w-full max-w-2xl rounded-sm shadow-2xl flex flex-col max-h-[90vh]"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header — never moves */}
+            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 shrink-0">
+              <h2 className="font-serif text-lg font-bold text-[#022c22] line-clamp-1 pr-4">{viewProduct.name}</h2>
+              <div className="flex items-center gap-2 shrink-0">
+                <button
+                  onClick={() => { setViewProduct(null); openEdit(viewProduct); }}
+                  className="flex items-center gap-1.5 px-3 py-1.5 text-xs bg-[#022c22] text-[#D4AF37] rounded-sm font-semibold hover:bg-[#064e3b]"
+                >
+                  <Pencil size={12} /> Edit
+                </button>
+                <button onClick={() => setViewProduct(null)} className="p-1.5 hover:bg-gray-100 rounded-full text-gray-500">
+                  <X size={18} />
+                </button>
+              </div>
             </div>
 
-            <div className="px-6 py-5 space-y-5">
+            {/* Scrollable body */}
+            <div className="overflow-y-auto px-6 py-5 space-y-5">
+              {/* Images */}
+              {viewProduct.images && viewProduct.images.length > 0 && (
+                <div>
+                  <p className="text-xs uppercase tracking-widest text-gray-400 mb-2 font-semibold">Images</p>
+                  <div className="flex gap-2 flex-wrap">
+                    {viewProduct.images.map((img, i) => (
+                      <img key={i} src={img} alt="" className="w-20 h-20 object-cover rounded-sm border border-gray-200" />
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Core details */}
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                {[
+                  { label: 'Price',     value: formatPrice(viewProduct.price) },
+                  { label: 'Stock',     value: String(viewProduct.stock ?? '—') },
+                  { label: 'Category',  value: viewProduct.category || '—' },
+                  { label: 'Material',  value: (viewProduct as any).material_type || '—' },
+                  { label: 'Style',     value: viewProduct.style || '—' },
+                  { label: 'Color',     value: viewProduct.color || viewProduct.stone_color || '—' },
+                  { label: 'Featured',  value: viewProduct.is_featured ? 'Yes' : 'No' },
+                  { label: 'Slug',      value: (viewProduct as any).slug || '—' },
+                ].map(({ label, value }) => (
+                  <div key={label} className="bg-gray-50 px-3 py-2 rounded-sm">
+                    <p className="text-[10px] uppercase tracking-wider text-gray-400 font-semibold mb-0.5">{label}</p>
+                    <p className="text-sm font-medium text-gray-800 break-all">{value}</p>
+                  </div>
+                ))}
+              </div>
+
+              {/* Description */}
+              {viewProduct.description && (
+                <div>
+                  <p className="text-xs uppercase tracking-widest text-gray-400 mb-1 font-semibold">Description</p>
+                  <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap">{viewProduct.description}</p>
+                </div>
+              )}
+
+              {/* Variants */}
+              {viewProduct.variants && viewProduct.variants.length > 0 && (
+                <div>
+                  <p className="text-xs uppercase tracking-widest text-gray-400 mb-2 font-semibold">Variants ({viewProduct.variants.length})</p>
+                  <div className="divide-y divide-gray-100 border border-gray-100 rounded-sm overflow-hidden">
+                    {viewProduct.variants.map((v, i) => (
+                      <div key={i} className="flex items-center justify-between px-3 py-2 text-sm bg-white">
+                        <div className="flex items-center gap-2">
+                          {v.image && <img src={v.image} alt="" className="w-8 h-8 object-cover rounded-sm border border-gray-100" />}
+                          <span className="font-medium text-gray-800">{v.label}</span>
+                        </div>
+                        <div className="flex items-center gap-4 text-xs text-gray-500">
+                          <span className="font-semibold text-gray-800">{formatPrice(v.price ?? viewProduct.price)}</span>
+                          <span>Stock: {v.stock ?? '—'}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Inclusions */}
+              {viewProduct.inclusions && viewProduct.inclusions.length > 0 && (
+                <div>
+                  <p className="text-xs uppercase tracking-widest text-gray-400 mb-2 font-semibold">Inclusions</p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {viewProduct.inclusions.map((inc, i) => (
+                      <span key={i} className="text-xs bg-emerald-50 text-emerald-800 border border-emerald-200 px-2 py-0.5 rounded-sm">{inc}</span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* SEO */}
+              {((viewProduct as any).meta_title || (viewProduct as any).meta_description) && (
+                <div className="border-t border-gray-100 pt-4">
+                  <p className="text-xs uppercase tracking-widest text-gray-400 mb-2 font-semibold">SEO</p>
+                  <div className="space-y-1 text-sm">
+                    {(viewProduct as any).meta_title && (
+                      <div><span className="text-gray-400 text-xs">Title: </span><span className="text-gray-800">{(viewProduct as any).meta_title}</span></div>
+                    )}
+                    {(viewProduct as any).meta_description && (
+                      <div><span className="text-gray-400 text-xs">Description: </span><span className="text-gray-700">{(viewProduct as any).meta_description}</span></div>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Product Form — Full Page */}
+      {showForm && (
+        <div className="fixed inset-0 z-50 bg-[#f7f8fa] overflow-y-auto">
+          {/* Top bar */}
+          <div className="sticky top-0 z-10 bg-white border-b border-gray-200 shadow-sm">
+            <div className="max-w-4xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => setShowForm(false)}
+                  className="p-1.5 hover:bg-gray-100 rounded-full text-gray-500"
+                  aria-label="Back"
+                >
+                  <ChevronLeft size={20} />
+                </button>
+                <h2 className="font-serif text-lg sm:text-xl font-bold text-[#022c22]">
+                  {editing ? 'Edit Product' : 'New Product'}
+                </h2>
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setShowForm(false)}
+                  className="px-4 py-2 text-sm border border-gray-200 hover:bg-gray-50 rounded-sm font-medium hidden sm:block"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={save}
+                  disabled={saving}
+                  className="px-5 py-2 bg-[#022c22] text-[#D4AF37] text-sm font-bold rounded-sm hover:bg-[#064e3b] disabled:opacity-60 transition-colors border border-[#D4AF37]/40"
+                >
+                  {saving ? 'Saving…' : editing ? 'Update' : 'Create'}
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Form content */}
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 py-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Left column */}
+              <div className="space-y-5">
               {/* ─── 1. Multiple Product Images ─── */}
               <div className="bg-gray-50/70 p-4 border border-gray-200 rounded-sm">
                 <div className="flex items-center justify-between mb-2">
@@ -931,7 +1147,7 @@ export default function ProductsPage() {
                   />
                 ) : (
                   <select
-                    value={STANDARD_MATERIALS.includes(form.material_type) ? form.material_type : form.material_type ? '__custom__' : ''}
+                    value={form.material_type ?? ''}
                     onChange={(e) => {
                       if (e.target.value === '__custom__') {
                         setForm((f) => ({ ...f, isCustomMaterial: true, material_type: '' }));
@@ -942,7 +1158,7 @@ export default function ProductsPage() {
                     className={INPUT + ' bg-white'}
                   >
                     <option value="">Select Material…</option>
-                    {STANDARD_MATERIALS.map((m) => (
+                    {allMaterials.map((m) => (
                       <option key={m} value={m}>
                         {m}
                       </option>
@@ -976,7 +1192,7 @@ export default function ProductsPage() {
                   />
                 ) : (
                   <select
-                    value={STANDARD_COLORS.includes(form.color) ? form.color : form.color ? '__custom__' : ''}
+                    value={form.color ?? ''}
                     onChange={(e) => {
                       if (e.target.value === '__custom__') {
                         setForm((f) => ({ ...f, isCustomColor: true, color: '' }));
@@ -987,7 +1203,7 @@ export default function ProductsPage() {
                     className={INPUT + ' bg-white'}
                   >
                     <option value="">Select Color…</option>
-                    {STANDARD_COLORS.map((col) => (
+                    {allColors.map((col) => (
                       <option key={col} value={col}>
                         {col}
                       </option>
@@ -1021,7 +1237,7 @@ export default function ProductsPage() {
                   />
                 ) : (
                   <select
-                    value={STANDARD_STYLES.includes(form.style) ? form.style : form.style ? '__custom__' : ''}
+                    value={form.style ?? ''}
                     onChange={(e) => {
                       if (e.target.value === '__custom__') {
                         setForm((f) => ({ ...f, isCustomStyle: true, style: '' }));
@@ -1032,7 +1248,7 @@ export default function ProductsPage() {
                     className={INPUT + ' bg-white'}
                   >
                     <option value="">Select Aesthetic & Style…</option>
-                    {STANDARD_STYLES.map((st) => (
+                    {allStyles.map((st) => (
                       <option key={st} value={st}>
                         {st}
                       </option>
@@ -1041,6 +1257,10 @@ export default function ProductsPage() {
                   </select>
                 )}
               </div>
+              </div>
+
+              {/* Right column */}
+              <div className="space-y-5">
 
               {/* ─── 4. Product Variants (Color, Size, Set Options) ─── */}
               <div className="bg-gray-50/80 p-4 border border-gray-200 rounded-sm">
@@ -1400,19 +1620,21 @@ export default function ProductsPage() {
                 />
                 <span className="text-sm text-gray-700 font-medium">Featured in Spotlight / Homepage</span>
               </label>
+              </div>
             </div>
 
-            <div className="px-6 py-4 border-t border-gray-100 flex gap-3 sticky bottom-0 bg-white">
+            {/* Mobile save bar — visible only on small screens */}
+            <div className="mt-6 flex gap-3 sm:hidden pb-6">
               <button
                 onClick={() => setShowForm(false)}
-                className="flex-1 border border-gray-200 py-2.5 text-sm hover:bg-gray-50 rounded-sm font-medium"
+                className="flex-1 border border-gray-200 py-3 text-sm hover:bg-gray-50 rounded-sm font-medium"
               >
                 Cancel
               </button>
               <button
                 onClick={save}
                 disabled={saving}
-                className="flex-1 bg-[#022c22] text-[#D4AF37] border border-[#D4AF37]/40 py-2.5 text-sm hover:bg-[#064e3b] font-bold rounded-sm disabled:opacity-60 transition-colors shadow-sm"
+                className="flex-1 bg-[#022c22] text-[#D4AF37] border border-[#D4AF37]/40 py-3 text-sm hover:bg-[#064e3b] font-bold rounded-sm disabled:opacity-60 transition-colors"
               >
                 {saving ? 'Saving…' : editing ? 'Update Product' : 'Create Product'}
               </button>

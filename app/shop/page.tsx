@@ -74,23 +74,30 @@ function ShopContent() {
       .finally(() => setLoading(false));
   }, []);
 
-  // Build dynamic material list from loaded products, preserving MATERIALS order then appending custom ones
+  // Only show materials that at least one product actually has
   const dynamicMaterials = useMemo(() => {
     const fromProducts = products
       .map((p) => p.material_type?.trim())
       .filter((m): m is string => !!m);
-    const unique = Array.from(new Set([...MATERIALS.filter((m) => m !== 'All Materials'), ...fromProducts]));
-    return ['All Materials', ...unique];
+    // Preserve standard order for values that exist, then append any custom ones
+    const inProducts = new Set(fromProducts.map((m) => m.toLowerCase()));
+    const ordered = MATERIALS.filter((m) => m !== 'All Materials' && inProducts.has(m.toLowerCase()));
+    const custom = fromProducts.filter((m) => !MATERIALS.map((x) => x.toLowerCase()).includes(m.toLowerCase()));
+    const unique = Array.from(new Set([...ordered, ...custom]));
+    return unique.length > 0 ? ['All Materials', ...unique] : ['All Materials'];
   }, [products]);
 
-  // Build dynamic style list from loaded products
+  // Only show styles that at least one product actually has
   const dynamicStyles = useMemo(() => {
     const fromProducts = products
       .map((p) => p.style?.trim())
       .filter((s): s is string => !!s);
-    const standard = STYLES.filter((s) => s !== 'All Styles');
-    const unique = Array.from(new Set([...standard, ...fromProducts]));
-    return ['All Styles', ...unique];
+    // Preserve standard order for values that exist, then append any custom ones
+    const inProducts = new Set(fromProducts.map((s) => s.toLowerCase()));
+    const ordered = STYLES.filter((s) => s !== 'All Styles' && inProducts.has(s.toLowerCase()));
+    const custom = fromProducts.filter((s) => !STYLES.map((x) => x.toLowerCase()).includes(s.toLowerCase()));
+    const unique = Array.from(new Set([...ordered, ...custom]));
+    return unique.length > 0 ? ['All Styles', ...unique] : ['All Styles'];
   }, [products]);
 
   // Build dynamic color list from loaded products (custom stone colors not in COLORS preset)
@@ -201,7 +208,7 @@ function ShopContent() {
     if (sortBy === 'price_asc') list.sort((a, b) => a.price - b.price);
     else if (sortBy === 'price_desc') list.sort((a, b) => b.price - a.price);
     else if (sortBy === 'name') list.sort((a, b) => a.name.localeCompare(b.name));
-    else if (sortBy === 'bestseller') list.sort((a, b) => (b.trendTag === 'BESTSELLER' ? 1 : 0) - (a.trendTag === 'BESTSELLER' ? 1 : 0));
+
 
     return list;
   }, [products, searchQuery, selectedCategory, selectedStyle, selectedMaterial, selectedColor, selectedPrice, sortBy]);
@@ -284,8 +291,7 @@ function ShopContent() {
               onChange={(e) => setFilter('sort', e.target.value)}
               className="border border-gray-300 px-2.5 py-2 text-xs font-sans bg-white text-gray-900 focus:outline-none focus:border-[#022c22] rounded-sm"
             >
-              <option value="">Sort: Featured</option>
-              <option value="bestseller">Best Sellers</option>
+              <option value="">Sort: Default</option>
               <option value="price_asc">Price: Low to High</option>
               <option value="price_desc">Price: High to Low</option>
               <option value="name">Name A-Z</option>
@@ -645,8 +651,7 @@ function FilterPanel({
         </p>
         <div className="space-y-1 text-xs">
           {[
-            { v: '', l: 'Featured' },
-            { v: 'bestseller', l: 'Best Sellers' },
+            { v: '', l: 'Default' },
             { v: 'price_asc', l: 'Price: Low to High' },
             { v: 'price_desc', l: 'Price: High to Low' },
             { v: 'name', l: 'Name A-Z' },
