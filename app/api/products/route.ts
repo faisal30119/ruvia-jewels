@@ -110,7 +110,7 @@ export async function POST(request: Request) {
   }
 
   const body = await request.json();
-  const { name, price, stock, image, images, variants, category, color, stoneColor, plating, description, inclusions } =
+  const { name, price, stock, image, images, variants, category, color, stoneColor, plating, style, description, inclusions } =
     body;
 
   if (!name || !price) {
@@ -135,6 +135,7 @@ export async function POST(request: Request) {
       image: finalImageValue,
       category: category ?? null,
       stone_color: colorVal,
+      style: style ?? body.style ?? null,
       plating: plating ?? null,
       description: description ?? null,
       inclusions: inclusions ?? [],

@@ -120,6 +120,7 @@ export async function PUT(
   else if (body.stoneColor !== undefined) updatePayload.stone_color = body.stoneColor;
   else if (body.stone_color !== undefined) updatePayload.stone_color = body.stone_color;
 
+  if (body.style !== undefined) updatePayload.style = body.style;
   if (body.plating !== undefined) updatePayload.plating = body.plating;
   if (body.description !== undefined) updatePayload.description = body.description;
   if (body.inclusions !== undefined) updatePayload.inclusions = body.inclusions;
