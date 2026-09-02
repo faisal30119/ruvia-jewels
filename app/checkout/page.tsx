@@ -64,11 +64,14 @@ export default function CheckoutPage() {
   }, [cartTotal]);
 
   useEffect(() => {
-    const handleScroll = () => {
-      if (window.scrollY > 80) setShowScrollHint(false);
-    };
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
+    const btn = document.getElementById('pay-now-btn');
+    if (!btn) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) setShowScrollHint(false); },
+      { threshold: 0.5 }
+    );
+    observer.observe(btn);
+    return () => observer.disconnect();
   }, []);
 
   useEffect(() => {
@@ -298,6 +301,35 @@ export default function CheckoutPage() {
         <h1 className="font-serif text-3xl sm:text-4xl text-white">Checkout</h1>
       </div>
 
+      {/* ─── Mobile scroll hint ─── */}
+      {showScrollHint && (
+        <div className="lg:hidden max-w-6xl mx-auto px-4 sm:px-6 pt-4">
+          <div className="flex items-center justify-center gap-2 bg-amber-50 border border-amber-200 rounded-md py-2.5 px-4 text-amber-700 text-xs font-sans">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              style={{ animation: 'scrollBounce 1.2s ease-in-out infinite', flexShrink: 0 }}
+            >
+              <polyline points="6 9 12 15 18 9" />
+            </svg>
+            <span className="tracking-wide">Fill in your details, then scroll down to <strong>Pay Now</strong></span>
+          </div>
+          <style>{`
+            @keyframes scrollBounce {
+              0%, 100% { transform: translateY(0); }
+              50% { transform: translateY(3px); }
+            }
+          `}</style>
+        </div>
+      )}
+
       <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-12 grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
         {/* ─── Shipping Form ─── */}
         <div>
@@ -417,33 +449,6 @@ export default function CheckoutPage() {
             )}
           </form>
         </div>
-
-        {/* ─── Mobile scroll hint ─── */}
-        {showScrollHint && (
-          <div className="lg:hidden flex flex-col items-center gap-1 py-2 text-gray-400 text-xs font-sans select-none pointer-events-none">
-            <span className="tracking-wide uppercase text-[10px]">Scroll down for Pay Now</span>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="18"
-              height="18"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              style={{ animation: 'bounce 1.2s infinite' }}
-            >
-              <polyline points="6 9 12 15 18 9" />
-            </svg>
-            <style>{`
-              @keyframes bounce {
-                0%, 100% { transform: translateY(0); opacity: 0.5; }
-                50% { transform: translateY(5px); opacity: 1; }
-              }
-            `}</style>
-          </div>
-        )}
 
         {/* ─── Order Summary ─── */}
         <div>
@@ -568,6 +573,7 @@ export default function CheckoutPage() {
             </div>
 
             <button
+              id="pay-now-btn"
               form="checkout-form"
               type="submit"
               disabled={submitting}

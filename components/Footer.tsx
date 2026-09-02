@@ -24,7 +24,7 @@ export default function Footer() {
             <h4 className="text-[10px] tracking-widest uppercase text-[#D4AF37] mb-4 font-semibold">
               Quick Links
             </h4>
-            <ul className="space-y-2.5">
+            <ul className="grid grid-cols-2 gap-x-4 gap-y-2.5">
               {[
                 { label: 'Home', href: '/' },
                 { label: 'About Us', href: '/about' },
@@ -41,34 +41,6 @@ export default function Footer() {
                     className="text-xs sm:text-sm text-white/60 hover:text-[#D4AF37] transition-colors leading-tight block"
                   >
                     {link.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Collections */}
-          <div className="col-span-1">
-            <h4 className="text-[10px] tracking-widest uppercase text-[#D4AF37] mb-4 font-semibold">
-              Collections
-            </h4>
-            <ul className="space-y-2.5">
-              {[
-                { label: 'Bridal Sets', href: '/shop?category=Bridal+Sets' },
-                { label: 'Necklaces', href: '/shop?category=Necklaces' },
-                { label: 'Earrings', href: '/shop?category=Earrings' },
-                { label: 'Pendants', href: '/shop?category=Pendants' },
-                { label: 'Oxidise Jewelry', href: '/shop?category=Oxidise+jewelry' },
-                { label: 'American Diamond / CZ', href: '/shop?category=American+Diamond+(AD)+%2F+CZ' },
-                { label: 'Polki & Kundan', href: '/shop?category=Polki+Jewelry' },
-                { label: 'Meenakari Jewelry', href: '/shop?category=Meenakari+Jewelry' },
-              ].map((cat) => (
-                <li key={cat.label}>
-                  <Link
-                    href={cat.href}
-                    className="text-xs sm:text-sm text-white/60 hover:text-[#D4AF37] transition-colors leading-tight block"
-                  >
-                    {cat.label}
                   </Link>
                 </li>
               ))}
