@@ -46,6 +46,7 @@ export default function CheckoutPage() {
   const [couponLoading, setCouponLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [formError, setFormError] = useState('');
+  const [showScrollHint, setShowScrollHint] = useState(true);
 
   const [form, setForm] = useState<ShippingForm>({
     firstName: '',
@@ -61,6 +62,14 @@ export default function CheckoutPage() {
   useEffect(() => {
     setSubtotal(cartTotal);
   }, [cartTotal]);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 80) setShowScrollHint(false);
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   useEffect(() => {
     if (user) {
@@ -293,7 +302,7 @@ export default function CheckoutPage() {
         {/* ─── Shipping Form ─── */}
         <div>
           <h2 className="font-serif text-xl sm:text-2xl text-emerald-950 mb-4 sm:mb-6">Shipping Information</h2>
-          <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
+          <form id="checkout-form" onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
               <div>
                 <label className="block text-[11px] sm:text-xs font-sans uppercase tracking-wider text-gray-500 mb-1">
@@ -406,20 +415,35 @@ export default function CheckoutPage() {
                 <span>{formError}</span>
               </div>
             )}
-
-            <button
-              type="submit"
-              disabled={submitting}
-              className={cn(
-                'w-full flex items-center justify-center gap-2 bg-gold-500 hover:bg-gold-400 text-emerald-950 font-sans font-bold uppercase tracking-widest text-xs sm:text-sm py-3.5 sm:py-4 transition-colors',
-                submitting && 'opacity-70 cursor-not-allowed'
-              )}
-            >
-              {submitting ? <Loader2 size={16} className="animate-spin" /> : null}
-              {submitting ? 'Processing...' : 'Pay Now'}
-            </button>
           </form>
         </div>
+
+        {/* ─── Mobile scroll hint ─── */}
+        {showScrollHint && (
+          <div className="lg:hidden flex flex-col items-center gap-1 py-2 text-gray-400 text-xs font-sans select-none pointer-events-none">
+            <span className="tracking-wide uppercase text-[10px]">Scroll down for Pay Now</span>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              style={{ animation: 'bounce 1.2s infinite' }}
+            >
+              <polyline points="6 9 12 15 18 9" />
+            </svg>
+            <style>{`
+              @keyframes bounce {
+                0%, 100% { transform: translateY(0); opacity: 0.5; }
+                50% { transform: translateY(5px); opacity: 1; }
+              }
+            `}</style>
+          </div>
+        )}
 
         {/* ─── Order Summary ─── */}
         <div>
@@ -542,6 +566,19 @@ export default function CheckoutPage() {
                 <span>{formatPrice(total)}</span>
               </div>
             </div>
+
+            <button
+              form="checkout-form"
+              type="submit"
+              disabled={submitting}
+              className={cn(
+                'w-full flex items-center justify-center gap-2 bg-gold-500 hover:bg-gold-400 text-emerald-950 font-sans font-bold uppercase tracking-widest text-xs sm:text-sm py-3.5 sm:py-4 transition-colors',
+                submitting && 'opacity-70 cursor-not-allowed'
+              )}
+            >
+              {submitting ? <Loader2 size={16} className="animate-spin" /> : null}
+              {submitting ? 'Processing...' : 'Pay Now'}
+            </button>
           </div>
         </div>
       </div>
