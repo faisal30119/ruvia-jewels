@@ -37,7 +37,7 @@ export type Product = {
 
 // High-resolution curated aesthetic photography for Korean & Indo-Western Gen-Z jewelry
 export const IMAGES = {
-  hero: 'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?q=80&w=2000&auto=format&fit=crop',
+  hero: 'https://res.cloudinary.com/niagn9pn/image/upload/v1788379802/BYHFhhJ4rOCux4aCKGvDzwuN_0dzNg64SCt2HIQUfiN9_t8k7bt2gGiMXAchdsNnC0FTpoampwIwnCfCYCJgFKHGzDSE_CB5qzVwPQAviG68IR03KHUkPGurFiHDpiWn_RTcojyB7L3SB7O-YTzRXL71quflD6DkWXbXyGlfMukvKYK9cN-hq41So9shChB7_mtmw8s.jpg',
   seoulEditBanner: 'https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?q=80&w=1000&auto=format&fit=crop',
   indoWesternBanner: 'https://images.unsplash.com/photo-1573408301185-9146fe634ad0?q=80&w=1000&auto=format&fit=crop',
   everydayStackBanner: 'https://images.unsplash.com/photo-1602751584552-8ba73aad10e1?q=80&w=1000&auto=format&fit=crop',

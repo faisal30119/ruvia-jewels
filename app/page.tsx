@@ -200,95 +200,90 @@ export default function HomePage() {
   return (
     <div className="bg-[#FAF9F6] text-neutral-900 overflow-hidden font-sans">
       {/* ─── 1. HERO SECTION ─── */}
-      <section className="relative min-h-[92vh] md:min-h-[96vh] flex items-center justify-center overflow-hidden pt-16">
-        {/* Background Image with Cinematic Luxury Gradient Overlays */}
+      <section className="relative min-h-[92vh] md:min-h-[96vh] flex items-center overflow-hidden pt-16">
+        {/* Background Image — object-right keeps model on right side */}
         <div className="absolute inset-0 z-0">
           <img
             src={IMAGES.hero}
             alt="Ruvia Jewels Luxury Editorial"
-            className="w-full h-full object-cover object-center filter brightness-[0.7] contrast-[1.05]"
+            className="w-full h-full object-cover object-right"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#011a14] via-[#022c22]/65 to-[#022c22]/40" />
-          <div className="absolute inset-0 bg-radial-gradient from-transparent via-black/20 to-black/60 pointer-events-none" />
+          {/* Left gradient so text is legible over the bright ivory bg */}
+          <div className="absolute inset-0 bg-gradient-to-r from-[#f5f0e8]/95 via-[#f5f0e8]/70 to-transparent" />
+          {/* Subtle bottom fade */}
+          <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-[#FAF9F6] to-transparent" />
         </div>
 
-        <div className="relative z-10 text-center px-4 sm:px-6 max-w-5xl mx-auto py-20 sm:py-28 flex flex-col items-center">
-          {/* Refined Glassmorphic Pill Badge */}
-          <motion.div
-            initial={{ opacity: 0, y: -15 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="inline-flex items-center gap-2 bg-black/35 backdrop-blur-md border border-[#D4AF37]/40 px-3.5 py-1.5 rounded-full mb-5 shadow-md"
-          >
-            <Sparkles size={11} className="text-[#D4AF37] animate-spin duration-[4000ms]" />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#F3E5AB] to-[#D4AF37] text-[9px] sm:text-[10px] uppercase tracking-[0.2em] font-semibold">
-              Korean-Inspired · Indo-Western · Everyday Luxury
-            </span>
-          </motion.div>
-
-          {/* Luxury Editorial Headline */}
-          <motion.h1
-            initial={{ opacity: 0, y: 25 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.85, delay: 0.15 }}
-            className="font-serif text-3xl sm:text-4xl md:text-5xl lg:text-6xl text-white font-medium tracking-tight leading-[1.15] mb-5 drop-shadow-md max-w-3xl"
-          >
-            Effortless Luxury for <br className="hidden sm:inline" />
-            Your <span className="font-normal italic text-transparent bg-clip-text bg-gradient-to-r from-[#FFF] via-[#D4AF37] to-[#F3E5AB]">Main Character</span> Era
-          </motion.h1>
-
-          {/* Editorial Subtext */}
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.3 }}
-            className="text-[#FAF9F6]/85 text-xs sm:text-sm md:text-base max-w-xl mx-auto font-light leading-relaxed mb-8 drop-shadow"
-          >
-            Seoul-inspired minimalism meets contemporary Indian soul. 100% waterproof & anti-tarnish jewelry designed for your everyday shine.
-          </motion.p>
-
-          {/* Action Button */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.45 }}
-            className="flex items-center justify-center w-full sm:w-auto mb-10"
-          >
-            <Link
-              href="/shop"
-              className="group relative inline-flex items-center justify-center gap-2.5 bg-gradient-to-r from-[#D4AF37] via-[#F5E7B2] to-[#D4AF37] hover:from-[#c49f2c] hover:via-[#ebd99a] hover:to-[#c49f2c] text-[#022c22] font-bold text-xs sm:text-sm uppercase tracking-[0.2em] px-10 py-4 rounded-full shadow-[0_10px_35px_rgba(212,175,55,0.35)] hover:shadow-[0_15px_45px_rgba(212,175,55,0.5)] transition-all duration-300 hover:scale-105 active:scale-95"
+        <div className="relative z-10 w-full max-w-7xl mx-auto px-6 sm:px-10 lg:px-16 py-20 sm:py-28">
+          <div className="max-w-lg">
+            {/* Pill Badge */}
+            <motion.div
+              initial={{ opacity: 0, y: -15 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+              className="inline-flex items-center gap-2 bg-[#022c22]/8 border border-[#D4AF37]/50 px-3.5 py-1.5 rounded-full mb-6 shadow-sm"
             >
-              <span>Shop New In</span>
-              <ArrowRight size={16} className="transition-transform duration-300 group-hover:translate-x-1" />
-            </Link>
-          </motion.div>
+              <Sparkles size={11} className="text-[#D4AF37]" />
+              <span className="text-[#022c22] text-[9px] sm:text-[10px] uppercase tracking-[0.2em] font-semibold">
+                Korean-Inspired · Indo-Western · Everyday Luxury
+              </span>
+            </motion.div>
 
-          {/* Luxury Micro Guarantee Highlights */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.8, delay: 0.6 }}
-            className="flex flex-wrap items-center justify-center gap-4 sm:gap-8 text-[11px] sm:text-xs text-white/80 font-medium tracking-wider uppercase border-t border-white/15 pt-6 max-w-3xl"
-          >
-            <div className="flex items-center gap-1.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#D4AF37]" />
-              <span>💧 Waterproof & Anti-Tarnish</span>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#D4AF37]" />
-              <span>🌿 Hypoallergenic</span>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#D4AF37]" />
-              <span>✨ Everyday Stacking</span>
-            </div>
-          </motion.div>
+            {/* Headline */}
+            <motion.h1
+              initial={{ opacity: 0, y: 25 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.85, delay: 0.15 }}
+              className="font-serif text-4xl sm:text-5xl md:text-6xl text-[#022c22] font-medium tracking-tight leading-[1.1] mb-5"
+            >
+              Effortless Luxury for Your{' '}
+              <span className="italic text-transparent bg-clip-text bg-gradient-to-r from-[#b8882a] via-[#D4AF37] to-[#b8882a]">
+                Main Character
+              </span>{' '}
+              Era
+            </motion.h1>
+
+            {/* Subtext */}
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.3 }}
+              className="text-[#022c22]/65 text-sm md:text-base font-light leading-relaxed mb-8 max-w-sm"
+            >
+              Seoul-inspired minimalism meets contemporary Indian soul. 100% waterproof &amp; anti-tarnish jewelry for your everyday shine.
+            </motion.p>
+
+            {/* CTA Button + Trust Badges — centred block */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.45 }}
+              className="flex flex-col items-center gap-6"
+            >
+              <Link
+                href="/shop"
+                className="group relative inline-flex items-center justify-center gap-2.5 bg-gradient-to-r from-[#D4AF37] via-[#F5E7B2] to-[#D4AF37] hover:from-[#c49f2c] hover:via-[#ebd99a] hover:to-[#c49f2c] text-[#022c22] font-bold text-xs sm:text-sm uppercase tracking-[0.2em] px-10 py-4 rounded-full shadow-[0_10px_35px_rgba(212,175,55,0.35)] hover:shadow-[0_15px_45px_rgba(212,175,55,0.5)] transition-all duration-300 hover:scale-105 active:scale-95"
+              >
+                <span>Shop New In</span>
+                <ArrowRight size={15} className="transition-transform duration-300 group-hover:translate-x-1" />
+              </Link>
+
+              <div className="flex flex-wrap justify-center gap-4 text-[10px] sm:text-[11px] text-[#022c22]/60 font-medium tracking-wider uppercase">
+                {['💧 Waterproof', '🌿 Hypoallergenic', '✨ Anti-Tarnish'].map((badge) => (
+                  <span key={badge} className="flex items-center gap-1.5">
+                    <span className="w-1 h-1 rounded-full bg-[#D4AF37] inline-block" />
+                    {badge}
+                  </span>
+                ))}
+              </div>
+            </motion.div>
+          </div>
         </div>
 
         {/* Scroll Pill Indicator */}
-        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1.5 text-white/50 text-xs">
+        <div className="absolute bottom-5 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1.5 text-[#022c22]/40 text-xs">
           <span className="uppercase tracking-widest text-[9px] font-medium">Scroll</span>
-          <div className="w-3.5 h-6 border border-white/30 rounded-full flex justify-center p-0.5">
+          <div className="w-3.5 h-6 border border-[#022c22]/25 rounded-full flex justify-center p-0.5">
             <motion.div
               animate={{ y: [0, 6, 0] }}
               transition={{ repeat: Infinity, duration: 1.5 }}
