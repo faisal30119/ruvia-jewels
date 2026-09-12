@@ -8,7 +8,7 @@ export default function Footer() {
   return (
     <footer className="bg-[#022c22] text-white/80 pb-20 lg:pb-0">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-8">
+        <div className="grid grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-8">
           {/* Brand */}
           <div className="col-span-2 lg:col-span-1">
             <div className="mb-4">
@@ -19,12 +19,12 @@ export default function Footer() {
             </p>
           </div>
 
-          {/* Quick Links */}
+          {/* Quick Links — split into 2 sub-columns */}
           <div className="col-span-1">
             <h4 className="text-[10px] tracking-widest uppercase text-[#D4AF37] mb-4 font-semibold">
               Quick Links
             </h4>
-            <ul className="space-y-2.5">
+            <div className="grid grid-cols-2 gap-x-4">
               {[
                 { label: 'Home', href: '/' },
                 { label: 'About Us', href: '/about' },
@@ -35,44 +35,16 @@ export default function Footer() {
                 { label: 'Terms & Conditions', href: '/terms' },
                 { label: 'Privacy Policy', href: '/privacy' },
               ].map((link) => (
-                <li key={link.href}>
+                <div key={link.href} className="mb-2.5">
                   <Link
                     href={link.href}
                     className="text-xs sm:text-sm text-white/60 hover:text-[#D4AF37] transition-colors leading-tight block"
                   >
                     {link.label}
                   </Link>
-                </li>
+                </div>
               ))}
-            </ul>
-          </div>
-
-          {/* Collections */}
-          <div className="col-span-1">
-            <h4 className="text-[10px] tracking-widest uppercase text-[#D4AF37] mb-4 font-semibold">
-              Collections
-            </h4>
-            <ul className="space-y-2.5">
-              {[
-                { label: 'Bridal Sets', href: '/shop?category=Bridal+Sets' },
-                { label: 'Necklaces', href: '/shop?category=Necklaces' },
-                { label: 'Earrings', href: '/shop?category=Earrings' },
-                { label: 'Pendants', href: '/shop?category=Pendants' },
-                { label: 'Oxidise Jewelry', href: '/shop?category=Oxidise+jewelry' },
-                { label: 'American Diamond / CZ', href: '/shop?category=American+Diamond+(AD)+%2F+CZ' },
-                { label: 'Polki & Kundan', href: '/shop?category=Polki+Jewelry' },
-                { label: 'Meenakari Jewelry', href: '/shop?category=Meenakari+Jewelry' },
-              ].map((cat) => (
-                <li key={cat.label}>
-                  <Link
-                    href={cat.href}
-                    className="text-xs sm:text-sm text-white/60 hover:text-[#D4AF37] transition-colors leading-tight block"
-                  >
-                    {cat.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
+            </div>
           </div>
 
           {/* Contact */}

@@ -81,35 +81,31 @@ const EDITORIAL_COLLECTIONS = [
   },
 ];
 
-// Style Inspiration Lookbook Cards
-const STYLE_LOOKS = [
+// Style Inspiration Lookbook — text metadata only; images come from live products
+const STYLE_LOOKS_META = [
   {
     id: '01',
     look: 'Seoul Streetwear',
     piece: 'Yuna Snake Chain + Nami Ear Cuffs',
     outfit: 'Oversized blazer + basic white baby tee + baggy denim',
-    image: IMAGES.styleSeoul,
   },
   {
     id: '02',
     look: 'Modern Indo-Western Chic',
     piece: 'Mira Minimalist Jhumkas + Kiara Chain',
     outfit: 'Linen slit kurti + wide-leg trousers or modern saree',
-    image: IMAGES.styleIndoWestern,
   },
   {
     id: '03',
     look: 'Clean Girl Aesthetic',
     piece: 'Hana Seed Pearl Drop + Tennis Bracelet',
     outfit: 'Crisp poplin shirt + sleek slicked-back bun',
-    image: IMAGES.styleCleanGirl,
   },
   {
     id: '04',
     look: 'Date Night Vibe',
     piece: 'Seoul Bow Choker + Aeri Molten Stack',
     outfit: 'Square-neck slip dress + tailored coat',
-    image: IMAGES.styleDateNight,
   },
 ];
 
@@ -196,6 +192,13 @@ export default function HomePage() {
       return 0;
     })
     .slice(0, 8);
+
+  // Pick 4 products spread across the catalogue for the lookbook images
+  const styleLooks = STYLE_LOOKS_META.map((meta, i) => {
+    // Space picks evenly: 0%, 25%, 50%, 75% through the list
+    const idx = Math.min(Math.floor((i / 4) * products.length), products.length - 1);
+    return { ...meta, image: products[idx]?.image || IMAGES.styleSeoul };
+  });
 
   return (
     <div className="bg-[#FAF9F6] text-neutral-900 overflow-hidden font-sans">
@@ -503,7 +506,7 @@ export default function HomePage() {
         </FadeInSection>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {STYLE_LOOKS.map((style, idx) => (
+          {styleLooks.map((style, idx) => (
             <FadeInSection key={style.id} delay={idx * 0.1}>
               <div className="bg-white rounded-sm overflow-hidden border border-gray-100 shadow-sm flex flex-col h-full">
                 <div className="relative aspect-[3/4] overflow-hidden bg-gray-100">

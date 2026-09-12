@@ -55,13 +55,16 @@ export async function GET(req: NextRequest) {
   });
 }
 
-// DELETE /api/admin/media — delete from Cloudinary
+// DELETE /api/admin/media — single or bulk delete from Cloudinary
+// Body: { public_id: string } OR { public_ids: string[] }
 export async function DELETE(req: NextRequest) {
   const { error } = await requireAdmin(req);
   if (error) return NextResponse.json({ error }, { status: 401 });
 
-  const { public_id } = await req.json();
-  if (!public_id) return NextResponse.json({ error: 'public_id required' }, { status: 400 });
+  const body = await req.json();
+  // Support both single and bulk
+  const ids: string[] = body.public_ids ?? (body.public_id ? [body.public_id] : []);
+  if (ids.length === 0) return NextResponse.json({ error: 'public_id(s) required' }, { status: 400 });
 
   const { cloudName, apiKey, apiSecret } = getCloudinaryAuth();
   if (!cloudName || !apiKey || !apiSecret) {
@@ -74,10 +77,10 @@ export async function DELETE(req: NextRequest) {
     {
       method: 'DELETE',
       headers: { Authorization: `Basic ${creds}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ public_ids: [public_id] }),
+      body: JSON.stringify({ public_ids: ids }),
     }
   );
 
   if (!res.ok) return NextResponse.json({ error: 'Failed to delete' }, { status: 500 });
-  return NextResponse.json({ success: true });
+  return NextResponse.json({ success: true, deleted: ids.length });
 }

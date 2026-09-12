@@ -38,10 +38,10 @@ export type Product = {
 // High-resolution curated aesthetic photography for Korean & Indo-Western Gen-Z jewelry
 export const IMAGES = {
   hero: 'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?q=80&w=2000&auto=format&fit=crop',
-  seoulEditBanner: 'https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?q=80&w=1000&auto=format&fit=crop',
-  indoWesternBanner: 'https://images.unsplash.com/photo-1573408301185-9146fe634ad0?q=80&w=1000&auto=format&fit=crop',
-  everydayStackBanner: 'https://images.unsplash.com/photo-1602751584552-8ba73aad10e1?q=80&w=1000&auto=format&fit=crop',
-  under999Banner: 'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?q=80&w=1000&auto=format&fit=crop',
+  seoulEditBanner: 'https://res.cloudinary.com/niagn9pn/image/upload/v1788379802/BYHFhhJ4rOCux4aCKGvDzwuN_0dzNg64SCt2HIQUfiN9_t8k7bt2gGiMXAchdsNnC0FTpoampwIwnCfCYCJgFKHGzDSE_CB5qzVwPQAviG68IR03KHUkPGurFiHDpiWn_RTcojyB7L3SB7O-YTzRXL71quflD6DkWXbXyGlfMukvKYK9cN-hq41So9shChB7_mtmw8s.jpg',
+  indoWesternBanner: 'https://res.cloudinary.com/niagn9pn/image/upload/v1788379801/U-D4FDVbmZQnCqJUrdCcK10oa3QX-xDwQtuwh00y3uaZEbb7LdXngIRy8t1Imk7QX_sotVyOMM-HF9SOGIVb_VAuMDxBxHqcgka39keZvzBpqvc2cisTEJkD7oVtDLv3zZkRSWEhD-oufruUXYPRoaRVH28zxJrdIUgJ8S00qkgvFAMbCI2WX0_s3Zm6cFTR_m9e2bu.jpg',
+  everydayStackBanner: 'https://res.cloudinary.com/niagn9pn/image/upload/v1788379801/gB8By16qOjGyP-FgETjST2RXkAh5iBGYayxVN3AypKtwUMf5IrSfdt0nJlbPMFBvRfykvdaRjW-8XNThHQoGXfXbHf0-cqzx0UkhJIopJuLurmsUK35x7pdtxL1H9jpS9e_ZBVbo9tamRtPY34qovdK-gNTmP3fk3Jzan2lmsBGZPPgE5SbKgqI8VSgm-b3o_tu3esr.jpg',
+  under999Banner: 'https://res.cloudinary.com/niagn9pn/image/upload/v1788379803/hgoqU5gJq3QSlVXx7-Y_hYTJ-hn4T0QSZ4AtU6XBEU620mSqjgn6DzcwKqgvg-sm4KJRJSE4-kabLNah5vLiZJJLI7NqNmsocp-fMzuXjENd5lpeNDzvd_uMJplloHvNys1s3j1SBrnb92FfhG99GoMlMidz40nBQz2e2a-J9P6BsCvDkKhu8fQwNWNrZCz1_zgvncg.jpg',
   
   // Product Shots (100% Dedicated Jewelry Close-Ups)
   seoulBow: 'https://images.unsplash.com/photo-1599643477877-530eb83abc8e?q=80&w=800&auto=format&fit=crop',
