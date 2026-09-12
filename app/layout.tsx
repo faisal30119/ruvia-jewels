@@ -17,7 +17,7 @@ const playfair = Playfair_Display({
 });
 
 export const metadata: Metadata = {
-  title: 'Ruvia Jewels | Luxury Bridal Jewelry',
+  title: 'Ruvia Jewels',
   description:
     'Ruvia Jewels — handcrafted luxury bridal jewelry including Kundan, Polki, Meenakari & more. Shop exclusive bridal sets, necklaces, earrings, and pendants for your special day.',
   keywords: ['bridal jewelry', 'kundan', 'polki', 'meenakari', 'luxury jewelry', 'Indian bridal'],
@@ -30,7 +30,7 @@ export const metadata: Metadata = {
     apple: '/images/ruvia-logo-circle.png',
   },
   openGraph: {
-    title: 'Ruvia Jewels | Luxury Bridal Jewelry',
+    title: 'Ruvia Jewels',
     description: 'Handcrafted luxury bridal jewelry for your special day.',
     type: 'website',
   },
