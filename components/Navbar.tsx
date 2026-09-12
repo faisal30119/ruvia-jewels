@@ -142,25 +142,24 @@ export default function Navbar() {
           </nav>
 
           {/* Right actions */}
-          <div className="flex items-center gap-0.5 sm:gap-1.5 shrink-0">
+          <div className="flex items-center gap-0 sm:gap-1.5 shrink-0">
             {/* Search */}
             <button
               onClick={openSearch}
-              className="p-1.5 sm:p-2 text-white/90 hover:text-[#D4AF37] transition-colors shrink-0"
+              className="p-1.5 text-white/90 hover:text-[#D4AF37] transition-colors shrink-0"
               aria-label="Search"
             >
-              <Search className="w-5 h-5 sm:w-[22px] sm:h-[22px]" />
+              <Search className="w-[18px] h-[18px] sm:w-[22px] sm:h-[22px]" />
             </button>
-
 
             {/* Wishlist */}
             <Link
               href="/wishlist"
-              className="p-1.5 sm:p-2 text-white/90 hover:text-[#D4AF37] transition-colors relative shrink-0"
+              className="p-1.5 text-white/90 hover:text-[#D4AF37] transition-colors relative shrink-0"
               aria-label="Wishlist"
             >
-              <Heart className="w-5 h-5 sm:w-[22px] sm:h-[22px]" />
-              <span className="absolute -top-0.5 -right-0.5 bg-[#D4AF37] text-[#022c22] text-[11px] font-extrabold w-[18px] h-[18px] px-1 rounded-full flex items-center justify-center">
+              <Heart className="w-[18px] h-[18px] sm:w-[22px] sm:h-[22px]" />
+              <span className="absolute -top-0.5 -right-0.5 bg-[#D4AF37] text-[#022c22] text-[10px] font-extrabold w-4 h-4 rounded-full flex items-center justify-center">
                 {wishlist.length}
               </span>
             </Link>
@@ -168,25 +167,24 @@ export default function Navbar() {
             {/* Cart */}
             <Link
               href="/cart"
-              className="p-1.5 sm:p-2 text-white/90 hover:text-[#D4AF37] transition-colors relative shrink-0"
+              className="p-1.5 text-white/90 hover:text-[#D4AF37] transition-colors relative shrink-0"
               aria-label="Cart"
             >
-              <ShoppingBag className="w-5 h-5 sm:w-[22px] sm:h-[22px]" />
-              <span className="absolute -top-0.5 -right-0.5 bg-[#D4AF37] text-[#022c22] text-[11px] font-extrabold w-[18px] h-[18px] px-1 rounded-full flex items-center justify-center">
+              <ShoppingBag className="w-[18px] h-[18px] sm:w-[22px] sm:h-[22px]" />
+              <span className="absolute -top-0.5 -right-0.5 bg-[#D4AF37] text-[#022c22] text-[10px] font-extrabold w-4 h-4 rounded-full flex items-center justify-center">
                 {cartCount}
               </span>
             </Link>
-
 
             {/* User */}
             {user ? (
               <div className="relative shrink-0 flex items-center" ref={userMenuRef}>
                 <button
                   onClick={() => setUserMenuOpen((v) => !v)}
-                  className="px-1.5 py-1 sm:px-2 flex items-center gap-1 sm:gap-2 text-white/90 hover:text-[#D4AF37] transition-colors"
+                  className="p-1.5 flex items-center gap-1 sm:gap-2 text-white/90 hover:text-[#D4AF37] transition-colors"
                   aria-label="Account"
                 >
-                  <User className="w-5 h-5 sm:w-[22px] sm:h-[22px]" />
+                  <User className="w-[18px] h-[18px] sm:w-[22px] sm:h-[22px]" />
                   <span className="text-sm font-semibold max-w-[110px] truncate hidden sm:inline-block">
                     {user.user_metadata?.full_name?.split(' ')[0] ||
                       user.user_metadata?.display_name?.split(' ')[0] ||
@@ -250,20 +248,20 @@ export default function Navbar() {
             ) : (
               <button
                 onClick={() => openAuthModal('login')}
-                className="p-1.5 sm:p-2 text-white/90 hover:text-[#D4AF37] transition-colors shrink-0"
+                className="p-1.5 text-white/90 hover:text-[#D4AF37] transition-colors shrink-0"
                 aria-label="Sign In"
               >
-                <User className="w-5 h-5 sm:w-[22px] sm:h-[22px]" />
+                <User className="w-[18px] h-[18px] sm:w-[22px] sm:h-[22px]" />
               </button>
             )}
 
             {/* Mobile hamburger */}
             <button
               onClick={() => setMobileOpen((v) => !v)}
-              className="lg:hidden p-1.5 sm:p-2 text-white hover:text-[#D4AF37] transition-colors ml-0.5 shrink-0 bg-[#022c22]/70 rounded-md"
+              className="lg:hidden flex items-center justify-center w-8 h-8 text-white bg-[#022c22] border border-white/25 rounded-md shrink-0 ml-1"
               aria-label="Menu"
             >
-              {mobileOpen ? <X className="w-5 h-5 sm:w-6 sm:h-6" /> : <Menu className="w-5 h-5 sm:w-6 sm:h-6" />}
+              {mobileOpen ? <X size={18} /> : <Menu size={18} />}
             </button>
           </div>
         </div>
