@@ -1,170 +1,311 @@
-# Ruvia Jewels — Technical Stack, Architecture & Luxury Design System
+# Ruvia Jewels — Technical Stack, Architecture & Design System
 
-This document provides a comprehensive breakdown of the technology stack, application architecture, luxury design language, directory structure, and key modules powering **Ruvia Jewels (روفيا)**.
+This document provides a complete breakdown of the technology stack, infrastructure, environment configuration, application architecture, and design language powering **Ruvia Jewels**.
 
 ---
 
 ## 1. Executive Summary
 
-**Ruvia Jewels** is a contemporary **Korean-inspired + Indo-Western jewelry brand designed specifically for Gen Z women** (*"Seoul attitude. Indian soul. Everyday shine."*). Repositioned away from heavy traditional bridal wear into accessible luxury, the platform specializes in waterproof, tarnish-free minimal chains, bow/heart pendants, huggies, stackable rings, contemporary fusion jhumkas, and modern chandbalis. The application emphasizes tactile motion, seamless checkout, real-time product search, persistent wishlist & cart synchronization, order tracking, and an administrative portal.
+**Ruvia Jewels** is a contemporary jewelry e-commerce platform offering Korean-inspired minimalism and modern Indo-Western pieces designed for everyday wear. The platform covers the complete customer journey — browsing, filtering, checkout, payment, order tracking — alongside a full administrative suite for product, order, media, and coupon management.
 
 ---
 
-## 2. Technology Stack Overview
+## 2. Technology Stack
 
-### 2.1 Frontend Framework & Core Libraries
-* **Next.js 14 (`next` v14.2.29)**: Modern React Framework utilizing the App Router (`app/`), Server & Client Components, Route Handlers (`app/api/`), optimized image handling, and dynamic metadata generation.
-* **React 18 (`react` & `react-dom` v18.3.1)**: Declarative UI component library utilizing modern hooks, context providers, and strict state management.
-* **TypeScript (~5.8.2)**: Strict type-safety across product data models, cart/wishlist context types, API responses, and administrative forms.
-* **Framer Motion (`framer-motion` v11.15.0)**: Hardware-accelerated fluid layout transitions, micro-interactions, modal staging, and scroll reveals (`FadeInSection`).
-* **Lucide React (`lucide-react` v0.546.0)**: Clean vector iconography styled in crisp pure white & royal gold accents.
-* **Recharts (`recharts` v3.10.1)**: Interactive revenue, sales, and analytics visualization charts in the Admin Portal.
+### 2.1 Frontend
 
-### 2.2 Styling & Design Architecture
-* **Tailwind CSS v3 (`tailwindcss` v3.4.17, `postcss`, `autoprefixer`)**: Utility-first CSS engine configured with custom brand colors, custom font variables, and responsive grid layouts.
-* **Class Merging Utilities (`clsx`, `tailwind-merge`)**: Dynamic class evaluation and conflict resolution helper (`cn()`).
+| Technology | Version | Purpose |
+| :--- | :--- | :--- |
+| **Next.js** | 14.2.29 | React framework — App Router, Server & Client Components, Route Handlers, dynamic metadata |
+| **React** | 18.3.1 | UI component library — hooks, context providers, state management |
+| **TypeScript** | ~5.8.2 | Strict type safety across data models, API responses, forms, and contexts |
+| **Tailwind CSS** | 3.4.17 | Utility-first CSS with custom brand colors, responsive layouts, and component variants |
+| **Framer Motion** | 11.15.0 | Scroll reveals (`FadeInSection`), modal transitions, and micro-interactions |
+| **Lucide React** | 0.546.0 | Vector icon library |
+| **Recharts** | 3.10.1 | Revenue, sales, and analytics charts in the Admin dashboard |
+| **clsx + tailwind-merge** | latest | Dynamic class merging via `cn()` utility |
 
-### 2.3 Backend, API & Cloud Persistence
-* **Next.js App Router API Route Handlers (`app/api/`)**:
-  * `/api/products` & `/api/products/[id]`: Product catalog listing, category filtering, search, and detail retrieval.
-  * `/api/orders`: Order placement, status tracking, and order management.
-  * `/api/admin/*`: Protected administrative management endpoints.
-* **Supabase (`@supabase/supabase-js` v2.112.3 & `@supabase/ssr` v0.5.2)**:
-  * **Authentication**: User sign-up, sign-in, password reset, and metadata persistence.
-  * **PostgreSQL Database**: Persistent storage for products, orders, categories, customers, coupons, and site settings.
-* **Cloudinary & Media Assets**: High-resolution image asset CDN hosted under Cloudinary preset `almas_bridal`.
-* **Payment Gateway**: **Razorpay (`razorpay` v2.9.6)** integration for 256-bit encrypted SSL checkout payments.
-* **Transactional Email**: **Nodemailer (`nodemailer` v9.0.3)** for customer order receipts and admin sale notifications.
+### 2.2 Backend
 
----
+| Technology | Version | Purpose |
+| :--- | :--- | :--- |
+| **Next.js Route Handlers** | 14.2.29 | All API endpoints under `app/api/` — products, orders, admin, payments, coupons |
+| **Supabase JS SDK** | 2.112.3 | Database queries, auth token validation, row-level security enforcement |
+| **Supabase SSR** | 0.5.2 | Server-side session handling and cookie-based auth in Route Handlers |
+| **Razorpay** | 2.9.6 | Payment order creation, signature verification, and webhook handling |
+| **Nodemailer** | 9.0.3 | Transactional emails — order confirmations to customers and admin notifications |
 
-## 3. Luxury Design System & Aesthetic Language
+### 2.3 Database
 
-The visual design system of Ruvia Jewels is constructed around the principles of **Haute Couture Elegance, Spatial Generosity, and Editorial Minimalism**.
+| Technology | Details |
+| :--- | :--- |
+| **Supabase (PostgreSQL)** | Managed Postgres database hosted on Supabase |
+| **Tables** | `products`, `product_variants`, `product_images`, `categories`, `user_orders`, `order_timeline`, `coupons`, `site_settings`, `hero_slides`, `shipping_methods` |
+| **Auth** | Supabase Auth (email/password) — JWT-based session management |
+| **Row-Level Security** | Enabled on all tables; public read on products/categories, admin-only writes |
+| **Migrations** | `supabase/migrations/` — versioned SQL migration files |
 
-### 3.1 Color Palette & Visual Tones
+### 2.4 Media Storage
 
-| Role | Token / Value | Hex | Description |
-| :--- | :--- | :--- | :--- |
-| **Primary Brand (Deep Luxury)** | `--color-emerald-950` / Primary | `#022c22` | Deep Arabian Emerald. Grounding, opulent, regal background tone for header & footer. |
-| **Secondary Brand** | `--color-emerald-900` | `#064e3b` | Rich forest green for accent sections and interactive hover states. |
-| **Luxury Accent (Royal Gold)** | Royal Gold Accent | `#D4AF37` | Warm brushed gold for primary action buttons, active navigation, badges, and logo swoosh lines. |
-| **Light Canvas Background** | Light Neutral Base | `#FAFAF8` / `#FFFFFF` | Soft off-white preventing harsh starkness while maintaining high contrast. |
-| **Text Primary** | High-contrast Neutral | `#171717` / `#022c22` | Deep charcoal/emerald black ensuring crisp legibility (WCAG AAA compliant). |
-| **Text Muted / Sub-labels** | Neutral Mid-tone | `#525252` / `#737373` | Balanced secondary text for metadata, tracking numbers, and policy details. |
+| Technology | Details |
+| :--- | :--- |
+| **Cloudinary** | All product images, editorial banners, and media library assets |
+| **Cloud Name** | `niagn9pn` |
+| **Upload Preset** | `almas_bridal` |
+| **Folder** | `almas_bridal/products/` |
+| **Features used** | Upload (server + direct client fallback), list resources, bulk delete via Admin API |
 
-### 3.2 Typographic Hierarchy
-* **Display & Brand Headings**: `Playfair Display` (Serif)
-  * Imparts timeless romanticism, couture craftsmanship, and high-fashion prestige.
-  * Used on hero titles, product names, collection banners, section headers, and the official **Ruvia Jewels** logo mark.
-* **Body & UI Interface**: `Inter` (Sans-Serif)
-  * Exceptional legibility at small sizes, optical balance, and clear numeric formatting for pricing and inventory counts.
-  * Used for body copy, action buttons, inputs, navigation links, and order summaries.
+### 2.5 Hosting & Deployment
 
-### 3.3 Key Storefront Business Rules
-1. **Free Shipping Threshold**:
-   * **Orders ₹1,999 and above**: **FREE Shipping** across India (automatically applied in Cart & Checkout).
-   * **Orders below ₹1,999**: Standard flat rate shipping of **₹49**.
-2. **Badge & Counter Rules**:
-   * Cart & Wishlist counters always display counts (showing `0` when empty).
-3. **Mobile Responsiveness Directives**:
-   * Fixed 5-tab mobile bottom navigation bar (`Home`, `Shop`, `Search`, `Cart`, `Account`).
-   * Footer Quick Links & Collections render side-by-side in a 2-column mobile layout.
-   * Product detail page gallery supports touch-enabled multi-image thumbnail scrolling and prev/next chevrons when multiple photos exist.
+| Technology | Details |
+| :--- | :--- |
+| **Vercel** | Production hosting — automatic deploys from `main` branch |
+| **Configuration** | `vercel.json` in project root |
+| **Build Command** | `next build` |
+| **Dev Command** | `next dev` |
+| **Environment Variables** | Set in Vercel Dashboard → Project → Settings → Environment Variables |
 
 ---
 
-## 4. Key Functional Modules
+## 3. Environment Variables
 
-### 4.1 Client Storefront
-* **Hero Banner & Curated Showcase**: Landing page with bridal lookbook, value props, video lookbook, and trust badges.
-* **Interactive Search Overlay (`SearchModal.tsx`)**: Real-time product search triggerable from Navbar or Mobile Bottom Nav with popular search tags and live product cards.
-* **Filterable Shop Catalog (`/shop`)**: Multi-attribute filtering by category, stone color, plating, price range, text query search, and sorting.
-* **Product Detail Showcase (`/product/[id]`)**: Multi-image touch gallery, zoom capability, inclusion lists, wishlist toggles, WhatsApp sharing, and quantity selectors.
-* **Persistent Cart & Wishlist**: Real-time context state with empty state `0` badge indicators and order summary calculating shipping thresholds.
-* **Checkout & Address Capture (`/checkout`)**: Multi-step checkout with coupon validation, Razorpay SSL payment, COD support, and order placement.
-* **Live Order Tracking (`/track`)**: Order lookup by tracking ID with visual delivery status timeline.
-* **Informational Pages**: About Us (`/about`), FAQ Accordion (`/faq`), Jewelry Blog (`/blog`), Shipping & Delivery (`/shipping`), Return & Exchange (`/returns`), Terms & Conditions (`/terms`), and Privacy Policy (`/privacy`).
+All variables are defined in `.env.local` for local development and in **Vercel Dashboard** for production.
+Reference template: `.env.example`
 
-### 4.2 Authentication & User Hub
-* **Unified Auth Modal (`AuthModal.tsx`)**: Sign-in, account registration, and password recovery modal with click-outside auto-dismiss.
-* **Customer Profile (`/profile`)**: Manage personal details, review past order history, track shipments, and toggle wishlist items.
+### 3.1 Public (exposed to browser)
 
-### 4.3 Atelier Administrative Suite (`/admin`)
-* **Responsive Layout & Navigation**: Mobile drawer drawer and desktop sidebar with active route highlighting.
-* **Live Analytics & KPI Dashboard (`/admin`, `/admin/analytics`)**: Recharts revenue breakdown, order counts, customer metrics, and average order value.
-* **Product Management (`/admin/products`)**: Paginated product list, search filtering, Cloudinary image upload, and full CRUD modal form.
-* **Order Operations (`/admin/orders`)**: Real-time order status updates (`Pending`, `Processing`, `Shipped`, `Delivered`, `Cancelled`) and customer detail views.
-* **Category & Coupon Management (`/admin/categories`, `/admin/coupons`)**: Category setup and promotional discount codes.
-* **Site Settings & SEO (`/admin/settings`, `/admin/seo`)**: Announcement bar configuration, free shipping threshold defaults, tax rates, and meta descriptions.
+| Variable | Value | Purpose |
+| :--- | :--- | :--- |
+| `NEXT_PUBLIC_SITE_URL` | `https://your-domain.com` | Used in email links and canonical URLs |
+| `NEXT_PUBLIC_SUPABASE_URL` | `https://xxxx.supabase.co` | Supabase project URL |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | `eyJ...` | Supabase anon/public key for client-side queries |
+| `NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME` | `niagn9pn` | Cloudinary cloud name for direct uploads |
+| `NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET` | `almas_bridal` | Cloudinary unsigned upload preset |
+| `NEXT_PUBLIC_ADMIN_EMAILS` | `admin@yourdomain.com` | Additional admin emails (comma-separated), beyond hardcoded list |
+
+### 3.2 Server-only (never exposed to browser)
+
+| Variable | Purpose |
+| :--- | :--- |
+| `SUPABASE_SERVICE_ROLE_KEY` | Supabase service role key — used in all admin API routes for privileged DB access |
+| `CLOUDINARY_API_KEY` | Cloudinary API key — for media listing and deletion via Admin API |
+| `CLOUDINARY_API_SECRET` | Cloudinary API secret — for signed Cloudinary Admin API requests |
+| `RAZORPAY_KEY_ID` | Razorpay key ID — for payment order creation |
+| `RAZORPAY_KEY_SECRET` | Razorpay secret — for payment signature verification |
+| `SMTP_HOST` | SMTP server host (e.g. `smtp.gmail.com`) |
+| `SMTP_PORT` | SMTP port (e.g. `587`) |
+| `SMTP_USER` | SMTP sender email address |
+| `SMTP_PASS` | SMTP app password (Gmail: 16-char app password) |
+| `ADMIN_EMAIL` | `almasladiescornersakchi@gmail.com` — receives order notification emails |
+
+### 3.3 Hardcoded Admin Emails (`lib/auth-helper.ts`)
+
+These emails have admin access regardless of `NEXT_PUBLIC_ADMIN_EMAILS`:
+
+```
+faisal301196@gmail.com
+almasladiescornersakchi@gmail.com
+```
+
+Admin access is granted when the signed-in Supabase user's email matches any entry in the combined list.
 
 ---
 
-## 5. Directory Structure
+## 4. Design System
+
+### 4.1 Color Palette
+
+| Role | Hex | Usage |
+| :--- | :--- | :--- |
+| **Deep Luxury Green** | `#022c22` | Header, footer, primary buttons, active category pills |
+| **Forest Hover** | `#064e3b` | Button hover states, accent sections |
+| **Royal Gold** | `#D4AF37` | Logo accents, badges, CTA text on dark backgrounds, active states |
+| **Canvas Background** | `#FAF9F6` | Page background |
+| **Surface White** | `#FFFFFF` | Cards, modals, sidebar panels |
+| **Text Primary** | `#022c22` / `#171717` | Headings, product names |
+| **Text Muted** | `#525252` / `#9CA3AF` | Descriptions, metadata, sub-labels |
+
+### 4.2 Typography
+
+| Role | Font | Usage |
+| :--- | :--- | :--- |
+| **Display / Brand** | `Playfair Display` (Serif) | Hero titles, product names, section headings, logo |
+| **Body / UI** | `Inter` (Sans-Serif) | Body copy, buttons, inputs, navigation, prices |
+
+### 4.3 Business Rules
+
+| Rule | Value |
+| :--- | :--- |
+| **Free Shipping Threshold** | Orders ≥ ₹1,999 → FREE shipping |
+| **Standard Shipping** | Orders < ₹1,999 → ₹49 flat rate |
+| **Pagination (Shop)** | 20 products per page, infinite scroll |
+| **Pagination (Admin Products)** | 20 products per page |
+| **Admin Media Page Size** | 10 images per page (Cloudinary cursor-based) |
+
+---
+
+## 5. Key API Routes
+
+### Storefront
+
+| Method | Route | Purpose |
+| :--- | :--- | :--- |
+| `GET` | `/api/products` | List products — supports `page`, `limit`, `search`, `category`, `style`, `material_type`, `color`, `price_min`, `price_max`, `sort`, `archived` |
+| `POST` | `/api/products` | Create product (admin auth required) |
+| `GET` | `/api/products/[id]` | Single product detail |
+| `PUT` | `/api/products/[id]` | Update product (admin auth required) |
+| `DELETE` | `/api/products/[id]` | Delete product (admin auth required) |
+| `GET` | `/api/orders/track` | Order tracking by tracking number |
+| `POST` | `/api/orders/cancel` | Cancel an order |
+| `POST` | `/api/payment/create-order` | Create Razorpay payment order |
+| `POST` | `/api/payment/success` | Verify Razorpay signature & place order |
+| `POST` | `/api/coupons/validate` | Validate a coupon code |
+| `GET` | `/api/ping` | Health check |
+
+### Admin (all require admin auth)
+
+| Method | Route | Purpose |
+| :--- | :--- | :--- |
+| `GET/POST/PUT/DELETE` | `/api/admin/categories` | Category CRUD |
+| `GET/POST/PUT/DELETE` | `/api/admin/coupons` | Coupon CRUD |
+| `GET/PUT` | `/api/admin/orders` | Order list and status updates |
+| `DELETE` | `/api/admin/orders/[id]` | Delete order |
+| `GET` | `/api/admin/customers` | Customer list |
+| `GET` | `/api/admin/analytics` | Revenue and sales analytics |
+| `GET/DELETE` | `/api/admin/media` | Cloudinary media list and bulk delete |
+| `POST` | `/api/admin/upload` | Cloudinary image upload |
+| `GET/POST` | `/api/admin/settings` | Site settings key-value store |
+| `POST` | `/api/admin/seed` | Seed fallback products to DB |
+| `GET` | `/api/admin/low-stock` | Low stock product alerts |
+
+---
+
+## 6. Database Migrations
+
+Migrations are located in `supabase/migrations/` and applied in order:
+
+| File | Description |
+| :--- | :--- |
+| `001_init.sql` | Initial schema — products, orders, users |
+| `002_seed_products.sql` | Seed initial product data |
+| `003_admin_tables.sql` | Categories, variants, images, order timeline, coupons, site settings, hero slides, shipping |
+| `004_indexes.sql` | Performance indexes |
+| `005_add_style_column.sql` | Add `style` column to products |
+| `006_material_type_and_new_categories.sql` | Add `material_type`, rename categories |
+| `007_coupon_enhancements.sql` | Coupon usage limits, expiry, discount types |
+| `008_rename_bangles_category.sql` | Rename `Bangles & Kadas` → `Bangles & Bracelets` |
+| `009_add_product_archived.sql` | Add `is_archived` boolean for soft-hiding products from shop |
+
+---
+
+## 7. Directory Structure
 
 ```
 ├── app/
-│   ├── layout.tsx              # Root Next.js layout (Fonts, Meta, Favicons, Providers)
-│   ├── page.tsx                # Homepage (Hero, Lookbook, Value Props, Testimonials)
-│   ├── providers.tsx           # Context providers wrapper (Auth, Cart, Wishlist, Search)
-│   ├── about/                  # About Us page route
-│   ├── faq/                    # Interactive FAQ Accordion page route
-│   ├── blog/                   # Jewelry Blog & Bridal Guide page route
-│   ├── shipping/               # Shipping & Delivery details page route
-│   ├── returns/                # Return & Exchange policy page route
-│   ├── terms/                  # Terms & Conditions legal page route
-│   ├── privacy/                # Privacy Policy page route
-│   ├── shop/                   # Filterable shop catalog page route
-│   ├── product/[id]/           # Product detail page route with gallery
-│   ├── cart/                   # Shopping cart page route
-│   ├── checkout/               # Checkout & payment page route
-│   ├── track/                  # Live order tracking page route
-│   ├── profile/                # Customer profile & order history page route
-│   ├── reset-password/         # Security password reset route
-│   ├── admin/                  # Administrative management portal routes
-│   │   ├── page.tsx            # Admin dashboard
-│   │   ├── products/           # Product CRUD & image uploader
-│   │   ├── orders/             # Order fulfillment management
-│   │   ├── categories/         # Category management
-│   │   ├── customers/          # Customer directory
-│   │   ├── coupons/            # Coupon code manager
-│   │   ├── analytics/          # Recharts revenue & sales analytics
-│   │   ├── media/              # Media asset uploader
-│   │   ├── seo/                # SEO metadata settings
-│   │   └── settings/           # Store & shipping configuration
-│   └── api/                    # Next.js Server Route Handlers
-│       ├── products/           # GET/POST/PUT/DELETE products API
-│       ├── orders/             # Order placement & status API
-│       └── admin/              # Protected admin API handlers
+│   ├── layout.tsx                  # Root layout (fonts, meta, providers)
+│   ├── page.tsx                    # Homepage (hero, editorial drops, lookbook, reviews)
+│   ├── providers.tsx               # Auth, Cart, Wishlist, Search context wrappers
+│   ├── shop/page.tsx               # Shop — infinite scroll, server-side filtering, sidebar
+│   ├── product/[id]/page.tsx       # Product detail — gallery, variants, add to cart
+│   ├── cart/page.tsx               # Cart with shipping threshold calculation
+│   ├── checkout/page.tsx           # Checkout — address, coupon, Razorpay payment
+│   ├── track/page.tsx              # Order tracking by tracking number
+│   ├── profile/page.tsx            # Customer profile and order history
+│   ├── wishlist/page.tsx           # Saved wishlist items
+│   ├── success/page.tsx            # Post-payment success page
+│   ├── reset-password/page.tsx     # Password reset flow
+│   ├── about/ faq/ blog/           # Informational pages
+│   ├── shipping/ returns/          # Policy pages
+│   ├── terms/ privacy/             # Legal pages
+│   ├── admin/
+│   │   ├── page.tsx                # Dashboard — KPI cards, recent orders
+│   │   ├── products/page.tsx       # Product CRUD, archive/unarchive, image upload
+│   │   ├── orders/page.tsx         # Order fulfillment and status management
+│   │   ├── categories/page.tsx     # Category CRUD (stored in Supabase DB)
+│   │   ├── customers/page.tsx      # Customer directory
+│   │   ├── coupons/page.tsx        # Coupon code management
+│   │   ├── analytics/page.tsx      # Recharts revenue and sales analytics
+│   │   ├── media/page.tsx          # Cloudinary media library — upload, bulk delete
+│   │   ├── seo/page.tsx            # SEO metadata configuration
+│   │   └── settings/page.tsx       # Store configuration — shipping, announcements
+│   └── api/                        # Next.js Route Handlers (see Section 5)
 ├── components/
-│   ├── Navbar.tsx              # Sticky header with logo, navigation & action icons
-│   ├── Footer.tsx              # 2-column mobile side-by-side brand footer
-│   ├── RuviaLogo.tsx           # Official Ruvia Jewels brand logo component
-│   ├── MobileBottomNav.tsx     # Fixed 5-tab mobile navigation bar
-│   ├── StorefrontShell.tsx     # Main layout wrapper with header, footer & search modal
-│   ├── SearchModal.tsx         # Interactive real-time search modal overlay
-│   ├── AuthModal.tsx           # Multi-mode login/register modal
-│   ├── WhatsAppButton.tsx      # Floating WhatsApp chat widget
-│   └── admin/                  # Sidebar, Toast, ConfirmModal admin components
+│   ├── Navbar.tsx                  # Sticky header — logo, nav links, cart/wishlist icons
+│   ├── Footer.tsx                  # Footer — brand, quick links (2-col), contact
+│   ├── RuviaLogo.tsx               # Brand logo component
+│   ├── MobileBottomNav.tsx         # Fixed 5-tab mobile bottom navigation
+│   ├── StorefrontShell.tsx         # Layout wrapper — header, footer, search modal
+│   ├── SearchModal.tsx             # Real-time search overlay
+│   ├── AuthModal.tsx               # Sign-in / register / reset modal
+│   ├── WhatsAppButton.tsx          # Floating WhatsApp chat button
+│   └── admin/
+│       ├── Sidebar.tsx             # Admin navigation sidebar
+│       ├── Toast.tsx               # Toast notification system
+│       └── ConfirmModal.tsx        # Reusable delete confirmation modal
 ├── contexts/
-│   ├── AuthContext.tsx         # Supabase authentication context
-│   ├── CartContext.tsx         # Shopping cart context with local storage persistence
-│   ├── WishlistContext.tsx     # Wishlist context with local storage persistence
-│   └── SearchContext.tsx       # Search modal toggle context
+│   ├── AuthContext.tsx             # Supabase auth state
+│   ├── CartContext.tsx             # Cart state with localStorage persistence
+│   ├── WishlistContext.tsx         # Wishlist state with localStorage persistence
+│   └── SearchContext.tsx           # Search modal open/close state
 ├── lib/
-│   ├── data.ts                 # Product interface, fallback product data & constants
-│   ├── admin-utils.ts          # Admin API fetch wrappers & price formatting
-│   ├── auth-helper.ts          # Admin email authorization checks
-│   ├── email.ts                # Transactional Nodemailer email templates
-│   ├── utils.ts                # Tailwind class merge helper (cn)
-│   └── supabase/               # Supabase browser & server client initializers
+│   ├── data.ts                     # Product type, CATEGORIES, IMAGES constants, fallback data
+│   ├── admin-utils.ts              # adminFetch wrapper, formatPrice
+│   ├── auth-helper.ts              # requireAdmin / requireAuth — email-based access control
+│   ├── email.ts                    # Nodemailer order confirmation email templates
+│   ├── utils.ts                    # cn() class merge helper
+│   └── supabase/
+│       ├── client.ts               # Browser Supabase client
+│       ├── server.ts               # Server-side Supabase client (SSR cookies)
+│       └── admin.ts                # Service-role Supabase client for admin API routes
+├── supabase/
+│   └── migrations/                 # Versioned SQL migration files (see Section 6)
 ├── public/
 │   ├── images/
-│   │   ├── ruvia-logo.jpg      # Official Ruvia Jewels master logo image
-│   │   └── ruvia-logo-circle.png # High-res circular PNG logo asset
-│   ├── favicon.ico             # Circular browser favicon icon
-│   └── icon.png                # App router favicon icon
-├── package.json                # Project dependencies & npm scripts
-├── tailwind.config.js          # Tailwind CSS theme configuration
-└── tsconfig.json               # TypeScript compiler configuration
+│   │   ├── ruvia-logo.jpg          # Brand logo
+│   │   └── ruvia-logo-circle.png   # Circular logo asset
+│   ├── favicon.ico
+│   └── icon.png
+├── .env.example                    # Environment variable template
+├── .env.local                      # Local development secrets (gitignored)
+├── next.config.mjs                 # Next.js config — Cloudinary + Google remote image patterns
+├── tailwind.config.ts              # Tailwind theme configuration
+├── vercel.json                     # Vercel deployment configuration
+├── package.json                    # Dependencies and scripts
+└── tsconfig.json                   # TypeScript configuration
 ```
+
+---
+
+## 8. Local Development Setup
+
+```bash
+# 1. Install dependencies
+npm install
+
+# 2. Copy environment template
+cp .env.example .env.local
+# Fill in all values in .env.local
+
+# 3. Apply database migrations
+# Open Supabase Dashboard → SQL Editor → run each file in supabase/migrations/ in order
+
+# 4. Start development server
+npm run dev
+# App runs at http://localhost:3000
+# Admin portal at http://localhost:3000/admin
+
+# 5. Type check
+npm run typecheck
+
+# 6. Lint
+npm run lint
+```
+
+---
+
+## 9. Deployment (Vercel)
+
+1. Push code to `main` branch on GitHub
+2. Vercel auto-deploys on every push
+3. Set all variables from **Section 3** in **Vercel Dashboard → Project → Settings → Environment Variables**
+4. Run any new migration SQL files via **Supabase Dashboard → SQL Editor**
