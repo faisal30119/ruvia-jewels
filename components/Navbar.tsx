@@ -260,7 +260,7 @@ export default function Navbar() {
             {/* Mobile hamburger */}
             <button
               onClick={() => setMobileOpen((v) => !v)}
-              className="lg:hidden p-1.5 sm:p-2 text-white/90 hover:text-[#D4AF37] transition-colors ml-0.5 shrink-0"
+              className="lg:hidden p-1.5 sm:p-2 text-white hover:text-[#D4AF37] transition-colors ml-0.5 shrink-0 bg-[#022c22]/70 rounded-md"
               aria-label="Menu"
             >
               {mobileOpen ? <X className="w-5 h-5 sm:w-6 sm:h-6" /> : <Menu className="w-5 h-5 sm:w-6 sm:h-6" />}
