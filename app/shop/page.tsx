@@ -74,6 +74,13 @@ function ShopContent() {
       .finally(() => setLoading(false));
   }, []);
 
+  // Only show categories that have at least one product
+  const dynamicCategories = useMemo(() => {
+    const inProducts = new Set(products.map((p) => p.category.trim().toLowerCase()));
+    const ordered = CATEGORIES.filter((c) => c === 'All' || inProducts.has(c.toLowerCase()));
+    return ordered;
+  }, [products]);
+
   // Only show materials that at least one product actually has
   const dynamicMaterials = useMemo(() => {
     const fromProducts = products
@@ -253,7 +260,7 @@ function ShopContent() {
             <span className="hidden sm:inline">Categories:</span>
           </div>
 
-          {CATEGORIES.map((cat) => {
+          {dynamicCategories.map((cat) => {
             const isSelected = selectedCategory === cat || (!selectedCategory && cat === 'All');
 
             return (
