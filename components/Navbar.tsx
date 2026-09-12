@@ -86,27 +86,30 @@ export default function Navbar() {
         navBg
       )}
     >
-      <div className="max-w-7xl mx-auto px-2.5 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 lg:h-20">
           {/* Back / Forward & Logo */}
-          <div className="flex items-center gap-0.5 sm:gap-1.5 shrink-0">
+          <div className="flex items-center gap-0 sm:gap-1.5 shrink-0 min-w-0">
+            {/* Chevrons: smaller on mobile */}
             <button
               onClick={() => router.back()}
-              className="p-1 sm:p-1.5 text-white/80 hover:text-[#D4AF37] hover:bg-white/10 rounded-full transition-colors shrink-0"
+              className="p-0.5 sm:p-1.5 text-white/80 hover:text-[#D4AF37] hover:bg-white/10 rounded-full transition-colors shrink-0"
               title="Go Back"
               aria-label="Go Back"
             >
-              <ChevronLeft size={20} />
+              <ChevronLeft size={16} className="sm:w-5 sm:h-5" />
             </button>
             <button
               onClick={() => router.forward()}
-              className="p-1 sm:p-1.5 text-white/80 hover:text-[#D4AF37] hover:bg-white/10 rounded-full transition-colors shrink-0"
+              className="p-0.5 sm:p-1.5 text-white/80 hover:text-[#D4AF37] hover:bg-white/10 rounded-full transition-colors shrink-0"
               title="Go Forward"
               aria-label="Go Forward"
             >
-              <ChevronRight size={20} />
+              <ChevronRight size={16} className="sm:w-5 sm:h-5" />
             </button>
-            <RuviaLogo variant="light" size="lg" className="ml-0.5 sm:ml-2 scale-90 xs:scale-95 sm:scale-100 origin-left shrink-0" />
+            {/* Logo: sm size on mobile, lg on desktop */}
+            <RuviaLogo variant="light" size="sm" className="sm:hidden ml-0.5 shrink-0" />
+            <RuviaLogo variant="light" size="lg" className="hidden sm:flex ml-1 sm:ml-2 shrink-0" />
           </div>
 
 
@@ -146,10 +149,10 @@ export default function Navbar() {
             {/* Search */}
             <button
               onClick={openSearch}
-              className="p-1.5 text-white/90 hover:text-[#D4AF37] transition-colors shrink-0"
+              className="p-1 sm:p-1.5 text-white/90 hover:text-[#D4AF37] transition-colors shrink-0"
               aria-label="Search"
             >
-              <Search className="w-[18px] h-[18px] sm:w-[22px] sm:h-[22px]" />
+              <Search size={17} className="sm:w-[22px] sm:h-[22px]" />
             </button>
 
             {/* Wishlist */}
