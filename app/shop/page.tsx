@@ -1,9 +1,9 @@
 'use client';
 
-import React, { useEffect, useState, useCallback, useMemo } from 'react';
+import React, { useEffect, useState, useCallback, useMemo, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Heart, SlidersHorizontal, X, Loader2, ShoppingBag, Check, Sparkles, Search, ChevronRight } from 'lucide-react';
+import { Heart, SlidersHorizontal, X, Loader2, ShoppingBag, Check, Sparkles, Search } from 'lucide-react';
 import {
   FALLBACK_PRODUCTS,
   CATEGORIES,
@@ -43,19 +43,34 @@ function getVariantColorSwatch(label: string): string | null {
   return null;
 }
 
+const PAGE_SIZE = 20;
+
 function ShopContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { isWishlisted, toggleWishlist } = useWishlist();
   const { addToCart } = useCart();
 
+  // Product list state
   const [products, setProducts] = useState<Product[]>([]);
+  const [hasMore, setHasMore] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+
+  // All pagination/fetch state lives in one ref — never stale, never causes re-renders
+  const stateRef = useRef({ page: 1, fetching: false, hasMore: false, abortCtrl: null as AbortController | null });
+
+  // Sidebar options — loaded once from full catalogue (no filters)
+  const [allCatalog, setAllCatalog] = useState<Product[]>([]);
+
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [quickProduct, setQuickProduct] = useState<Product | null>(null);
   const [quickVariant, setQuickVariant] = useState<ProductVariant | null>(null);
   const [quickQty, setQuickQty] = useState(1);
   const [quickAdded, setQuickAdded] = useState(false);
+
+  // Sentinel callback ref — observer attaches the moment the element mounts
+  const observerRef = useRef<IntersectionObserver | null>(null);
 
   const searchQuery = searchParams.get('search') ?? searchParams.get('q') ?? '';
   const selectedCategory = searchParams.get('category') ?? '';
@@ -65,57 +80,166 @@ function ShopContent() {
   const selectedPrice = searchParams.get('price') ?? '';
   const sortBy = searchParams.get('sort') ?? '';
 
+  // Build API URL for a given page — pure function, no deps needed
+  function buildUrl(p: number) {
+    const params = new URLSearchParams();
+    params.set('page', String(p));
+    params.set('limit', String(PAGE_SIZE));
+    if (searchQuery)    params.set('search', searchQuery);
+    if (selectedCategory && selectedCategory !== 'All') params.set('category', selectedCategory);
+    if (selectedStyle && selectedStyle !== 'All Styles') params.set('style', selectedStyle);
+    if (selectedMaterial && selectedMaterial !== 'All Materials') params.set('material_type', selectedMaterial);
+    if (selectedColor && selectedColor !== 'All') params.set('color', selectedColor);
+    const priceRange = selectedPrice ? PRICE_RANGES.find((r) => r.label === selectedPrice) : null;
+    if (priceRange) {
+      params.set('price_min', String(priceRange.min));
+      params.set('price_max', String(priceRange.max));
+    }
+    if (sortBy) params.set('sort', sortBy);
+    return `/api/products?${params.toString()}`;
+  }
+
+  // Fetch first page — abort any in-flight request first
   useEffect(() => {
+    // Cancel any previous fetch (filter change / loadMore still running)
+    if (stateRef.current.abortCtrl) stateRef.current.abortCtrl.abort();
+    const ctrl = new AbortController();
+    stateRef.current = { page: 1, fetching: true, hasMore: false, abortCtrl: ctrl };
+
     setLoading(true);
-    fetch('/api/products')
+    setProducts([]);
+    setHasMore(false);
+    setLoadingMore(false);
+
+    fetch(buildUrl(1), { signal: ctrl.signal })
       .then((r) => r.json())
-      .then((data: Product[]) => setProducts(Array.isArray(data) && data.length > 0 ? data : FALLBACK_PRODUCTS))
-      .catch(() => setProducts(FALLBACK_PRODUCTS))
+      .then((res) => {
+        const items: Product[] = Array.isArray(res) ? res : (res.data ?? []);
+        const count: number = Array.isArray(res) ? res.length : (res.count ?? items.length);
+        const more = items.length === PAGE_SIZE && count > PAGE_SIZE;
+        if (items.length === 0) {
+          setProducts(FALLBACK_PRODUCTS);
+        } else {
+          setProducts(items);
+        }
+        stateRef.current.hasMore = more;
+        stateRef.current.fetching = false;
+        setHasMore(more);
+      })
+      .catch((err) => { if (err.name !== 'AbortError') { setProducts(FALLBACK_PRODUCTS); setHasMore(false); } })
       .finally(() => setLoading(false));
+
+    return () => ctrl.abort(); // cleanup on unmount or next filter change
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchQuery, selectedCategory, selectedStyle, selectedMaterial, selectedColor, selectedPrice, sortBy]);
+
+  // Load next page — called by IntersectionObserver
+  const loadMore = useCallback(() => {
+    const s = stateRef.current;
+    if (s.fetching || !s.hasMore) return;
+
+    const nextPage = s.page + 1;
+    const ctrl = new AbortController();
+    s.fetching = true;
+    s.abortCtrl = ctrl;
+    setLoadingMore(true);
+
+    fetch(buildUrl(nextPage), { signal: ctrl.signal })
+      .then((r) => r.json())
+      .then((res) => {
+        const items: Product[] = Array.isArray(res) ? res : (res.data ?? []);
+        const count: number = Array.isArray(res) ? res.length : (res.count ?? 0);
+        const more = items.length === PAGE_SIZE && nextPage * PAGE_SIZE < count;
+        setProducts((prev) => {
+          // Deduplicate by id just in case
+          const ids = new Set(prev.map((p) => p.id));
+          return [...prev, ...items.filter((p) => !ids.has(p.id))];
+        });
+        s.page = nextPage;
+        s.hasMore = more;
+        s.fetching = false;
+        setHasMore(more);
+      })
+      .catch((err) => { if (err.name !== 'AbortError') { s.hasMore = false; setHasMore(false); } })
+      .finally(() => { s.fetching = false; setLoadingMore(false); });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchQuery, selectedCategory, selectedStyle, selectedMaterial, selectedColor, selectedPrice, sortBy]);
+
+  // Stable ref so the observer callback always calls the latest loadMore
+  const loadMoreRef = useRef(loadMore);
+  useEffect(() => { loadMoreRef.current = loadMore; }, [loadMore]);
+
+  // Callback ref — observer attaches the moment the sentinel mounts
+  const setSentinel = useCallback((el: HTMLDivElement | null) => {
+    if (observerRef.current) { observerRef.current.disconnect(); observerRef.current = null; }
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      (entries) => { if (entries[0].isIntersecting) loadMoreRef.current(); },
+      { rootMargin: '400px' }
+    );
+    observer.observe(el);
+    observerRef.current = observer;
   }, []);
 
-  // Only show categories that have at least one product
-  const dynamicCategories = useMemo(() => {
-    const inProducts = new Set(products.map((p) => p.category.trim().toLowerCase()));
-    const ordered = CATEGORIES.filter((c) => c === 'All' || inProducts.has(c.toLowerCase()));
-    return ordered;
-  }, [products]);
+  // Load full catalogue once for sidebar filter options
+  useEffect(() => {
+    fetch('/api/products')
+      .then((r) => r.json())
+      .then((data: Product[]) => setAllCatalog(Array.isArray(data) ? data : []))
+      .catch(() => {});
+  }, []);
 
-  // Only show materials that at least one product actually has
+  // Sidebar filter options derived from full catalogue
+  const dynamicCategories = useMemo(() => {
+    const inProducts = new Set(allCatalog.map((p) => p.category.trim().toLowerCase()));
+    return CATEGORIES.filter((c) => c === 'All' || inProducts.has(c.toLowerCase()));
+  }, [allCatalog]);
+
   const dynamicMaterials = useMemo(() => {
-    const fromProducts = products
-      .map((p) => p.material_type?.trim())
-      .filter((m): m is string => !!m);
-    // Preserve standard order for values that exist, then append any custom ones
+    const fromProducts = allCatalog.map((p) => p.material_type?.trim()).filter((m): m is string => !!m);
     const inProducts = new Set(fromProducts.map((m) => m.toLowerCase()));
     const ordered = MATERIALS.filter((m) => m !== 'All Materials' && inProducts.has(m.toLowerCase()));
     const custom = fromProducts.filter((m) => !MATERIALS.map((x) => x.toLowerCase()).includes(m.toLowerCase()));
     const unique = Array.from(new Set([...ordered, ...custom]));
     return unique.length > 0 ? ['All Materials', ...unique] : ['All Materials'];
-  }, [products]);
+  }, [allCatalog]);
 
-  // Only show styles that at least one product actually has
   const dynamicStyles = useMemo(() => {
-    const fromProducts = products
-      .map((p) => p.style?.trim())
-      .filter((s): s is string => !!s);
-    // Preserve standard order for values that exist, then append any custom ones
+    const fromProducts = allCatalog.map((p) => p.style?.trim()).filter((s): s is string => !!s);
     const inProducts = new Set(fromProducts.map((s) => s.toLowerCase()));
     const ordered = STYLES.filter((s) => s !== 'All Styles' && inProducts.has(s.toLowerCase()));
     const custom = fromProducts.filter((s) => !STYLES.map((x) => x.toLowerCase()).includes(s.toLowerCase()));
     const unique = Array.from(new Set([...ordered, ...custom]));
     return unique.length > 0 ? ['All Styles', ...unique] : ['All Styles'];
-  }, [products]);
+  }, [allCatalog]);
 
-  // Build dynamic color list from loaded products (custom stone colors not in COLORS preset)
   const dynamicColors = useMemo(() => {
     const presetNames = COLORS.map((c) => c.name.toLowerCase());
-    const fromProducts = products
-      .map((p) => p.stoneColor?.trim() ?? p.color?.trim())
-      .filter((c): c is string => !!c && !presetNames.includes(c.toLowerCase()));
-    const customUnique = Array.from(new Set(fromProducts));
-    return customUnique;
-  }, [products]);
+    return Array.from(new Set(
+      allCatalog.map((p) => p.stoneColor?.trim() ?? p.color?.trim())
+        .filter((c): c is string => !!c && !presetNames.includes(c.toLowerCase()))
+    ));
+  }, [allCatalog]);
+
+  // Count products per style from full catalogue
+  const styleCounts = useMemo(() => {
+    const counts: Record<string, number> = {};
+    allCatalog.forEach((p) => {
+      const s = p.style?.trim();
+      if (s) counts[s] = (counts[s] ?? 0) + 1;
+    });
+    return counts;
+  }, [allCatalog]);
+
+  // Count products per material from full catalogue
+  const materialCounts = useMemo(() => {
+    const counts: Record<string, number> = {};
+    allCatalog.forEach((p) => {
+      const m = p.material_type?.trim();
+      if (m) counts[m] = (counts[m] ?? 0) + 1;
+    });
+    return counts;
+  }, [allCatalog]);
 
   function setFilter(key: string, value: string) {
     const params = new URLSearchParams(searchParams.toString());
@@ -131,109 +255,14 @@ function ShopContent() {
     router.push('/shop');
   }
 
-  const filteredProducts = useCallback((): Product[] => {
-    let list = [...products];
-
-    if (searchQuery) {
-      const q = searchQuery.toLowerCase().trim();
-      list = list.filter(
-        (p) =>
-          p.name.toLowerCase().includes(q) ||
-          p.category.toLowerCase().includes(q) ||
-          p.description?.toLowerCase().includes(q) ||
-          p.style?.toLowerCase().includes(q) ||
-          p.plating?.toLowerCase().includes(q) ||
-          p.stoneColor?.toLowerCase().includes(q) ||
-          p.trendTag?.toLowerCase().includes(q) ||
-          p.material_type?.toLowerCase().includes(q)
-      );
-    }
-    if (selectedCategory && selectedCategory !== 'All') {
-      const catLower = selectedCategory.toLowerCase();
-      list = list.filter((p) => p.category.toLowerCase() === catLower);
-    }
-    if (selectedMaterial && selectedMaterial !== 'All Materials') {
-      const matLower = selectedMaterial.toLowerCase();
-      list = list.filter((p) => {
-        const prodMat = (p.material_type ?? p.material ?? '').toLowerCase();
-        if (prodMat === matLower) return true;
-        // Fallback: legacy products without material_type — fuzzy-match on name/description
-        const nameLower = p.name.toLowerCase();
-        const descLower = p.description?.toLowerCase() ?? '';
-        if (matLower.includes('oxidis')) return prodMat.includes('oxidis') || nameLower.includes('oxidis') || descLower.includes('oxidis');
-        if (matLower.includes('american diamond') || matLower.includes('cz')) return prodMat.includes('cz') || prodMat.includes('american diamond') || nameLower.includes('ad ') || nameLower.includes(' cz') || descLower.includes('cubic zirconia');
-        if (matLower.includes('polki')) return prodMat.includes('polki') || nameLower.includes('polki');
-        if (matLower.includes('kundan')) return prodMat.includes('kundan') || nameLower.includes('kundan');
-        if (matLower.includes('meenakari')) return prodMat.includes('meenakari') || nameLower.includes('meenakari');
-        if (matLower.includes('pearl')) return prodMat.includes('pearl') || nameLower.includes('pearl');
-        if (matLower.includes('gold plated')) return prodMat.includes('gold') || descLower.includes('gold plat');
-        if (matLower.includes('sterling silver')) return prodMat.includes('sterling') || prodMat.includes('925') || descLower.includes('sterling');
-        return false;
-      });
-    }
-    if (selectedStyle && selectedStyle !== 'All Styles') {
-      list = list.filter((p) => p.style?.toLowerCase().includes(selectedStyle.toLowerCase()));
-    }
-    if (selectedColor && selectedColor !== 'All') {
-      const colLower = selectedColor.toLowerCase();
-      list = list.filter((p) => {
-        const stoneLower = p.stoneColor?.toLowerCase() || '';
-        const nameLower = p.name.toLowerCase();
-        const descLower = p.description?.toLowerCase() || '';
-        const matLower = p.material?.toLowerCase() || '';
-
-        if (colLower === 'red') {
-          return stoneLower.includes('red') || stoneLower.includes('ruby') || nameLower.includes('red') || nameLower.includes('ruby') || descLower.includes('red');
-        }
-        if (colLower === 'blue') {
-          return stoneLower.includes('blue') || stoneLower.includes('sapphire') || nameLower.includes('blue') || descLower.includes('blue') || matLower.includes('blue');
-        }
-        if (colLower === 'green') {
-          return stoneLower.includes('green') || stoneLower.includes('emerald') || nameLower.includes('green') || descLower.includes('green') || matLower.includes('emerald');
-        }
-        if (colLower === 'pink') {
-          return stoneLower.includes('pink') || nameLower.includes('pink') || descLower.includes('pink');
-        }
-        if (colLower === 'gold') {
-          return stoneLower.includes('gold') || p.plating?.toLowerCase().includes('gold') || nameLower.includes('gold');
-        }
-        if (colLower.includes('silver') || colLower.includes('clear')) {
-          return stoneLower.includes('clear') || stoneLower.includes('white') || stoneLower.includes('silver') || p.plating?.toLowerCase().includes('silver') || matLower.includes('silver');
-        }
-        if (colLower === 'black') {
-          return stoneLower.includes('black') || stoneLower.includes('spinel') || nameLower.includes('black');
-        }
-
-        return stoneLower.includes(colLower) || nameLower.includes(colLower);
-      });
-    }
-    if (selectedPrice) {
-      const range = PRICE_RANGES.find((r) => r.label === selectedPrice);
-      if (range) list = list.filter((p) => p.price >= range.min && p.price <= range.max);
-    }
-
-    if (sortBy === 'price_asc') list.sort((a, b) => a.price - b.price);
-    else if (sortBy === 'price_desc') list.sort((a, b) => b.price - a.price);
-    else if (sortBy === 'name') list.sort((a, b) => a.name.localeCompare(b.name));
-
-
-    return list;
-  }, [products, searchQuery, selectedCategory, selectedStyle, selectedMaterial, selectedColor, selectedPrice, sortBy]);
-
   // Lock scroll when mobile filter sidebar is open
   useEffect(() => {
-    if (sidebarOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = '';
-    }
-    return () => {
-      document.body.style.overflow = '';
-    };
+    document.body.style.overflow = sidebarOpen ? 'hidden' : '';
+    return () => { document.body.style.overflow = ''; };
   }, [sidebarOpen]);
 
-  const displayed = filteredProducts();
   const hasFilters = !!(selectedCategory || selectedStyle || selectedMaterial || selectedColor || selectedPrice || sortBy);
+  const totalShown = products.length;
 
   return (
     <div className="min-h-screen bg-[#FAF9F6]">
@@ -304,7 +333,7 @@ function ShopContent() {
               <option value="name">Name A-Z</option>
             </select>
           </div>
-          <p className="text-gray-500 text-xs font-sans">{displayed.length} items</p>
+          <p className="text-gray-500 text-xs font-sans">{totalShown} items</p>
         </div>
 
         <div className="flex gap-8">
@@ -314,8 +343,10 @@ function ShopContent() {
               selectedCategory={selectedCategory}
               selectedStyle={selectedStyle}
               availableStyles={dynamicStyles}
+              styleCounts={styleCounts}
               selectedMaterial={selectedMaterial}
               availableMaterials={dynamicMaterials}
+              materialCounts={materialCounts}
               selectedColor={selectedColor}
               customColors={dynamicColors}
               selectedPrice={selectedPrice}
@@ -323,7 +354,7 @@ function ShopContent() {
               setFilter={setFilter}
               clearFilters={clearFilters}
               hasFilters={hasFilters}
-              count={displayed.length}
+              count={totalShown}
             />
           </aside>
 
@@ -349,8 +380,10 @@ function ShopContent() {
                   selectedCategory={selectedCategory}
                   selectedStyle={selectedStyle}
                   availableStyles={dynamicStyles}
+                  styleCounts={styleCounts}
                   selectedMaterial={selectedMaterial}
                   availableMaterials={dynamicMaterials}
+                  materialCounts={materialCounts}
                   selectedColor={selectedColor}
                   customColors={dynamicColors}
                   selectedPrice={selectedPrice}
@@ -362,13 +395,13 @@ function ShopContent() {
                     clearFilters();
                   }}
                   hasFilters={hasFilters}
-                  count={displayed.length}
+                  count={totalShown}
                 />
                 <button
                   onClick={() => setSidebarOpen(false)}
                   className="w-full mt-8 bg-[#022c22] text-[#D4AF37] font-sans text-xs uppercase tracking-widest py-3.5 font-bold rounded-sm shadow-sm"
                 >
-                  View Results ({displayed.length})
+                  View Results ({totalShown})
                 </button>
               </div>
             </div>
@@ -380,7 +413,7 @@ function ShopContent() {
               <div className="flex items-center justify-center h-64">
                 <Loader2 size={36} className="animate-spin text-[#D4AF37]" />
               </div>
-            ) : displayed.length === 0 ? (
+            ) : products.length === 0 ? (
               <div className="text-center py-24 bg-white rounded-sm border border-gray-100 p-8">
                 <p className="text-gray-500 font-serif text-xl mb-2">No pieces match your filters</p>
                 <p className="text-xs text-gray-400 mb-4">Try clearing some filter tags to explore more styles.</p>
@@ -392,26 +425,40 @@ function ShopContent() {
                 </button>
               </div>
             ) : (
-              <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-5">
-                {displayed.map((product) => {
-                  const wished = isWishlisted(product.id);
-                  return (
-                    <ProductCard
-                      key={product.id}
-                      product={product}
-                      wished={wished}
-                      onWishlist={() => toggleWishlist(product.id)}
-                      onAddToCart={() => addToCart(product, 1)}
-                      onSelectOption={() => {
-                        setQuickProduct(product);
-                        setQuickVariant(null);
-                        setQuickQty(1);
-                        setQuickAdded(false);
-                      }}
-                    />
-                  );
-                })}
-              </div>
+              <>
+                <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-5">
+                  {products.map((product) => {
+                    const wished = isWishlisted(product.id);
+                    return (
+                      <ProductCard
+                        key={product.id}
+                        product={product}
+                        wished={wished}
+                        onWishlist={() => toggleWishlist(product.id)}
+                        onAddToCart={() => addToCart(product, 1)}
+                        onSelectOption={() => {
+                          setQuickProduct(product);
+                          setQuickVariant(null);
+                          setQuickQty(1);
+                          setQuickAdded(false);
+                        }}
+                      />
+                    );
+                  })}
+                </div>
+
+                {/* Sentinel + load-more indicator */}
+                <div ref={setSentinel} className="mt-8 flex flex-col items-center gap-2 pb-4">
+                  {loadingMore && (
+                    <Loader2 size={24} className="animate-spin text-[#D4AF37]" />
+                  )}
+                  {!hasMore && !loading && (
+                    <p className="text-xs text-gray-400 font-sans tracking-wider">
+                      All {totalShown} products loaded
+                    </p>
+                  )}
+                </div>
+              </>
             )}
           </div>
         </div>
@@ -610,8 +657,10 @@ interface FilterPanelProps {
   selectedCategory: string;
   selectedStyle: string;
   availableStyles: string[];
+  styleCounts: Record<string, number>;
   selectedMaterial: string;
   availableMaterials: string[];
+  materialCounts: Record<string, number>;
   selectedColor: string;
   customColors: string[];
   selectedPrice: string;
@@ -626,8 +675,10 @@ function FilterPanel({
   selectedCategory,
   selectedStyle,
   availableStyles,
+  styleCounts,
   selectedMaterial,
   availableMaterials,
+  materialCounts,
   selectedColor,
   customColors,
   selectedPrice,
@@ -688,13 +739,18 @@ function FilterPanel({
               key={st}
               onClick={() => setFilter('style', selectedStyle === st ? '' : st === 'All Styles' ? '' : st)}
               className={cn(
-                'block w-full text-left py-1 px-2 rounded-sm transition-colors',
+                'flex w-full items-center justify-between text-left py-1 px-2 rounded-sm transition-colors',
                 selectedStyle === st || (!selectedStyle && st === 'All Styles')
                   ? 'bg-emerald-50 text-[#022c22] font-semibold'
                   : 'text-gray-600 hover:text-emerald-950'
               )}
             >
-              {st}
+              <span>{st}</span>
+              {st !== 'All Styles' && styleCounts[st] !== undefined && (
+                <span className="ml-2 text-[10px] text-gray-400 font-normal tabular-nums">
+                  {styleCounts[st]}
+                </span>
+              )}
             </button>
           ))}
         </div>
@@ -711,13 +767,18 @@ function FilterPanel({
               key={m}
               onClick={() => setFilter('material', selectedMaterial === m ? '' : m === 'All Materials' ? '' : m)}
               className={cn(
-                'block w-full text-left py-1 px-2 rounded-sm transition-colors',
+                'flex w-full items-center justify-between text-left py-1 px-2 rounded-sm transition-colors',
                 selectedMaterial === m || (!selectedMaterial && m === 'All Materials')
                   ? 'bg-emerald-50 text-[#022c22] font-semibold'
                   : 'text-gray-600 hover:text-emerald-950'
               )}
             >
-              {m}
+              <span>{m}</span>
+              {m !== 'All Materials' && materialCounts[m] !== undefined && (
+                <span className="ml-2 text-[10px] text-gray-400 font-normal tabular-nums">
+                  {materialCounts[m]}
+                </span>
+              )}
             </button>
           ))}
         </div>

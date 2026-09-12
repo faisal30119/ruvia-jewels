@@ -1,6 +1,6 @@
 'use client';
 import React, { useEffect, useState, useRef, useMemo, useCallback } from 'react';
-import { Plus, Pencil, Trash2, Search, ChevronLeft, ChevronRight, Upload, X, Star, Image as ImageIcon, Layers, Eye } from 'lucide-react';
+import { Plus, Pencil, Trash2, Search, ChevronLeft, ChevronRight, Upload, X, Star, Image as ImageIcon, Layers, Eye, Archive, ArchiveRestore } from 'lucide-react';
 import { adminFetch, formatPrice } from '@/lib/admin-utils';
 import { useToast } from '@/components/admin/Toast';
 import ConfirmModal from '@/components/admin/ConfirmModal';
@@ -22,6 +22,7 @@ interface Product {
   inclusions: string[];
   variants?: ProductVariant[];
   is_featured: boolean;
+  is_archived: boolean;
   meta_title: string;
   meta_description: string;
   slug: string;
@@ -150,6 +151,7 @@ export default function ProductsPage() {
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
+  const [archivedFilter, setArchivedFilter] = useState<'active' | 'archived'>('active');
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editing, setEditing] = useState<Product | null>(null);
@@ -196,9 +198,10 @@ export default function ProductsPage() {
     }
   }, []);
 
-  async function load(p = page, q = search) {
+  async function load(p = page, q = search, af = archivedFilter) {
     setLoading(true);
-    const res = await adminFetch(`/api/products?page=${p}&limit=${PAGE_SIZE}&search=${q}`);
+    const archived = af === 'archived' ? 'true' : 'false';
+    const res = await adminFetch(`/api/products?page=${p}&limit=${PAGE_SIZE}&search=${q}&archived=${archived}`);
     const data = await res.json();
     setProducts(Array.isArray(data) ? data : data.data ?? []);
     setTotal(data.count ?? (Array.isArray(data) ? data.length : 0));
@@ -603,6 +606,20 @@ export default function ProductsPage() {
     setSaving(false);
   }
 
+  async function archiveProduct(p: Product) {
+    const next = !p.is_archived;
+    const res = await adminFetch(`/api/products/${p.id}`, {
+      method: 'PUT',
+      body: JSON.stringify({ is_archived: next }),
+    });
+    const data = await res.json();
+    if (data.error) toast(data.error, 'error');
+    else {
+      toast(next ? 'Product archived — hidden from shop' : 'Product unarchived — visible in shop');
+      load();
+    }
+  }
+
   async function deleteProduct() {
     if (!deleteTarget) return;
     const res = await adminFetch(`/api/products/${deleteTarget.id}`, { method: 'DELETE' });
@@ -637,19 +654,40 @@ export default function ProductsPage() {
         </button>
       </div>
 
-      {/* Search */}
-      <div className="relative mb-5 max-w-sm">
-        <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-        <input
-          type="text"
-          value={search}
-          placeholder="Search products…"
-          onChange={(e) => {
-            setSearch(e.target.value);
-            load(1, e.target.value);
-          }}
-          className={INPUT + ' pl-9 bg-white'}
-        />
+      {/* Filter tabs + Search */}
+      <div className="flex flex-wrap items-center gap-3 mb-5">
+        <div className="flex border border-gray-200 rounded-sm overflow-hidden text-xs font-medium">
+          {(['active', 'archived'] as const).map((tab) => (
+            <button
+              key={tab}
+              onClick={() => {
+                setArchivedFilter(tab);
+                setPage(1);
+                load(1, search, tab);
+              }}
+              className={`px-4 py-2 capitalize transition-colors ${
+                archivedFilter === tab
+                  ? 'bg-[#022c22] text-white'
+                  : 'bg-white text-gray-600 hover:bg-gray-50'
+              }`}
+            >
+              {tab === 'active' ? 'Active' : 'Archived'}
+            </button>
+          ))}
+        </div>
+        <div className="relative flex-1 max-w-sm">
+          <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+          <input
+            type="text"
+            value={search}
+            placeholder="Search products…"
+            onChange={(e) => {
+              setSearch(e.target.value);
+              load(1, e.target.value);
+            }}
+            className={INPUT + ' pl-9 bg-white'}
+          />
+        </div>
       </div>
 
       {/* Table */}
@@ -663,7 +701,7 @@ export default function ProductsPage() {
               <th className="px-4 py-3">Variants</th>
               <th className="px-4 py-3">Price</th>
               <th className="px-4 py-3">Stock</th>
-              <th className="px-4 py-3">Featured</th>
+              <th className="px-4 py-3">Status</th>
               <th className="px-4 py-3">Actions</th>
             </tr>
           </thead>
@@ -731,11 +769,23 @@ export default function ProductsPage() {
                     </span>
                   </td>
                   <td className="px-4 py-3">
-                    {p.is_featured && (
-                      <span className="text-[11px] bg-yellow-100 text-yellow-800 font-semibold px-2 py-0.5 rounded-sm">
-                        Featured
-                      </span>
-                    )}
+                    <div className="flex flex-col gap-0.5">
+                      {p.is_featured && (
+                        <span className="text-[11px] bg-yellow-100 text-yellow-800 font-semibold px-2 py-0.5 rounded-sm w-fit">
+                          Featured
+                        </span>
+                      )}
+                      {p.is_archived && (
+                        <span className="text-[11px] bg-gray-200 text-gray-600 font-semibold px-2 py-0.5 rounded-sm w-fit flex items-center gap-1">
+                          <Archive size={10} /> Archived
+                        </span>
+                      )}
+                      {!p.is_featured && !p.is_archived && (
+                        <span className="text-[11px] bg-emerald-50 text-emerald-700 font-semibold px-2 py-0.5 rounded-sm w-fit">
+                          Active
+                        </span>
+                      )}
+                    </div>
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-3">
@@ -752,6 +802,13 @@ export default function ProductsPage() {
                         title="Edit product"
                       >
                         <Pencil size={14} />
+                      </button>
+                      <button
+                        onClick={() => archiveProduct(p)}
+                        className={`p-1 rounded ${p.is_archived ? 'text-emerald-600 hover:text-emerald-800 hover:bg-emerald-50' : 'text-gray-400 hover:text-gray-700 hover:bg-gray-100'}`}
+                        title={p.is_archived ? 'Unarchive product' : 'Archive product (hide from shop)'}
+                      >
+                        {p.is_archived ? <ArchiveRestore size={14} /> : <Archive size={14} />}
                       </button>
                       <button
                         onClick={() => setDeleteTarget(p)}

@@ -128,6 +128,7 @@ export async function PUT(
   if (body.description !== undefined) updatePayload.description = body.description;
   if (body.inclusions !== undefined) updatePayload.inclusions = body.inclusions;
   if (body.is_featured !== undefined) updatePayload.is_featured = body.is_featured;
+  if (body.is_archived !== undefined) updatePayload.is_archived = body.is_archived;
   if (body.meta_title !== undefined) updatePayload.meta_title = body.meta_title;
   if (body.meta_description !== undefined) updatePayload.meta_description = body.meta_description;
   if (body.slug !== undefined) updatePayload.slug = body.slug;

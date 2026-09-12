@@ -5,23 +5,86 @@ import { FALLBACK_PRODUCTS } from '@/lib/data';
 
 export async function GET(request: Request) {
   const url = new URL(request.url);
-  const search = url.searchParams.get('search') ?? '';
+  const search        = url.searchParams.get('search') ?? '';
+  const pageParam     = parseInt(url.searchParams.get('page') ?? '1', 10);
+  const limitParam    = parseInt(url.searchParams.get('limit') ?? '0', 10);
+  const isPaginated   = limitParam > 0;
+  const archivedParam = url.searchParams.get('archived');
+
+  // Shop filter params
+  const categoryParam  = url.searchParams.get('category') ?? '';
+  const styleParam     = url.searchParams.get('style') ?? '';
+  const materialParam  = url.searchParams.get('material_type') ?? '';
+  const colorParam     = url.searchParams.get('color') ?? '';
+  const priceMinParam  = url.searchParams.get('price_min');
+  const priceMaxParam  = url.searchParams.get('price_max');
+  const sortParam      = url.searchParams.get('sort') ?? '';
+
+  // Reusable filter applicator
+  function applyFilters(q: any) {
+    if (search)        q = q.ilike('name', `%${search}%`);
+    if (categoryParam) q = q.ilike('category', categoryParam);
+    if (styleParam)    q = q.ilike('style', `%${styleParam}%`);
+    if (materialParam) q = q.ilike('material_type', `%${materialParam}%`);
+    if (colorParam)    q = q.or(`stone_color.ilike.%${colorParam}%,name.ilike.%${colorParam}%`);
+    if (priceMinParam) q = q.gte('price', Number(priceMinParam));
+    if (priceMaxParam) q = q.lte('price', Number(priceMaxParam));
+    return q;
+  }
+
+  // Get total count for paginated requests
+  let totalCount = 0;
+  if (isPaginated) {
+    let countQuery = supabaseAdmin
+      .from('products')
+      .select('*', { count: 'exact', head: true });
+    countQuery = applyFilters(countQuery);
+    if (archivedParam === 'true')       countQuery = countQuery.eq('is_archived', true);
+    else if (archivedParam === 'false') countQuery = countQuery.eq('is_archived', false);
+    else                                countQuery = countQuery.neq('is_archived', true);
+    const { count } = await countQuery;
+    totalCount = count ?? 0;
+  }
+
+  // Sort order
+  let orderCol = 'created_at';
+  let orderAsc = false;
+  if (sortParam === 'price_asc')       { orderCol = 'price'; orderAsc = true; }
+  else if (sortParam === 'price_desc') { orderCol = 'price'; orderAsc = false; }
+  else if (sortParam === 'name')       { orderCol = 'name';  orderAsc = true; }
 
   let query = supabaseAdmin
     .from('products')
     .select('*')
-    .order('created_at', { ascending: false });
+    .order(orderCol, { ascending: orderAsc })
+    .order('id', { ascending: true }); // stable tie-breaker so pagination never skips/duplicates rows
 
-  if (search) query = query.ilike('name', `%${search}%`);
+  query = applyFilters(query);
+
+  // Archive filtering
+  if (!isPaginated) {
+    query = query.neq('is_archived', true);
+  } else if (archivedParam === 'true') {
+    query = query.eq('is_archived', true);
+  } else if (archivedParam === 'false') {
+    query = query.eq('is_archived', false);
+  } else {
+    query = query.neq('is_archived', true);
+  }
+
+  if (isPaginated) {
+    const from = (pageParam - 1) * limitParam;
+    query = query.range(from, from + limitParam - 1);
+  }
 
   const { data, error } = await query;
 
   if (error) {
-    return NextResponse.json(FALLBACK_PRODUCTS);
+    return NextResponse.json(isPaginated ? { data: [], count: 0 } : FALLBACK_PRODUCTS);
   }
 
   if (!data || data.length === 0) {
-    return NextResponse.json(FALLBACK_PRODUCTS);
+    return NextResponse.json(isPaginated ? { data: [], count: 0 } : FALLBACK_PRODUCTS);
   }
 
   // Fetch variants for all returned products
@@ -95,12 +158,16 @@ export async function GET(request: Request) {
       inclusions: p.inclusions ?? [],
       variants: prodVariants,
       is_featured: p.is_featured ?? false,
+      is_archived: p.is_archived ?? false,
       meta_title: p.meta_title ?? '',
       meta_description: p.meta_description ?? '',
       slug: p.slug ?? '',
     };
   });
 
+  if (isPaginated) {
+    return NextResponse.json({ data: products, count: totalCount });
+  }
   return NextResponse.json(products);
 }
 
