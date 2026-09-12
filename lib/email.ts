@@ -54,7 +54,7 @@ function customerEmailHtml(params: {
     <!-- Header -->
     <div style="background:#022c22;padding:28px 32px;">
       <h1 style="margin:0;color:#D4AF37;font-size:22px;letter-spacing:2px;font-weight:700;">RUVIA JEWELS</h1>
-      <p style="margin:6px 0 0;color:#a7c4b5;font-size:13px;">Luxury Bridal Jewelry</p>
+      <p style="margin:6px 0 0;color:#a7c4b5;font-size:13px;">Korean-Inspired · Indo-Western · Everyday Luxury</p>
     </div>
     <!-- Body -->
     <div style="padding:32px;">

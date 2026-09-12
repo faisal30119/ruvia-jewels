@@ -19,7 +19,7 @@ const playfair = Playfair_Display({
 export const metadata: Metadata = {
   title: 'Ruvia Jewels',
   description:
-    'Ruvia Jewels — handcrafted luxury bridal jewelry including Kundan, Polki, Meenakari & more. Shop exclusive bridal sets, necklaces, earrings, and pendants for your special day.',
+    'Ruvia Jewels — Korean-inspired & Indo-Western jewelry. Waterproof, tarnish-free minimal chains, pendants, huggies & stackable rings for everyday luxury.',
   keywords: ['bridal jewelry', 'kundan', 'polki', 'meenakari', 'luxury jewelry', 'Indian bridal'],
   icons: {
     icon: [
@@ -31,7 +31,7 @@ export const metadata: Metadata = {
   },
   openGraph: {
     title: 'Ruvia Jewels',
-    description: 'Handcrafted luxury bridal jewelry for your special day.',
+    description: 'Korean-inspired · Indo-Western · Everyday Luxury',
     type: 'website',
   },
 };
